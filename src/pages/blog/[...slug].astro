@@ -1,0 +1,103 @@
+---
+// 文章详情页
+export async function getStaticPaths() {
+  const posts = await Astro.glob('../../content/blog/*.md');
+  
+  return posts.map(post => ({
+    params: { 
+      slug: post.file.split('/').pop().replace('.md', '') 
+    },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = post;
+---
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{post.frontmatter.title}</title>
+  <meta name="description" content={post.frontmatter.description}>
+  <link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 text-gray-900">
+  <div class="max-w-3xl mx-auto px-4 py-8">
+    <!-- 导航 -->
+    <nav class="mb-8">
+      <a href="/" class="text-blue-600 hover:underline">← 返回首页</a>
+    </nav>
+
+    <!-- 搜索框（简化版） -->
+    <div class="mb-8">
+      <div id="search"></div>
+    </div>
+
+    <!-- 文章头部 -->
+    <header class="mb-8">
+      <div class="flex items-center gap-2 text-sm text-gray-500 mb-4">
+        <time datetime={post.frontmatter.date}>
+          {new Date(post.frontmatter.date).toLocaleDateString('zh-CN')}
+        </time>
+        <span>·</span>
+        <div class="flex gap-2">
+          {post.frontmatter.tags?.map(tag => (
+            <a href={`/tags/${tag}`} class="text-blue-600 hover:underline">#{tag}</a>
+          ))}
+        </div>
+      </div>
+      
+      <h1 class="text-3xl md:text-4xl font-bold mb-4">{post.frontmatter.title}</h1>
+      
+      {post.frontmatter.description && (
+        <p class="text-xl text-gray-600 leading-relaxed">{post.frontmatter.description}</p>
+      )}
+    </header>
+
+    <!-- 文章内容 -->
+    <article class="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-blue-600">
+      <Content />
+    </article>
+
+    <!-- 文章底部 -->
+    <footer class="mt-12 pt-8 border-t">
+      {post.frontmatter.source && (
+        <div class="mb-4 p-4 bg-blue-50 rounded-lg">
+          <p class="text-sm text-gray-600">
+            <span class="font-semibold">参考资料：</span>
+            <a href={post.frontmatter.source} target="_blank" class="text-blue-600 hover:underline">
+              {post.frontmatter.source}
+            </a>
+          </p>
+        </div>
+      )}
+      
+      <div class="flex justify-between items-center">
+        <a href="/" class="text-blue-600 hover:underline">← 返回文章列表</a>
+        
+        <!-- 分享按钮 -->
+        <div class="flex gap-2">
+          <button onclick="navigator.clipboard.writeText(window.location.href)" class="px-4 py-2 bg-gray-100 rounded-lg text-sm hover:bg-gray-200 transition">
+            复制链接
+          </button>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Pagefind搜索 -->
+  <script src="/pagefind/pagefind-ui.js" type="text/javascript"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      new PagefindUI({ 
+        element: "#search",
+        placeholder: "搜索...",
+        showSubResults: true
+      });
+    });
+  </script>
+</body>
+</html>

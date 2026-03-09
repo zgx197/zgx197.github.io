@@ -1,0 +1,117 @@
+---
+// 博客首页
+const posts = await Astro.glob('../content/blog/*.md');
+
+// 只显示已发布的文章
+const publishedPosts = posts
+  .filter(post => post.frontmatter.status === 'published')
+  .sort((a, b) => new Date(b.frontmatter.date) - new Date(a.frontmatter.date));
+
+// 获取所有标签
+const allTags = [...new Set(publishedPosts.flatMap(post => post.frontmatter.tags || []))];
+---
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的数字花园</title>
+  <meta name="description" content="个人知识库与博客">
+  
+  <!-- Pagefind搜索样式 -->
+  <link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 text-gray-900">
+  <div class="max-w-4xl mx-auto px-4 py-8">
+    <!-- 头部 -->
+    <header class="mb-12 text-center">
+      <h1 class="text-4xl font-bold mb-4">🌱 我的数字花园</h1>
+      <p class="text-gray-600 text-lg">知识的收集、整理与输出</p>
+    </header>
+
+    <!-- 搜索框 -->
+    <div class="mb-8">
+      <div id="search"></div>
+    </div>
+
+    <!-- 标签云 -->
+    <div class="mb-8">
+      <h2 class="text-sm font-semibold text-gray-500 mb-3 uppercase tracking-wide">标签</h2>
+      <div class="flex flex-wrap gap-2">
+        {allTags.map(tag => (
+          <a
+            href={`/tags/${tag}`}
+            class="px-3 py-1 bg-white border border-gray-200 rounded-full text-sm text-gray-600 hover:bg-blue-50 hover:border-blue-300 transition"
+          >
+            #{tag}
+          </a>
+        ))}
+      </div>
+    </div>
+
+    <!-- 文章列表 -->
+    <div class="space-y-6">
+      <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide">最近文章</h2>
+      
+      {publishedPosts.length === 0 ? (
+        <div class="text-center py-12 text-gray-400">
+          <p>暂无文章，开始写作吧！</p>
+        </div>
+      ) : (
+        publishedPosts.map(post => (
+          <article class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition">
+            <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
+              <time datetime={post.frontmatter.date}>
+                {new Date(post.frontmatter.date).toLocaleDateString('zh-CN')}
+              </time>
+              {post.frontmatter.tags?.map(tag => (
+                <span class="text-blue-600">#{tag}</span>
+              ))}
+            </div>
+            
+            <h2 class="text-xl font-bold mb-2">
+              <a href={post.url} class="hover:text-blue-600 transition">
+                {post.frontmatter.title}
+              </a>
+            </h2>
+            
+            {post.frontmatter.description && (
+              <p class="text-gray-600 line-clamp-2">{post.frontmatter.description}</p>
+            )}
+          </article>
+        ))
+      )}
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="mt-16 pt-8 border-t text-center text-gray-500 text-sm">
+      <p>用 ❤️ 构建 · 知识管理系统</p>
+    </footer>
+  </div>
+
+  <!-- Pagefind搜索脚本 -->
+  <script src="/pagefind/pagefind-ui.js" type="text/javascript"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      new PagefindUI({ 
+        element: "#search",
+        placeholder: "搜索文章...",
+        translations: {
+          placeholder: "搜索文章...",
+          clear_search: "清除",
+          load_more: "加载更多结果",
+          search_label: "搜索",
+          filters_label: "筛选",
+          zero_results: "没有找到 [SEARCH_TERM] 的结果",
+          many_results: "找到 [COUNT] 个 [SEARCH_TERM] 的结果",
+          one_result: "找到 [COUNT] 个 [SEARCH_TERM] 的结果",
+          alt_search: "没有找到 [SEARCH_TERM] 的结果。显示 [DIFFERENT_TERM] 的结果",
+          search_suggestion: "没有找到 [SEARCH_TERM] 的结果。试试以下搜索：",
+          searching: "正在搜索 [SEARCH_TERM]..."
+        }
+      });
+    });
+  </script>
+</body>
+</html>
