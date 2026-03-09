@@ -26,18 +26,17 @@
 - [GitHub Pages](https://pages.github.com/) - 托管和部署
 - [GitHub Actions](https://github.com/features/actions) - CI/CD 自动化
 
-## 添加文章
+## 使用 Obsidian 写作（推荐）
 
-将 Markdown 文件放入 `src/content/blog/` 目录：
+### 1. 用 Obsidian 打开博客仓库
 
-```bash
-src/content/blog/
-├── hello-world.md
-├── my-article.md
-└── ...
-```
+1. Obsidian → 「打开文件夹作为仓库」
+2. 选择 `D:\UGit\zgx197.github.io`
+3. 左侧文件树只显示 `src/content/blog/`（其他目录已排除）
 
-文章格式：
+### 2. 创建新文章
+
+在 `src/content/blog/` 下新建 Markdown 文件：
 
 ```yaml
 ---
@@ -51,7 +50,26 @@ status: published
 文章内容...
 ```
 
-提交后 GitHub Actions 自动构建部署。
+### 3. 提交并发布
+
+**方法：使用 Obsidian Git 插件**
+
+1. 安装并启用 **Obsidian Git** 插件
+2. `Ctrl+P` 打开命令面板
+3. 输入 `commit and sync` → 选择 **Obsidian Git: Commit and Sync**
+4. 等待底部状态栏显示完成
+5. 1-2 分钟后，博客自动更新
+
+> ⚠️ 注意：快捷键绑定可能有问题，建议使用命令面板操作。
+
+**或者：使用命令行**
+
+```bash
+cd D:\UGit\zgx197.github.io
+git add .
+git commit -m "添加新文章"
+git push
+```
 
 ## 本地开发
 
@@ -78,9 +96,15 @@ npm run build
 │   ├── content/
 │   │   └── blog/          # 博客文章
 │   └── pages/             # 页面路由
+├── docs/                  # 文档
+│   └── obsidian-git-setup.md  # Obsidian Git 详细配置
 ├── astro.config.mjs       # Astro 配置
 └── package.json
 ```
+
+## 详细文档
+
+- [Obsidian Git 配置指南](docs/obsidian-git-setup.md)
 
 ## License
 
