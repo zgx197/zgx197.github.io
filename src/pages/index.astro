@@ -1,10 +1,14 @@
 ---
-// 极简博客首页
+// 首页 - 左右分栏布局
 const posts = await Astro.glob('../content/blog/*.md');
 
 // 排序：最新在前
 const sortedPosts = posts
-  .sort((a, b) => new Date(b.frontmatter.date || 0) - new Date(a.frontmatter.date || 0));
+  .sort((a, b) => new Date(b.frontmatter.date || 0) - new Date(a.frontmatter.date || 0))
+  .map(post => ({
+    ...post,
+    url: `/blog/${post.file.split('/').pop().replace('.md', '')}/`
+  }));
 
 // 获取所有标签
 const allTags = [...new Set(sortedPosts.flatMap(post => post.frontmatter.tags || []))];
@@ -19,140 +23,375 @@ const allTags = [...new Set(sortedPosts.flatMap(post => post.frontmatter.tags ||
   <meta name="description" content="个人博客">
   <link href="/pagefind/pagefind-ui.css" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      line-height: 1.6;
-      color: #333;
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 40px 20px;
-    }
-    header {
-      margin-bottom: 40px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #eee;
-    }
-    h1 {
-      font-size: 20px;
-      font-weight: 600;
-      color: #000;
+    :root {
+      --bg: #f8f9fa;
+      --sidebar-bg: #fff;
+      --text: #1a1a1a;
+      --text-secondary: #555;
+      --text-muted: #888;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --border: #e8e8e8;
+      --card-bg: #fff;
+      --shadow: 0 1px 3px rgba(0,0,0,0.05);
+      --shadow-hover: 0 4px 12px rgba(0,0,0,0.08);
     }
     
-    /* 搜索框 */
-    #search {
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--bg);
+      min-height: 100vh;
+    }
+    
+    /* 布局容器 */
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+    
+    /* 左侧文章列表 */
+    .main-content {
+      flex: 1;
+      padding: 48px 60px;
+      max-width: 800px;
+      margin-left: 320px;
+    }
+    
+    /* 头部 */
+    .header {
       margin-bottom: 40px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .header h1 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    
+    .header a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.2s;
+    }
+    
+    .header a:hover {
+      color: var(--accent);
     }
     
     /* 文章列表 */
     .post-list {
-      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
     }
+    
     .post-item {
-      margin-bottom: 24px;
-      padding-bottom: 24px;
-      border-bottom: 1px solid #f0f0f0;
+      background: var(--card-bg);
+      border-radius: 8px;
+      padding: 20px 24px;
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      display: block;
     }
-    .post-item:last-child {
-      border-bottom: none;
+    
+    .post-item:hover {
+      box-shadow: var(--shadow-hover);
+      border-color: transparent;
     }
+    
     .post-title {
       font-size: 16px;
       font-weight: 500;
-      margin-bottom: 6px;
-    }
-    .post-title a {
-      color: #000;
-      text-decoration: none;
-    }
-    .post-title a:hover {
-      color: #0066cc;
-    }
-    .post-meta {
-      font-size: 13px;
-      color: #666;
-    }
-    .post-date {
-      color: #999;
-    }
-    .post-tag {
-      margin-left: 8px;
-      color: #0066cc;
-    }
-    .post-tag::before {
-      content: "#";
+      margin-bottom: 8px;
+      line-height: 1.4;
     }
     
-    /* 空状态 */
+    .post-item:hover .post-title {
+      color: var(--accent);
+    }
+    
+    .post-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    
+    .post-tags {
+      display: flex;
+      gap: 6px;
+    }
+    
+    .post-tag {
+      padding: 2px 8px;
+      background: var(--bg);
+      border-radius: 4px;
+      font-size: 12px;
+    }
+    
     .empty {
-      color: #999;
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--text-muted);
+    }
+    
+    /* 右侧边栏 */
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 320px;
+      height: 100vh;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border);
+      padding: 40px 28px;
+      overflow-y: auto;
+    }
+    
+    .sidebar-section {
+      margin-bottom: 32px;
+    }
+    
+    .sidebar-title {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+    
+    /* 搜索 */
+    .search-wrapper {
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 12px;
+    }
+    
+    #search {
+      --pagefind-ui-scale: 0.85;
+      --pagefind-ui-primary: var(--accent);
+      --pagefind-ui-text: var(--text);
+      --pagefind-ui-background: transparent;
+      --pagefind-ui-border: transparent;
+    }
+    
+    /* 标签筛选 */
+    .tags-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .tag-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
       font-size: 14px;
-      padding: 40px 0;
+      color: var(--text-secondary);
+    }
+    
+    .tag-item:hover {
+      background: var(--bg);
+    }
+    
+    .tag-item.active {
+      background: var(--accent);
+      color: white;
+    }
+    
+    .tag-item .count {
+      font-size: 12px;
+      color: var(--text-muted);
+      background: var(--bg);
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+    
+    .tag-item.active .count {
+      background: rgba(255,255,255,0.2);
+      color: white;
     }
     
     /* 页脚 */
-    footer {
-      margin-top: 60px;
-      padding-top: 20px;
-      border-top: 1px solid #eee;
-      font-size: 12px;
-      color: #999;
+    .sidebar-footer {
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    
+    /* 响应式 */
+    @media (max-width: 1024px) {
+      .sidebar {
+        width: 280px;
+      }
+      
+      .main-content {
+        margin-left: 280px;
+        padding: 40px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .layout {
+        flex-direction: column;
+      }
+      
+      .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding: 24px;
+      }
+      
+      .main-content {
+        margin-left: 0;
+        padding: 24px;
+        max-width: 100%;
+      }
+      
+      .tags-list {
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+      
+      .tag-item {
+        flex: 0 0 auto;
+      }
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>zgx197</h1>
-  </header>
-
-  <!-- 搜索 -->
-  <div id="search"></div>
-
-  <!-- 文章列表 -->
-  <ul class="post-list">
-    {sortedPosts.length === 0 ? (
-      <li class="empty">暂无文章</li>
-    ) : (
-      sortedPosts.map(post => (
-        <li class="post-item">
-          <h2 class="post-title">
-            <a href={post.url}>{post.frontmatter.title}</a>
-          </h2>
-          <div class="post-meta">
-            <span class="post-date">
-              {new Date(post.frontmatter.date).toLocaleDateString('zh-CN', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
-              }).replace(/\//g, '-')}
-            </span>
-            {post.frontmatter.tags?.map(tag => (
-              <span class="post-tag">{tag}</span>
-            ))}
+  <div class="layout">
+    <!-- 右侧边栏（工具栏） -->
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="search-wrapper">
+          <div id="search"></div>
+        </div>
+      </div>
+      
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">Tags</h3>
+        <div class="tags-list">
+          <div class="tag-item active" data-tag="all">
+            <span>全部</span>
+            <span class="count">{sortedPosts.length}</span>
           </div>
-        </li>
-      ))
-    )}
-  </ul>
+          {allTags.map(tag => {
+            const count = sortedPosts.filter(p => p.frontmatter.tags?.includes(tag)).length;
+            return (
+              <div class="tag-item" data-tag={tag}>
+                <span>#{tag}</span>
+                <span class="count">{count}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      
+      <div class="sidebar-footer">
+        <p>© 2024 zgx197</p>
+      </div>
+    </aside>
 
-  <footer>
-    <p>Minimal blog powered by Astro</p>
-  </footer>
+    <!-- 左侧文章列表 -->
+    <main class="main-content">
+      <header class="header">
+        <h1>zgx197</h1>
+        <a href="https://github.com/zgx197" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+          </svg>
+          GitHub
+        </a>
+      </header>
+
+      <div class="post-list" id="postList">
+        {sortedPosts.length === 0 ? (
+          <div class="empty">
+            <p>暂无文章</p>
+          </div>
+        ) : (
+          sortedPosts.map(post => (
+            <a href={post.url} class="post-item" data-tags={post.frontmatter.tags?.join(',') || ''}>
+              <h2 class="post-title">{post.frontmatter.title}</h2>
+              <div class="post-meta">
+                <span>{new Date(post.frontmatter.date).toLocaleDateString('zh-CN')}</span>
+                {post.frontmatter.tags?.length > 0 && (
+                  <div class="post-tags">
+                    {post.frontmatter.tags.slice(0, 3).map(tag => (
+                      <span class="post-tag">{tag}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </a>
+          ))
+        )}
+      </div>
+    </main>
+  </div>
 
   <!-- Pagefind搜索 -->
-  <script src="/pagefind/pagefind-ui.js"></script>
+  <script is:inline src="/pagefind/pagefind-ui.js"></script>
   <script>
+    // 初始化搜索
     window.addEventListener('DOMContentLoaded', () => {
       new PagefindUI({
         element: "#search",
-        placeholder: "搜索...",
+        placeholder: "搜索文章...",
         showImages: false,
+        showSubResults: false,
         translations: {
-          placeholder: "搜索...",
+          placeholder: "搜索文章...",
           zero_results: "无结果",
           many_results: "# 个结果",
           one_result: "1 个结果"
         }
+      });
+    });
+    
+    // 标签筛选
+    document.querySelectorAll('.tag-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const tag = item.dataset.tag;
+        
+        // 更新激活状态
+        document.querySelectorAll('.tag-item').forEach(t => t.classList.remove('active'));
+        item.classList.add('active');
+        
+        // 筛选文章
+        document.querySelectorAll('.post-item').forEach(post => {
+          if (tag === 'all') {
+            post.style.display = 'block';
+          } else {
+            const tags = post.dataset.tags?.split(',') || [];
+            post.style.display = tags.includes(tag) ? 'block' : 'none';
+          }
+        });
       });
     });
   </script>
