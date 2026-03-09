@@ -1,0 +1,22 @@
+{
+  "alwaysUpdateLinks": true,
+  "userIgnoreFilters": [
+    "node_modules/",
+    "dist/",
+    "docs/",
+    "public/",
+    "src/pages/",
+    "src/components/",
+    ".astro/",
+    ".github/",
+    "*.config.mjs",
+    "package*.json",
+    "README.md",
+    ".gitignore",
+    ".gitattributes"
+  ],
+  "newFileLocation": "folder",
+  "newFileFolderPath": "src/content/blog",
+  "attachmentFolderPath": "src/content/blog/assets",
+  "showUnsupportedFiles": false
+}
