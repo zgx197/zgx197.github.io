@@ -1,9 +1,8 @@
 ---
 title: "欢迎来到我的数字花园"
 date: 2024-01-15
-description: "这是使用知识管理系统发布的第一篇文章，介绍整个系统的工作流程。"
+description: "这是使用知识管理系统发布的第一篇文章。"
 tags: ["随笔", "知识管理"]
-status: published
 ---
 
 ## 这是什么？
@@ -39,7 +38,7 @@ status: published
 ### 4. 输出层（博客）
 - Astro构建的静态站点
 - Pagefind客户端搜索
-- 标签云和文章关联
+- 极简风格设计
 
 ## 为什么这样设计？
 
@@ -49,21 +48,16 @@ status: published
 - **Resources**（资源）：Inbox中收集的资料
 - **Archives**（归档）：已完成的知识沉淀
 
-**卢曼卡片盒**的启发：
-- 每张卡片（文章）都有唯一标识
-- 卡片之间相互链接
-- 通过标签和搜索建立关联
-
 ## 使用技术
 
 | 组件 | 技术 | 成本 |
 |------|------|------|
 | 数据库 | Supabase | ¥0 |
-| 后端API | Vercel Functions | ¥0 |
-| Web看板 | Next.js + Vercel | ¥0 |
+| 后端API | 阿里云 FC | ¥0 |
+| Web看板 | Next.js | ¥0 |
 | 博客 | Astro + Pagefind | ¥0 |
 | 写作 | Obsidian + Git | ¥0 |
-| AI分析 | DeepSeek API | ~¥0.01/篇 |
+| AI分析 | Kimi API | ~¥0.003/篇 |
 
 ## 开始你的知识管理之旅
 

@@ -1,14 +1,13 @@
 ---
-// 博客首页
+// 极简博客首页
 const posts = await Astro.glob('../content/blog/*.md');
 
-// 只显示已发布的文章
-const publishedPosts = posts
-  .filter(post => post.frontmatter.status === 'published')
-  .sort((a, b) => new Date(b.frontmatter.date) - new Date(a.frontmatter.date));
+// 排序：最新在前
+const sortedPosts = posts
+  .sort((a, b) => new Date(b.frontmatter.date || 0) - new Date(a.frontmatter.date || 0));
 
 // 获取所有标签
-const allTags = [...new Set(publishedPosts.flatMap(post => post.frontmatter.tags || []))];
+const allTags = [...new Set(sortedPosts.flatMap(post => post.frontmatter.tags || []))];
 ---
 
 <!DOCTYPE html>
@@ -16,99 +15,143 @@ const allTags = [...new Set(publishedPosts.flatMap(post => post.frontmatter.tags
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>我的数字花园</title>
-  <meta name="description" content="个人知识库与博客">
-  
-  <!-- Pagefind搜索样式 -->
+  <title>zgx197</title>
+  <meta name="description" content="个人博客">
   <link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    header {
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #eee;
+    }
+    h1 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #000;
+    }
+    
+    /* 搜索框 */
+    #search {
+      margin-bottom: 40px;
+    }
+    
+    /* 文章列表 */
+    .post-list {
+      list-style: none;
+    }
+    .post-item {
+      margin-bottom: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .post-item:last-child {
+      border-bottom: none;
+    }
+    .post-title {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+    .post-title a {
+      color: #000;
+      text-decoration: none;
+    }
+    .post-title a:hover {
+      color: #0066cc;
+    }
+    .post-meta {
+      font-size: 13px;
+      color: #666;
+    }
+    .post-date {
+      color: #999;
+    }
+    .post-tag {
+      margin-left: 8px;
+      color: #0066cc;
+    }
+    .post-tag::before {
+      content: "#";
+    }
+    
+    /* 空状态 */
+    .empty {
+      color: #999;
+      font-size: 14px;
+      padding: 40px 0;
+    }
+    
+    /* 页脚 */
+    footer {
+      margin-top: 60px;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
+      font-size: 12px;
+      color: #999;
+    }
+  </style>
 </head>
-<body class="bg-gray-50 text-gray-900">
-  <div class="max-w-4xl mx-auto px-4 py-8">
-    <!-- 头部 -->
-    <header class="mb-12 text-center">
-      <h1 class="text-4xl font-bold mb-4">🌱 我的数字花园</h1>
-      <p class="text-gray-600 text-lg">知识的收集、整理与输出</p>
-    </header>
+<body>
+  <header>
+    <h1>zgx197</h1>
+  </header>
 
-    <!-- 搜索框 -->
-    <div class="mb-8">
-      <div id="search"></div>
-    </div>
+  <!-- 搜索 -->
+  <div id="search"></div>
 
-    <!-- 标签云 -->
-    <div class="mb-8">
-      <h2 class="text-sm font-semibold text-gray-500 mb-3 uppercase tracking-wide">标签</h2>
-      <div class="flex flex-wrap gap-2">
-        {allTags.map(tag => (
-          <a
-            href={`/tags/${tag}`}
-            class="px-3 py-1 bg-white border border-gray-200 rounded-full text-sm text-gray-600 hover:bg-blue-50 hover:border-blue-300 transition"
-          >
-            #{tag}
-          </a>
-        ))}
-      </div>
-    </div>
+  <!-- 文章列表 -->
+  <ul class="post-list">
+    {sortedPosts.length === 0 ? (
+      <li class="empty">暂无文章</li>
+    ) : (
+      sortedPosts.map(post => (
+        <li class="post-item">
+          <h2 class="post-title">
+            <a href={post.url}>{post.frontmatter.title}</a>
+          </h2>
+          <div class="post-meta">
+            <span class="post-date">
+              {new Date(post.frontmatter.date).toLocaleDateString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+              }).replace(/\//g, '-')}
+            </span>
+            {post.frontmatter.tags?.map(tag => (
+              <span class="post-tag">{tag}</span>
+            ))}
+          </div>
+        </li>
+      ))
+    )}
+  </ul>
 
-    <!-- 文章列表 -->
-    <div class="space-y-6">
-      <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide">最近文章</h2>
-      
-      {publishedPosts.length === 0 ? (
-        <div class="text-center py-12 text-gray-400">
-          <p>暂无文章，开始写作吧！</p>
-        </div>
-      ) : (
-        publishedPosts.map(post => (
-          <article class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition">
-            <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
-              <time datetime={post.frontmatter.date}>
-                {new Date(post.frontmatter.date).toLocaleDateString('zh-CN')}
-              </time>
-              {post.frontmatter.tags?.map(tag => (
-                <span class="text-blue-600">#{tag}</span>
-              ))}
-            </div>
-            
-            <h2 class="text-xl font-bold mb-2">
-              <a href={post.url} class="hover:text-blue-600 transition">
-                {post.frontmatter.title}
-              </a>
-            </h2>
-            
-            {post.frontmatter.description && (
-              <p class="text-gray-600 line-clamp-2">{post.frontmatter.description}</p>
-            )}
-          </article>
-        ))
-      )}
-    </div>
+  <footer>
+    <p>Minimal blog powered by Astro</p>
+  </footer>
 
-    <!-- 页脚 -->
-    <footer class="mt-16 pt-8 border-t text-center text-gray-500 text-sm">
-      <p>用 ❤️ 构建 · 知识管理系统</p>
-    </footer>
-  </div>
-
-  <!-- Pagefind搜索脚本 -->
-  <script src="/pagefind/pagefind-ui.js" type="text/javascript"></script>
+  <!-- Pagefind搜索 -->
+  <script src="/pagefind/pagefind-ui.js"></script>
   <script>
     window.addEventListener('DOMContentLoaded', () => {
-      new PagefindUI({ 
+      new PagefindUI({
         element: "#search",
-        placeholder: "搜索文章...",
+        placeholder: "搜索...",
+        showImages: false,
         translations: {
-          placeholder: "搜索文章...",
-          clear_search: "清除",
-          load_more: "加载更多结果",
-          search_label: "搜索",
-          filters_label: "筛选",
-          zero_results: "没有找到 [SEARCH_TERM] 的结果",
-          many_results: "找到 [COUNT] 个 [SEARCH_TERM] 的结果",
-          one_result: "找到 [COUNT] 个 [SEARCH_TERM] 的结果",
-          alt_search: "没有找到 [SEARCH_TERM] 的结果。显示 [DIFFERENT_TERM] 的结果",
-          search_suggestion: "没有找到 [SEARCH_TERM] 的结果。试试以下搜索：",
-          searching: "正在搜索 [SEARCH_TERM]..."
+          placeholder: "搜索...",
+          zero_results: "无结果",
+          many_results: "# 个结果",
+          one_result: "1 个结果"
         }
       });
     });
