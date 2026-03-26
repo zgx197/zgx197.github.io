@@ -1,0 +1,391 @@
+---
+// 修仙模拟游戏项目详情页
+---
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>修仙模拟游戏 - zgx197</title>
+  <meta name="description" content="2D俯视角沙盒修仙模拟类游戏，受《环世界》启发，包含程序化生成的开放世界、深度模拟的角色行为与社会关系系统。">
+  <style>
+    :root {
+      --bg: #f8f9fa;
+      --card-bg: #fff;
+      --text: #1a1a1a;
+      --text-secondary: #555;
+      --text-muted: #888;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --border: #e8e8e8;
+      --shadow: 0 1px 3px rgba(0,0,0,0.05);
+      --shadow-hover: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--bg);
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 48px 24px;
+    }
+    
+    /* 导航 */
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    
+    .nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+    
+    .nav a:hover {
+      color: var(--accent);
+    }
+    
+    .nav-separator {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    
+    /* 项目头部 */
+    .project-header {
+      margin-bottom: 40px;
+    }
+    
+    .project-title {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    
+    .project-subtitle {
+      font-size: 16px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    
+    .project-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+    
+    .project-meta span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    /* 媒体展示区域 */
+    .media-section {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 40px;
+      margin-bottom: 32px;
+      text-align: center;
+    }
+    
+    .media-placeholder {
+      aspect-ratio: 16/9;
+      background: var(--bg);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 14px;
+      border: 2px dashed var(--border);
+    }
+    
+    .media-caption {
+      margin-top: 16px;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+    
+    /* 内容区块 */
+    .section {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 32px;
+      margin-bottom: 24px;
+    }
+    
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .section-content {
+      font-size: 15px;
+      line-height: 1.8;
+      color: var(--text-secondary);
+    }
+    
+    .section-content p {
+      margin-bottom: 16px;
+    }
+    
+    .section-content p:last-child {
+      margin-bottom: 0;
+    }
+    
+    /* 技术亮点列表 */
+    .highlight-list {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .highlight-list li {
+      position: relative;
+      padding-left: 20px;
+      margin-bottom: 16px;
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--text-secondary);
+    }
+    
+    .highlight-list li:last-child {
+      margin-bottom: 0;
+    }
+    
+    .highlight-list li::before {
+      content: '▸';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    
+    .highlight-title {
+      font-weight: 600;
+      color: var(--text);
+      display: block;
+      margin-bottom: 4px;
+    }
+    
+    /* 技术栈 */
+    .tech-stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    
+    .tech-tag {
+      padding: 8px 16px;
+      background: var(--bg);
+      border-radius: 20px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    
+    /* 链接列表 */
+    .link-list {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .link-list li {
+      margin-bottom: 12px;
+    }
+    
+    .link-list a {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 15px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .link-list a:hover {
+      text-decoration: underline;
+    }
+    
+    .link-list .meta {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-left: 8px;
+    }
+    
+    /* 响应式 */
+    @media (max-width: 640px) {
+      .container {
+        padding: 24px 16px;
+      }
+      
+      .project-title {
+        font-size: 24px;
+      }
+      
+      .media-section {
+        padding: 24px;
+      }
+      
+      .section {
+        padding: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 导航 -->
+    <nav class="nav">
+      <a href="/">首页</a>
+      <span class="nav-separator">/</span>
+      <a href="/about">关于</a>
+      <span class="nav-separator">/</span>
+      <span style="color: var(--text); font-size: 14px;">修仙模拟游戏</span>
+    </nav>
+    
+    <!-- 项目头部 -->
+    <header class="project-header">
+      <h1 class="project-title">修仙模拟游戏</h1>
+      <p class="project-subtitle">
+        受《环世界》启发的 2D 俯视角沙盒修仙模拟类游戏。核心特色是通过程序化生成的开放世界、深度模拟的角色行为与社会关系、以及由 AI 驱动的动态故事系统，为玩家每一次游戏都创造出独一无二的修仙宗门经营体验。
+      </p>
+      <div class="project-meta">
+        <span>📅 2024.02 - 2025.06</span>
+        <span>👤 核心开发（4人团队）</span>
+        <span>🎮 Unity</span>
+      </div>
+    </header>
+    
+    <!-- 媒体展示（可放置截图/视频） -->
+    <div class="media-section">
+      <div class="media-placeholder">
+        [ 游戏截图 / 演示视频占位区 ]
+      </div>
+      <p class="media-caption">
+        游戏开发中画面 / 可放置截图、GIF 或嵌入视频
+      </p>
+    </div>
+    
+    <!-- 核心系统 -->
+    <div class="section">
+      <h2 class="section-title">核心系统</h2>
+      <ul class="highlight-list">
+        <li>
+          <span class="highlight-title">程序化世界生成</span>
+          从零构建六边形网格（Hex-Grid）程序化世界生成系统。通过叠加多层 Perlin 噪声生成富有层次感的大陆架与基础海拔；使用 BFS 算法模拟水力侵蚀生成蜿蜒连贯的河流网络；综合海拔、温度与湿度三大环境维度，为每个地块赋予精确的生物群落类型。
+        </li>
+        <li>
+          <span class="highlight-title">文明演化模拟</span>
+          独立设计人口流动模拟模块，通过加权评分系统量化各地块的人口承载力。扩散模拟算法使得高承载力区域能"吸引"周边人口，生成从都市核心到边远乡村的自然人口热力图。利用峰值查找算法定位各国首都，并以其为"种子"采用区域生长算法进行领土扩张，形成犬牙交错、形态自然的国家疆界。
+        </li>
+        <li>
+          <span class="highlight-title">社会关系图系统</span>
+          基于图数据结构构建通用 BaseRelationshipGraph，通过泛型设计为任何实体（角色、阵营）构建关系图。关系抽象为可携带多维度数据的边，存储好感度、仇恨值、血缘等信息。与 AI 系统深度集成，AI 的社交行为动态修改关系权重，而这些权重又是 AI 决策的关键输入。
+        </li>
+        <li>
+          <span class="highlight-title">策略背包系统</span>
+          参考《背包乱斗》设计基于二维网格的布局系统，专门用于放置"法宝"。法宝拥有独一无二的实体形状，玩家通过旋转和组合在有限空间中触发法宝间的关联效果。系统实时检测法宝影响范围内的元素属性，满足预设条件时触发技能效果。
+        </li>
+        <li>
+          <span class="highlight-title">随机事件系统</span>
+          基于数据驱动的 Excel 管线，允许策划零代码配置事件的触发条件、概率及结果。上下文感知的触发模块实时监听玩家行为与世界状态，在最恰当的时机激活相应"奇遇"。与 AI、社会关系图等核心模块深度联动，形成"行为触发事件，事件影响世界"的动态闭环。
+        </li>
+      </ul>
+    </div>
+    
+    <!-- 性能优化 -->
+    <div class="section">
+      <h2 class="section-title">性能优化</h2>
+      <ul class="highlight-list">
+        <li>
+          <span class="highlight-title">存档优化</span>
+          引入 protobuf-net 替代原生 JSON 序列化，为 Vector3 等 Unity 类型编写自定义包装器。存档读写速度提升数倍，文件体积压缩 60%+，解决大地图存档性能瓶颈。
+        </li>
+        <li>
+          <span class="highlight-title">对象池</span>
+          频繁创建和销毁的实体（UI 项、特效、单位等）由对象池统一管理，从根本上避免频繁实例化/销毁引发的 GC 峰值，显著降低运行时性能毛刺。
+        </li>
+        <li>
+          <span class="highlight-title">分帧执行</span>
+          程序化生成等计算密集型任务通过协程分散到连续多帧中执行，"削峰填谷"避免单帧计算耗时过长导致的掉帧。
+        </li>
+        <li>
+          <span class="highlight-title">动态 LOD</span>
+          VisibilityManager 实时追踪动态特效和实体，根据与主摄像机距离及视锥体状态智能启用/禁用渲染器和更新逻辑，显著降低远距离或不可见对象的性能开销。
+        </li>
+      </ul>
+    </div>
+    
+    <!-- 架构设计 -->
+    <div class="section">
+      <h2 class="section-title">架构设计</h2>
+      <div class="section-content">
+        <p>
+          <strong>GameFramework 二次开发：</strong>基于成熟的 GameFramework 框架进行扩展，充分利用其模块化、事件驱动、资源管理等特性，并根据项目需求定制多个核心组件。
+        </p>
+        <p>
+          <strong>MVC 数据驱动：</strong>将核心数据（角色、事件数据等）与业务逻辑（后台"饱食度"计算）及前端视觉表现解耦，构建清晰的数据流。有效提升系统的可扩展性和可维护性，极大加速玩法迭代效率。
+        </p>
+        <p>
+          <strong>混合配置方案：</strong>针对不同数据类型采用不同管理策略。策划频繁调整的表格数据（角色属性、物品）使用 Excel + EPPlus 转换为二进制；复杂结构数据模板利用 ScriptableObject 可视化配置；对话流、事件等动态内容使用 JSON 管理。
+        </p>
+      </div>
+    </div>
+    
+    <!-- 技术栈 -->
+    <div class="section">
+      <h2 class="section-title">技术栈</h2>
+      <div class="tech-stack">
+        <span class="tech-tag">Unity</span>
+        <span class="tech-tag">C#</span>
+        <span class="tech-tag">GameFramework</span>
+        <span class="tech-tag">MVC</span>
+        <span class="tech-tag">Protobuf</span>
+        <span class="tech-tag">EPPlus</span>
+        <span class="tech-tag">ScriptableObject</span>
+        <span class="tech-tag">Perlin Noise</span>
+        <span class="tech-tag">BFS</span>
+        <span class="tech-tag">图算法</span>
+        <span class="tech-tag">对象池</span>
+        <span class="tech-tag">动态 LOD</span>
+      </div>
+    </div>
+    
+    <!-- 相关链接 -->
+    <div class="section">
+      <h2 class="section-title">相关链接</h2>
+      <ul class="link-list">
+        <li>
+          <a href="/about">← 返回项目列表</a>
+        </li>
+        <li>
+          <a href="https://steamcommunity.com/profiles/76561198340584094" target="_blank" rel="noopener">
+            Steam 主页
+            <span class="meta">查看我的游戏作品</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>
