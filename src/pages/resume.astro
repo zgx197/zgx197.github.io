@@ -11,7 +11,12 @@ const { profile, resume, projects } = resumeData;
 const featuredProjects = projects.filter((project) => project.category === "featured");
 const openSourceProjects = projects.filter((project) => project.category === "open_source");
 const contactActions = profile.contacts.filter((contact) => contact.href !== "/resume");
-const resumeProfileFacts = resume.profileFacts.filter((fact) => fact.label !== "联系方式");
+const visibleResumeFactLabels = new Set(["技术能力", "相关背景", "擅长事项"]);
+const resumeProfileFacts = resume.profileFacts.filter((fact) => visibleResumeFactLabels.has(fact.label));
+const heroSummaryPoints = (() => {
+  const concisePoints = resume.summaryPoints.filter((item) => !item.includes("："));
+  return (concisePoints.length > 0 ? concisePoints : resume.summaryPoints).slice(0, 3);
+})();
 // `resume` 页中的工作项目与开源项目统一使用同一套卡片渲染逻辑。
 // `about` 页是面向开源社区的独立展示页，视觉语言和信息取舍应保持单独设计，不在这里做联动收敛。
 const projectGroups = [
@@ -21,6 +26,51 @@ const projectGroups = [
 
 function isDefined<T>(value: T | undefined): value is T {
   return value !== undefined;
+}
+
+function looksLikePeriod(value: string) {
+  return /(\d{4}[./]\d{1,2}\s*[-–]\s*(?:\d{4}[./]\d{1,2}|至今))/.test(value);
+}
+
+function resolveProjectCardPeriod(project: ProjectDetail) {
+  const metaPeriod = project.meta.find(looksLikePeriod);
+  if (metaPeriod) {
+    return metaPeriod;
+  }
+
+  const archiveSection = project.sections.find((section) => section.type === "archive");
+  if (!archiveSection) {
+    return undefined;
+  }
+
+  for (const archive of archiveSection.sections) {
+    for (const group of archive.groups ?? []) {
+      if (group.title !== "项目时间") {
+        continue;
+      }
+
+      const paragraph = group.paragraphs?.find(Boolean);
+      if (paragraph) {
+        return paragraph;
+      }
+
+      const item = group.items?.find(Boolean);
+      if (item) {
+        return item;
+      }
+    }
+  }
+
+  return undefined;
+}
+
+function resolveProjectCardMeta(project: ProjectDetail) {
+  const period = resolveProjectCardPeriod(project);
+  if (!period) {
+    return project.meta;
+  }
+
+  return Array.from(new Set([...project.meta.filter((item) => !looksLikePeriod(item)), period]));
 }
 
 function resolveProjects(slugs?: string[]): ProjectDetail[] {
@@ -262,6 +312,8 @@ function resolveProjects(slugs?: string[]): ProjectDetail[] {
       border-radius: 22px;
       padding: 22px;
       backdrop-filter: blur(8px);
+      min-width: 0;
+      overflow: hidden;
     }
 
     .info-card h2 {
@@ -272,11 +324,13 @@ function resolveProjects(slugs?: string[]): ProjectDetail[] {
     .info-stack {
       display: grid;
       gap: 10px;
+      min-width: 0;
     }
 
     .info-item {
       padding: 10px 0;
       border-top: 1px solid rgba(24, 39, 58, 0.08);
+      min-width: 0;
     }
 
     .info-item:first-child {
@@ -297,6 +351,8 @@ function resolveProjects(slugs?: string[]): ProjectDetail[] {
       color: var(--text);
       font-size: 15px;
       line-height: 1.75;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
 
     .project-grid,
@@ -545,7 +601,8 @@ function resolveProjects(slugs?: string[]): ProjectDetail[] {
     .project-subtitle {
       color: var(--text);
       font-size: 14px;
-      font-weight: 700;
+      font-weight: 400;
+      line-height: 1.75;
       margin-bottom: 10px;
     }
 
@@ -673,7 +730,7 @@ function resolveProjects(slugs?: string[]): ProjectDetail[] {
             ))}
           </div>
           <div class="summary-list">
-            {resume.summaryPoints.map((item) => (
+            {heroSummaryPoints.map((item) => (
               <div class="summary-item"><span>•</span><div>{item}</div></div>
             ))}
           </div>
@@ -770,7 +827,7 @@ function resolveProjects(slugs?: string[]): ProjectDetail[] {
               <h3>{project.title}</h3>
               <div class="project-subtitle">{project.subtitle}</div>
               <div class="meta-row">
-                {project.meta.map((item) => (
+                {resolveProjectCardMeta(project).map((item) => (
                   <span class="meta-pill">{item}</span>
                 ))}
               </div>
@@ -845,6 +902,7 @@ function resolveProjects(slugs?: string[]): ProjectDetail[] {
   </script>
 </body>
 </html>
+
 
 
 

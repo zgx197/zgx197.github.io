@@ -704,21 +704,37 @@ function inferTags(text) {
   return dictionary.filter((item) => text.toLowerCase().includes(item.toLowerCase())).slice(0, 8);
 }
 
+const PROJECT_IDENTITY_RULES = [
+  { slug: "sceneblueprint", dedupeKey: "scene-blueprint", patterns: [/scene\s*blueprint/i, /场景蓝图/] },
+  { slug: "xiuxian-game", dedupeKey: "xiuxian-game", patterns: [/修仙/] },
+  { slug: "knowledge-graph", dedupeKey: "knowledge-graph", patterns: [/短文本知识标注/, /knowledge\s*tagging/i, /text\s*to\s*knowledge/i] },
+  { slug: "baike-knowledge-base", dedupeKey: "baike-knowledge-base", patterns: [/百科词条.*知识库/, /百科.*知识库/, /baike/i] },
+  { slug: "desktop-pet", dedupeKey: "desktop-pet", patterns: [/桌宠/] },
+  { slug: "tower-defense", dedupeKey: "tower-defense", patterns: [/塔防/] },
+];
+
 function slugifyTitle(title, index) {
   const normalized = title
+    .replace(/[（(].*?[)）]/g, "")
+    .trim()
     .toLowerCase()
-    .replace(/场景蓝图/g, "scene-blueprint")
-    .replace(/修仙/g, "xiuxian")
-    .replace(/知识标注/g, "knowledge-tagging")
-    .replace(/知识库/g, "knowledge-base")
-    .replace(/百科/g, "baike")
-    .replace(/桌宠/g, "desktop-pet")
-    .replace(/塔防/g, "tower-defense")
-    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/[^a-z0-9\u4e00-\u9fff]+/g, "-")
     .replace(/-+/g, "-")
     .replace(/^-|-$/g, "");
 
   return normalized || `project-${index + 1}`;
+}
+
+function resolveProjectIdentity(title, rawText, index) {
+  const joined = `${title} ${rawText}`;
+  for (const rule of PROJECT_IDENTITY_RULES) {
+    if (rule.patterns.some((pattern) => pattern.test(joined))) {
+      return { slug: rule.slug, dedupeKey: rule.dedupeKey };
+    }
+  }
+
+  const fallbackSlug = slugifyTitle(title, index);
+  return { slug: fallbackSlug, dedupeKey: normalizeTextKey(title) || fallbackSlug };
 }
 
 function slugifyValue(value, fallback = "item") {
@@ -729,6 +745,83 @@ function slugifyValue(value, fallback = "item") {
     .replace(/^-|-$/g, "");
 
   return normalized || fallback;
+}
+
+function normalizeTextKey(text) {
+  return compactSentence(text)
+    .toLowerCase()
+    .replace(/[\s\u3000]+/g, "")
+    .replace(/[，。,、；：:（）()【】\[\]“”"'‘’~!@#$%^&*_+=<>?/\\|-]/g, "");
+}
+
+function buildHonorDedupeKey(text) {
+  const value = compactSentence(text);
+  const year = value.match(/\b(20\d{2})\b/)?.[1] ?? "unknown";
+  const level = value.match(/(特等奖|金牌|银牌|铜牌|一等奖|二等奖|三等奖)/)?.[1] ?? "";
+
+  if (/专利|发明人/.test(value)) {
+    return `${year}|patent`;
+  }
+  if (/部门奖|项目奖/.test(value)) {
+    return `${year}|department-award`;
+  }
+  if (/零度突破之星/.test(value)) {
+    return `${year}|breakthrough-star`;
+  }
+  if (/ICPC/.test(value)) {
+    return `${year}|icpc|${level || normalizeTextKey(value)}`;
+  }
+  if (/CCPC/.test(value)) {
+    return `${year}|ccpc|${level || normalizeTextKey(value)}`;
+  }
+  if (/蓝桥杯/.test(value)) {
+    return `${year}|lanqiao|${level || normalizeTextKey(value)}`;
+  }
+  return `${year}|${normalizeTextKey(value)}`;
+}
+
+function createTextEntry(text, prefix, index, keyBuilder = normalizeTextKey) {
+  const normalized = compactSentence(text);
+  return {
+    id: `${prefix}-${index + 1}`,
+    dedupeKey: keyBuilder(normalized) || `${prefix}-${index + 1}`,
+    text: normalized,
+  };
+}
+
+function dedupeTextEntries(entries) {
+  const map = new Map();
+  for (const entry of entries ?? []) {
+    if (!entry?.text) {
+      continue;
+    }
+    const key = entry.dedupeKey || normalizeTextKey(entry.text);
+    const current = map.get(key);
+    if (!current || entry.text.length > current.text.length) {
+      map.set(key, { ...entry, dedupeKey: key });
+    }
+  }
+  return Array.from(map.values());
+}
+
+function createLayeredContent({ summary = [], refined = [], original = [] }, prefix, keyBuilder = normalizeTextKey) {
+  const content = {
+    summary: dedupeTextEntries(summary.filter(Boolean).map((text, index) => createTextEntry(text, `${prefix}-summary`, index, keyBuilder))),
+    refined: dedupeTextEntries(refined.filter(Boolean).map((text, index) => createTextEntry(text, `${prefix}-refined`, index, keyBuilder))),
+    original: dedupeTextEntries(original.filter(Boolean).map((text, index) => createTextEntry(text, `${prefix}-original`, index, keyBuilder))),
+  };
+
+  if (content.summary.length === 0) {
+    delete content.summary;
+  }
+  if (content.refined.length === 0) {
+    delete content.refined;
+  }
+  if (content.original.length === 0) {
+    delete content.original;
+  }
+
+  return Object.keys(content).length > 0 ? content : undefined;
 }
 
 function buildExperienceId(experience, index) {
@@ -776,6 +869,8 @@ function buildProjectDraft(projectBlock, experience, index) {
   const projectRange = parsePeriodRange(explicitPeriodText);
   const explicitTime = Boolean(explicitPeriodText && projectRange);
 
+  const identity = resolveProjectIdentity(title, rawText, index);
+
   const storySections = [
     {
       kind: "story",
@@ -818,7 +913,8 @@ function buildProjectDraft(projectBlock, experience, index) {
   }
 
   return {
-    slug: slugifyTitle(title, index),
+    slug: identity.slug,
+    dedupeKey: identity.dedupeKey,
     title,
     track: isOpenSource ? "open_source" : "featured",
     cardMeta: [experience.company, role, explicitPeriodText || experience.period].filter(Boolean),
@@ -826,6 +922,11 @@ function buildProjectDraft(projectBlock, experience, index) {
     cardTags: tags,
     heroEyebrow: isOpenSource ? "Open Source / Imported Draft" : "Featured Project / Imported Draft",
     heroSubtitle: summary,
+    content: createLayeredContent({
+      summary: [summary],
+      refined: [summary],
+      original: intro ? [intro] : [],
+    }, `project-${identity.slug}`),
     showcase: {
       title: "作品展示",
       featuredTitle: `${title} 展示位`,
@@ -961,24 +1062,35 @@ function buildExperiences(blocks) {
       .sort((left, right) => left.importMeta.anchorIndex - right.importMeta.anchorIndex);
 
     const projectSummaries = assignedProjects.map((project) => `${project.title}：${project.cardSummary}`);
+    const summary = projectSummaries[0] || experience.importMeta.fallbackBullets[0] || `${experience.company} ${experience.role}`;
+    const refined = assignedProjects.length > 0
+      ? assignedProjects.map((project) => `${project.title}：${project.cardSummary}`)
+      : experience.importMeta.fallbackBullets;
+    const original = assignedProjects.length > 0
+      ? assignedProjects.map((project) => `${project.title}：${project.heroSubtitle}`)
+      : experience.importMeta.fallbackBullets;
+    const highlights = (projectSummaries.length > 0 ? projectSummaries : experience.importMeta.fallbackBullets).slice(0, 5);
 
     return {
       id: experience.id,
+      dedupeKey: normalizeTextKey(`${experience.company}|${experience.role}|${experience.period}`) || experience.id,
       company: experience.company,
       role: experience.role,
       period: experience.period,
-      summary: projectSummaries[0] || experience.importMeta.fallbackBullets[0] || `${experience.company} ${experience.role}`,
-      achievements: (projectSummaries.length > 0 ? projectSummaries : experience.importMeta.fallbackBullets).slice(0, 5),
+      summary,
+      achievements: highlights,
       details: {
         refinedTitle: "整理后的详细说明",
-        refined: assignedProjects.length > 0
-          ? assignedProjects.map((project) => `${project.title}：${project.cardSummary}`)
-          : experience.importMeta.fallbackBullets,
+        refined,
         originalTitle: "简历原文",
-        original: assignedProjects.length > 0
-          ? assignedProjects.map((project) => `${project.title}：${project.heroSubtitle}`)
-          : experience.importMeta.fallbackBullets,
+        original,
       },
+      content: createLayeredContent({
+        summary: [summary],
+        refined,
+        original,
+      }, `experience-${experience.id}`),
+      highlights: dedupeTextEntries(highlights.map((text, itemIndex) => createTextEntry(text, `experience-${experience.id}-highlight`, itemIndex))),
       relatedProjects: assignedProjects.length > 0 ? assignedProjects.map((project) => project.slug) : undefined,
     };
   });
@@ -988,6 +1100,34 @@ function buildExperiences(blocks) {
 
 function buildHonors(lines) {
   return lines.filter((line) => /^\d{4}\s*年/.test(line)).map((line) => compactSentence(line));
+}
+
+function toStructuredHonors(honors) {
+  const grouped = new Map();
+
+  for (const honor of honors ?? []) {
+    const text = compactSentence(honor);
+    if (!text) {
+      continue;
+    }
+    const key = buildHonorDedupeKey(text);
+    if (!grouped.has(key)) {
+      grouped.set(key, []);
+    }
+    grouped.get(key).push(text);
+  }
+
+  return Array.from(grouped.entries()).map(([dedupeKey, texts], index) => {
+    const uniqueTexts = Array.from(new Set(texts)).sort((left, right) => left.length - right.length);
+    return {
+      id: `honor-${index + 1}`,
+      dedupeKey,
+      content: createLayeredContent({
+        summary: uniqueTexts[0] ? [uniqueTexts[0]] : [],
+        original: uniqueTexts,
+      }, `honor-${index + 1}`, buildHonorDedupeKey),
+    };
+  });
 }
 
 function buildEducation(lines) {
@@ -1050,11 +1190,18 @@ function toResumeSourceTemplate(draft) {
       facts: draft.profile.facts,
       contacts: draft.profile.contacts,
     },
-    experiences: draft.experiences,
+    experiences: draft.experiences.map(({ summary, achievements, details, importMeta, ...experience }) => ({
+      ...experience,
+      content: experience.content,
+      highlights: experience.highlights,
+    })),
     skills: draft.skills,
-    honors: draft.honors,
+    honors: toStructuredHonors(draft.honors),
     education: draft.education,
-    projects: draft.projects.map(({ importMeta, ...project }) => project),
+    projects: draft.projects.map(({ cardSummary, heroSubtitle, importMeta, ...project }) => ({
+      ...project,
+      content: project.content,
+    })),
   };
 }
 
@@ -1235,6 +1382,10 @@ main().catch((error) => {
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });
+
+
+
+
 
 
 

@@ -1,6 +1,6 @@
 import { RESUME_SCHEMA_VERSION, type LinkItem } from "./resume-schema";
 import { listProjectManifestSlugs, resolveProjectMedia } from "./project-assets";
-import type { ResumeSourceDocument } from "./resume-source";
+import type { ResumeSourceDocument, ResumeSourceLayeredText, ResumeSourceTextEntry } from "./resume-source";
 
 export type ResumeValidationIssue = {
   level: "error" | "warning";
@@ -57,6 +57,47 @@ function validateLinks(report: ResumeValidationReport, links: LinkItem[] | undef
   }
 }
 
+function validateTextEntries(report: ResumeValidationReport, entries: ResumeSourceTextEntry[] | undefined, path: string) {
+  const seenIds = new Set<string>();
+  const seenKeys = new Set<string>();
+
+  for (const [index, entry] of (entries ?? []).entries()) {
+    if (!isNonEmptyString(entry.id)) {
+      pushIssue(report, "error", `${path}[${index}].id`, "文本条目 id 不能为空。");
+    } else if (seenIds.has(entry.id)) {
+      pushIssue(report, "error", `${path}[${index}].id`, `文本条目 id 重复：${entry.id}`);
+    } else {
+      seenIds.add(entry.id);
+    }
+
+    if (!isNonEmptyString(entry.dedupeKey)) {
+      pushIssue(report, "error", `${path}[${index}].dedupeKey`, "文本条目 dedupeKey 不能为空。");
+    } else if (seenKeys.has(entry.dedupeKey)) {
+      pushIssue(report, "warning", `${path}[${index}].dedupeKey`, `同一层内存在重复 dedupeKey：${entry.dedupeKey}`);
+    } else {
+      seenKeys.add(entry.dedupeKey);
+    }
+
+    if (!isNonEmptyString(entry.text)) {
+      pushIssue(report, "error", `${path}[${index}].text`, "文本条目 text 不能为空。");
+    }
+  }
+}
+
+function validateLayeredContent(report: ResumeValidationReport, content: ResumeSourceLayeredText | undefined, path: string) {
+  if (!content) {
+    return;
+  }
+
+  validateTextEntries(report, content.summary, `${path}.summary`);
+  validateTextEntries(report, content.refined, `${path}.refined`);
+  validateTextEntries(report, content.original, `${path}.original`);
+
+  if ((content.summary?.length ?? 0) === 0 && (content.refined?.length ?? 0) === 0 && (content.original?.length ?? 0) === 0) {
+    pushIssue(report, "warning", path, "分层内容为空，建议至少保留一层文本。");
+  }
+}
+
 export function validateResumeSource(source: ResumeSourceDocument): ResumeValidationReport {
   const report: ResumeValidationReport = { errors: [], warnings: [] };
 
@@ -92,15 +133,16 @@ export function validateResumeSource(source: ResumeSourceDocument): ResumeValida
       projectSlugs.add(project.slug);
     }
 
+    if (!isNonEmptyString(project.dedupeKey)) {
+      pushIssue(report, "error", `${projectPath}.dedupeKey`, "项目 dedupeKey 不能为空。");
+    }
     if (!isNonEmptyString(project.title)) {
       pushIssue(report, "error", `${projectPath}.title`, "项目标题不能为空。");
     }
     if ((project.cardMeta ?? []).length === 0) {
       pushIssue(report, "warning", `${projectPath}.cardMeta`, "建议至少提供一条项目元信息。");
     }
-    if (!isNonEmptyString(project.cardSummary)) {
-      pushIssue(report, "error", `${projectPath}.cardSummary`, "项目摘要不能为空。");
-    }
+    validateLayeredContent(report, project.content, `${projectPath}.content`);
     if ((project.storySections ?? []).length === 0) {
       pushIssue(report, "warning", `${projectPath}.storySections`, "项目缺少正文 sections。");
     }
@@ -126,6 +168,7 @@ export function validateResumeSource(source: ResumeSourceDocument): ResumeValida
   }
 
   const experienceIds = new Set<string>();
+  const experienceKeys = new Set<string>();
   for (const [index, experience] of source.experiences.entries()) {
     const experiencePath = `experiences[${index}]`;
     if (!isNonEmptyString(experience.id)) {
@@ -134,6 +177,14 @@ export function validateResumeSource(source: ResumeSourceDocument): ResumeValida
       pushIssue(report, "error", `${experiencePath}.id`, `经历 id 重复：${experience.id}`);
     } else {
       experienceIds.add(experience.id);
+    }
+
+    if (!isNonEmptyString(experience.dedupeKey)) {
+      pushIssue(report, "error", `${experiencePath}.dedupeKey`, "经历 dedupeKey 不能为空。");
+    } else if (experienceKeys.has(experience.dedupeKey)) {
+      pushIssue(report, "warning", `${experiencePath}.dedupeKey`, `经历 dedupeKey 重复：${experience.dedupeKey}`);
+    } else {
+      experienceKeys.add(experience.dedupeKey);
     }
 
     if (!isNonEmptyString(experience.company)) {
@@ -147,11 +198,37 @@ export function validateResumeSource(source: ResumeSourceDocument): ResumeValida
     } else if (!isValidExperiencePeriod(experience.period)) {
       pushIssue(report, "warning", `${experiencePath}.period`, "经历时间建议使用 YYYY.MM - YYYY.MM 或 YYYY.MM - 至今 格式。");
     }
+
+    validateLayeredContent(report, experience.content, `${experiencePath}.content`);
+    validateTextEntries(report, experience.highlights, `${experiencePath}.highlights`);
     for (const slug of experience.relatedProjects ?? []) {
       if (!projectSlugs.has(slug)) {
         pushIssue(report, "error", `${experiencePath}.relatedProjects`, `引用了不存在的项目：${slug}`);
       }
     }
+  }
+
+  const honorIds = new Set<string>();
+  const honorKeys = new Set<string>();
+  for (const [index, honor] of source.honors.entries()) {
+    const honorPath = `honors[${index}]`;
+    if (!isNonEmptyString(honor.id)) {
+      pushIssue(report, "error", `${honorPath}.id`, "奖项 id 不能为空。");
+    } else if (honorIds.has(honor.id)) {
+      pushIssue(report, "error", `${honorPath}.id`, `奖项 id 重复：${honor.id}`);
+    } else {
+      honorIds.add(honor.id);
+    }
+
+    if (!isNonEmptyString(honor.dedupeKey)) {
+      pushIssue(report, "error", `${honorPath}.dedupeKey`, "奖项 dedupeKey 不能为空。");
+    } else if (honorKeys.has(honor.dedupeKey)) {
+      pushIssue(report, "warning", `${honorPath}.dedupeKey`, `奖项 dedupeKey 重复：${honor.dedupeKey}`);
+    } else {
+      honorKeys.add(honor.dedupeKey);
+    }
+
+    validateLayeredContent(report, honor.content, `${honorPath}.content`);
   }
 
   for (const [index, group] of source.skills.entries()) {

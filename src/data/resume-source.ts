@@ -1,6 +1,5 @@
 import {
   RESUME_SCHEMA_VERSION,
-  type DetailLayerContent,
   type Education,
   type FocusArea,
   type ProjectArchiveSection,
@@ -17,6 +16,24 @@ export type ResumeFact = {
   value: string;
 };
 
+export type ResumeSourceTextEntry = {
+  id: string;
+  dedupeKey: string;
+  text: string;
+};
+
+export type ResumeSourceLayeredText = {
+  summary?: ResumeSourceTextEntry[];
+  refined?: ResumeSourceTextEntry[];
+  original?: ResumeSourceTextEntry[];
+};
+
+export type ResumeSourceHonor = {
+  id: string;
+  dedupeKey: string;
+  content: ResumeSourceLayeredText;
+};
+
 export type ResumeSourceProfile = {
   name: string;
   role: string;
@@ -31,12 +48,12 @@ export type ResumeSourceProfile = {
 
 export type ResumeSourceExperience = {
   id: string;
+  dedupeKey: string;
   company: string;
   role: string;
   period: string;
-  summary: string;
-  achievements: string[];
-  details?: DetailLayerContent;
+  content?: ResumeSourceLayeredText;
+  highlights: ResumeSourceTextEntry[];
   relatedProjects?: string[];
   note?: string;
 };
@@ -89,13 +106,13 @@ export type ResumeSourceProjectStorySection =
 
 export type ResumeSourceProject = {
   slug: string;
+  dedupeKey: string;
   title: string;
   track: ProjectCategory;
   cardMeta: string[];
-  cardSummary: string;
   cardTags: string[];
   heroEyebrow: string;
-  heroSubtitle: string;
+  content?: ResumeSourceLayeredText;
   showcase: {
     title: string;
     featuredTitle: string;
@@ -112,7 +129,7 @@ export type ResumeSourceDocument = {
   profile: ResumeSourceProfile;
   experiences: ResumeSourceExperience[];
   skills: SkillGroup[];
-  honors: string[];
+  honors: ResumeSourceHonor[];
   education: Education;
   projects: ResumeSourceProject[];
 };
@@ -227,61 +244,140 @@ export const resumeSource: ResumeSourceDocument = {
   "experiences": [
     {
       "id": "yaoxiang-2024-02",
+      "dedupeKey": "遥响动漫设计北京有限公司u3d游戏开发工程师2024.022025.06",
       "company": "遥响动漫设计（北京）有限公司",
       "role": "U3D 游戏开发工程师",
       "period": "2024.02 - 2025.06",
-      "summary": "负责 2D 沙盒修仙游戏的核心系统与底层架构开发。",
-      "achievements": [
-        "基于 GameFramework 搭建基础框架，并用 MVC 思路重组核心数据流。",
-        "实现世界生成、社会关系、随机事件与策略背包等关键系统。",
-        "通过 protobuf-net、对象池、分帧执行和动态 LOD 优化存档与运行时性能。",
-        "2D俯视角沙盒修仙模拟类游戏：项目的设计深受《环世界》启发，其核心特色是通过程序化生成的开放世界、深度模拟的角色行为与社会关系、以及由AI驱动的动态故事系统，为玩家每一次游戏都创造出独一无二的修仙宗门经营体验。离职前项目仍属于初期开发阶段，各项内容都只有基础功能。"
-      ],
-      "details": {
-        "refinedTitle": "整理后的详细说明",
-        "refined": [
-          "负责 2D 沙盒修仙项目的底层框架、核心玩法系统和性能优化，工作覆盖框架选型、数据流设计、配置管线、世界生成与存档方案。",
-          "项目阶段仍处于早期原型验证，更强调先搭出可持续迭代的 demo，再为后续复杂系统预留清晰边界。",
-          "2D俯视角沙盒修仙模拟类游戏：项目的设计深受《环世界》启发，其核心特色是通过程序化生成的开放世界、深度模拟的角色行为与社会关系、以及由AI驱动的动态故事系统，为玩家每一次游戏都创造出独一无二的修仙宗门经营体验。离职前项目仍属于初期开发阶段，各项内容都只有基础功能。"
+      "content": {
+        "summary": [
+          {
+            "id": "experience-yaoxiang-2024-02-summary-1",
+            "dedupeKey": "负责2d沙盒修仙游戏的核心系统与底层架构开发",
+            "text": "负责 2D 沙盒修仙游戏的核心系统与底层架构开发。"
+          }
         ],
-        "originalTitle": "简历原文",
+        "refined": [
+          {
+            "id": "experience-yaoxiang-2024-02-refined-1",
+            "dedupeKey": "负责2d沙盒修仙项目的底层框架核心玩法系统和性能优化工作覆盖框架选型数据流设计配置管线世界生成与存档方案",
+            "text": "负责 2D 沙盒修仙项目的底层框架、核心玩法系统和性能优化，工作覆盖框架选型、数据流设计、配置管线、世界生成与存档方案。"
+          },
+          {
+            "id": "experience-yaoxiang-2024-02-refined-2",
+            "dedupeKey": "项目阶段仍处于早期原型验证更强调先搭出可持续迭代的demo再为后续复杂系统预留清晰边界",
+            "text": "项目阶段仍处于早期原型验证，更强调先搭出可持续迭代的 demo，再为后续复杂系统预留清晰边界。"
+          },
+          {
+            "id": "experience-yaoxiang-2024-02-refined-3",
+            "dedupeKey": "2d俯视角沙盒修仙模拟类游戏项目的设计深受《环世界》启发其核心特色是通过程序化生成的开放世界深度模拟的角色行为与社会关系以及由ai驱动的动态故事系统为玩家每一次游戏都创造出独一无二的修仙宗门经营体验离职前项目仍属于初期开发阶段各项内容都只有基础功能",
+            "text": "2D俯视角沙盒修仙模拟类游戏：项目的设计深受《环世界》启发，其核心特色是通过程序化生成的开放世界、深度模拟的角色行为与社会关系、以及由AI驱动的动态故事系统，为玩家每一次游戏都创造出独一无二的修仙宗门经营体验。离职前项目仍属于初期开发阶段，各项内容都只有基础功能。"
+          }
+        ],
         "original": [
-          "2D俯视角沙盒修仙模拟类游戏：项目的设计深受《环世界》启发，其核心特色是通过程序化生成的开放世界、深度模拟的角色行为与社会关系、以及由 AI 驱动的动态故事系统，为玩家每一次游戏都创造出独一无二的修仙宗门经营体验。离职前项目仍属于初期开发阶段，各项内容都只有基础功能。",
-          "2D俯视角沙盒修仙模拟类游戏：项目的设计深受《环世界》启发，其核心特色是通过程序化生成的开放世界、深度模拟的角色行为与社会关系、以及由AI驱动的动态故事系统，为玩家每一次游戏都创造出独一无二的修仙宗门经营体验。离职前项目仍属于初期开发阶段，各项内容都只有基础功能。"
+          {
+            "id": "experience-yaoxiang-2024-02-original-1",
+            "dedupeKey": "2d俯视角沙盒修仙模拟类游戏项目的设计深受《环世界》启发其核心特色是通过程序化生成的开放世界深度模拟的角色行为与社会关系以及由ai驱动的动态故事系统为玩家每一次游戏都创造出独一无二的修仙宗门经营体验离职前项目仍属于初期开发阶段各项内容都只有基础功能",
+            "text": "2D俯视角沙盒修仙模拟类游戏：项目的设计深受《环世界》启发，其核心特色是通过程序化生成的开放世界、深度模拟的角色行为与社会关系、以及由 AI 驱动的动态故事系统，为玩家每一次游戏都创造出独一无二的修仙宗门经营体验。离职前项目仍属于初期开发阶段，各项内容都只有基础功能。"
+          }
         ]
       },
+      "highlights": [
+        {
+          "id": "experience-yaoxiang-2024-02-highlight-1",
+          "dedupeKey": "基于gameframework搭建基础框架并用mvc思路重组核心数据流",
+          "text": "基于 GameFramework 搭建基础框架，并用 MVC 思路重组核心数据流。"
+        },
+        {
+          "id": "experience-yaoxiang-2024-02-highlight-2",
+          "dedupeKey": "实现世界生成社会关系随机事件与策略背包等关键系统",
+          "text": "实现世界生成、社会关系、随机事件与策略背包等关键系统。"
+        },
+        {
+          "id": "experience-yaoxiang-2024-02-highlight-3",
+          "dedupeKey": "通过protobufnet对象池分帧执行和动态lod优化存档与运行时性能",
+          "text": "通过 protobuf-net、对象池、分帧执行和动态 LOD 优化存档与运行时性能。"
+        },
+        {
+          "id": "experience-yaoxiang-2024-02-highlight-4",
+          "dedupeKey": "2d俯视角沙盒修仙模拟类游戏项目的设计深受《环世界》启发其核心特色是通过程序化生成的开放世界深度模拟的角色行为与社会关系以及由ai驱动的动态故事系统为玩家每一次游戏都创造出独一无二的修仙宗门经营体验离职前项目仍属于初期开发阶段各项内容都只有基础功能",
+          "text": "2D俯视角沙盒修仙模拟类游戏：项目的设计深受《环世界》启发，其核心特色是通过程序化生成的开放世界、深度模拟的角色行为与社会关系、以及由AI驱动的动态故事系统，为玩家每一次游戏都创造出独一无二的修仙宗门经营体验。离职前项目仍属于初期开发阶段，各项内容都只有基础功能。"
+        }
+      ],
       "relatedProjects": [
         "xiuxian-game"
       ]
     },
     {
       "id": "yuyue-2023-11",
+      "dedupeKey": "北京愉悦非凡科技有限公司u3d游戏开发工程师2023.112024.02",
       "company": "北京愉悦非凡科技有限公司",
       "role": "U3D 游戏开发工程师",
       "period": "2023.11 - 2024.02",
-      "summary": "独立承担桌宠软件和塔防游戏改造项目，重点解决遗留工程恢复与快速交付。",
-      "achievements": [
-        "完成虚拟桌宠的窗口、交互、多角色配置、本地存档与商店系统。",
-        "在服务端缺失和文档不足的情况下恢复塔防项目关键功能，并改造成单机安卓版本。",
-        "虚拟桌宠：独立制作一款支持多角色的桌宠软件作为公司新发行独立游戏的附赠产品，桌宠软件包含属性系统、商店系统、交互系统等",
-        "联机塔防游戏脱壳：将一款联机对战塔防游戏改造成一款单机安卓游戏，接入TapTap登录和防沉迷系统后添加额外的功能进行二次开发"
-      ],
-      "details": {
-        "refinedTitle": "整理后的详细说明",
-        "refined": [
-          "这一阶段的核心任务不是从零做新项目，而是在时间很短、资料缺失的前提下独立推进两个不同方向的交付。",
-          "一方面负责从零实现多角色桌宠软件，另一方面对遗留联机塔防项目做单机化和安卓化改造，重点解决工程恢复、功能补齐和上线准备问题。",
-          "虚拟桌宠：独立制作一款支持多角色的桌宠软件作为公司新发行独立游戏的附赠产品，桌宠软件包含属性系统、商店系统、交互系统等",
-          "联机塔防游戏脱壳：将一款联机对战塔防游戏改造成一款单机安卓游戏，接入TapTap登录和防沉迷系统后添加额外的功能进行二次开发"
+      "content": {
+        "summary": [
+          {
+            "id": "experience-yuyue-2023-11-summary-1",
+            "dedupeKey": "独立承担桌宠软件和塔防游戏改造项目重点解决遗留工程恢复与快速交付",
+            "text": "独立承担桌宠软件和塔防游戏改造项目，重点解决遗留工程恢复与快速交付。"
+          }
         ],
-        "originalTitle": "简历原文",
+        "refined": [
+          {
+            "id": "experience-yuyue-2023-11-refined-1",
+            "dedupeKey": "这一阶段的核心任务不是从零做新项目而是在时间很短资料缺失的前提下独立推进两个不同方向的交付",
+            "text": "这一阶段的核心任务不是从零做新项目，而是在时间很短、资料缺失的前提下独立推进两个不同方向的交付。"
+          },
+          {
+            "id": "experience-yuyue-2023-11-refined-2",
+            "dedupeKey": "一方面负责从零实现多角色桌宠软件另一方面对遗留联机塔防项目做单机化和安卓化改造重点解决工程恢复功能补齐和上线准备问题",
+            "text": "一方面负责从零实现多角色桌宠软件，另一方面对遗留联机塔防项目做单机化和安卓化改造，重点解决工程恢复、功能补齐和上线准备问题。"
+          },
+          {
+            "id": "experience-yuyue-2023-11-refined-3",
+            "dedupeKey": "虚拟桌宠独立制作一款支持多角色的桌宠软件作为公司新发行独立游戏的附赠产品桌宠软件包含属性系统商店系统交互系统等",
+            "text": "虚拟桌宠：独立制作一款支持多角色的桌宠软件作为公司新发行独立游戏的附赠产品，桌宠软件包含属性系统、商店系统、交互系统等"
+          },
+          {
+            "id": "experience-yuyue-2023-11-refined-4",
+            "dedupeKey": "联机塔防游戏脱壳将一款联机对战塔防游戏改造成一款单机安卓游戏接入taptap登录和防沉迷系统后添加额外的功能进行二次开发",
+            "text": "联机塔防游戏脱壳：将一款联机对战塔防游戏改造成一款单机安卓游戏，接入TapTap登录和防沉迷系统后添加额外的功能进行二次开发"
+          }
+        ],
         "original": [
-          "虚拟桌宠：独立制作一款支持多角色的桌宠软件作为公司新发行独立游戏的附赠产品，桌宠软件包含属性系统、商店系统、交互系统等。",
-          "联机塔防游戏脱壳：将一款联机对战塔防游戏改造成一款单机安卓游戏，接入 TapTap 登录和防沉迷系统后添加额外的功能进行二次开发。",
-          "虚拟桌宠：独立制作一款支持多角色的桌宠软件作为公司新发行独立游戏的附赠产品，桌宠软件包含属性系统、商店系统、交互系统等",
-          "联机塔防游戏脱壳：将一款联机对战塔防游戏改造成一款单机安卓游戏，接入TapTap登录和防沉迷系统后添加额外的功能进行二次开发"
+          {
+            "id": "experience-yuyue-2023-11-original-1",
+            "dedupeKey": "虚拟桌宠独立制作一款支持多角色的桌宠软件作为公司新发行独立游戏的附赠产品桌宠软件包含属性系统商店系统交互系统等",
+            "text": "虚拟桌宠：独立制作一款支持多角色的桌宠软件作为公司新发行独立游戏的附赠产品，桌宠软件包含属性系统、商店系统、交互系统等。"
+          },
+          {
+            "id": "experience-yuyue-2023-11-original-2",
+            "dedupeKey": "联机塔防游戏脱壳将一款联机对战塔防游戏改造成一款单机安卓游戏接入taptap登录和防沉迷系统后添加额外的功能进行二次开发",
+            "text": "联机塔防游戏脱壳：将一款联机对战塔防游戏改造成一款单机安卓游戏，接入 TapTap 登录和防沉迷系统后添加额外的功能进行二次开发。"
+          }
         ]
       },
+      "highlights": [
+        {
+          "id": "experience-yuyue-2023-11-highlight-1",
+          "dedupeKey": "完成虚拟桌宠的窗口交互多角色配置本地存档与商店系统",
+          "text": "完成虚拟桌宠的窗口、交互、多角色配置、本地存档与商店系统。"
+        },
+        {
+          "id": "experience-yuyue-2023-11-highlight-2",
+          "dedupeKey": "在服务端缺失和文档不足的情况下恢复塔防项目关键功能并改造成单机安卓版本",
+          "text": "在服务端缺失和文档不足的情况下恢复塔防项目关键功能，并改造成单机安卓版本。"
+        },
+        {
+          "id": "experience-yuyue-2023-11-highlight-3",
+          "dedupeKey": "虚拟桌宠独立制作一款支持多角色的桌宠软件作为公司新发行独立游戏的附赠产品桌宠软件包含属性系统商店系统交互系统等",
+          "text": "虚拟桌宠：独立制作一款支持多角色的桌宠软件作为公司新发行独立游戏的附赠产品，桌宠软件包含属性系统、商店系统、交互系统等"
+        },
+        {
+          "id": "experience-yuyue-2023-11-highlight-4",
+          "dedupeKey": "联机塔防游戏脱壳将一款联机对战塔防游戏改造成一款单机安卓游戏接入taptap登录和防沉迷系统后添加额外的功能进行二次开发",
+          "text": "联机塔防游戏脱壳：将一款联机对战塔防游戏改造成一款单机安卓游戏，接入TapTap登录和防沉迷系统后添加额外的功能进行二次开发"
+        }
+      ],
       "relatedProjects": [
         "desktop-pet",
         "tower-defense"
@@ -289,51 +385,105 @@ export const resumeSource: ResumeSourceDocument = {
     },
     {
       "id": "北京百度网讯科技有限公司-2020-07",
+      "dedupeKey": "北京百度网讯科技有限公司算法工程师2020.072023.04",
       "company": "北京百度网讯科技有限公司",
       "role": "算法工程师",
       "period": "2020.07-2023.04",
-      "summary": "长期参与中文知识表征与应用基础设施建设，覆盖知识库、模型、数据工程与服务部署。",
-      "achievements": [
-        "参与维护百万级 TermTree，并主导知识库数据生产流程建设。",
-        "设计多任务短文本理解模型与标签体系，服务搜索、广告、AIGC 等场景。",
-        "推动知识标注工具与百科关联项目落地，形成稳定的业务支撑能力。",
-        "短文本知识标注工具集研发：本项目从词汇理解和句子理解的角度，探索中文通用知识表征与应用。通过构建中文全词类知识库，将文本与通用词汇知识体系相关联，让模型对中文语句的理解能力更接近于人，从而实现通用域中文文本的精准解析与挖掘。"
-      ],
-      "details": {
-        "refinedTitle": "整理后的详细说明",
-        "refined": [
-          "长期负责中文知识理解基础设施建设，工作横跨知识库、模型、数据工程、标注流程和在线服务部署。",
-          "这段经历培养了我对抽象建模、数据质量控制和长期可维护工程链路的敏感度，也直接影响了后续做游戏系统和工具框架时的设计方式。",
-          "短文本知识标注工具集研发：本项目从词汇理解和句子理解的角度，探索中文通用知识表征与应用。通过构建中文全词类知识库，将文本与通用词汇知识体系相关联，让模型对中文语句的理解能力更接近于人，从而实现通用域中文文本的精准解析与挖掘。"
+      "content": {
+        "summary": [
+          {
+            "id": "experience-北京百度网讯科技有限公司-2020-07-summary-1",
+            "dedupeKey": "长期参与中文知识表征与应用基础设施建设覆盖知识库模型数据工程与服务部署",
+            "text": "长期参与中文知识表征与应用基础设施建设，覆盖知识库、模型、数据工程与服务部署。"
+          }
         ],
-        "originalTitle": "简历原文",
+        "refined": [
+          {
+            "id": "experience-北京百度网讯科技有限公司-2020-07-refined-1",
+            "dedupeKey": "长期负责中文知识理解基础设施建设工作横跨知识库模型数据工程标注流程和在线服务部署",
+            "text": "长期负责中文知识理解基础设施建设，工作横跨知识库、模型、数据工程、标注流程和在线服务部署。"
+          },
+          {
+            "id": "experience-北京百度网讯科技有限公司-2020-07-refined-2",
+            "dedupeKey": "这段经历培养了我对抽象建模数据质量控制和长期可维护工程链路的敏感度也直接影响了后续做游戏系统和工具框架时的设计方式",
+            "text": "这段经历培养了我对抽象建模、数据质量控制和长期可维护工程链路的敏感度，也直接影响了后续做游戏系统和工具框架时的设计方式。"
+          },
+          {
+            "id": "experience-北京百度网讯科技有限公司-2020-07-refined-3",
+            "dedupeKey": "短文本知识标注工具集研发本项目从词汇理解和句子理解的角度探索中文通用知识表征与应用通过构建中文全词类知识库将文本与通用词汇知识体系相关联让模型对中文语句的理解能力更接近于人从而实现通用域中文文本的精准解析与挖掘",
+            "text": "短文本知识标注工具集研发：本项目从词汇理解和句子理解的角度，探索中文通用知识表征与应用。通过构建中文全词类知识库，将文本与通用词汇知识体系相关联，让模型对中文语句的理解能力更接近于人，从而实现通用域中文文本的精准解析与挖掘。"
+          }
+        ],
         "original": [
-          "短文本知识标注工具集研发：本项目从词汇理解和句子理解的角度，探索中文通用知识表征与应用。通过构建中文全词类知识库，将文本与通用词汇知识体系相关联，让模型对中文语句的理解能力更接近于人，从而实现通用域中文文本的精准解析与挖掘。"
+          {
+            "id": "experience-北京百度网讯科技有限公司-2020-07-original-1",
+            "dedupeKey": "短文本知识标注工具集研发本项目从词汇理解和句子理解的角度探索中文通用知识表征与应用通过构建中文全词类知识库将文本与通用词汇知识体系相关联让模型对中文语句的理解能力更接近于人从而实现通用域中文文本的精准解析与挖掘",
+            "text": "短文本知识标注工具集研发：本项目从词汇理解和句子理解的角度，探索中文通用知识表征与应用。通过构建中文全词类知识库，将文本与通用词汇知识体系相关联，让模型对中文语句的理解能力更接近于人，从而实现通用域中文文本的精准解析与挖掘。"
+          }
         ]
       },
+      "highlights": [
+        {
+          "id": "experience-北京百度网讯科技有限公司-2020-07-highlight-1",
+          "dedupeKey": "参与维护百万级termtree并主导知识库数据生产流程建设",
+          "text": "参与维护百万级 TermTree，并主导知识库数据生产流程建设。"
+        },
+        {
+          "id": "experience-北京百度网讯科技有限公司-2020-07-highlight-2",
+          "dedupeKey": "设计多任务短文本理解模型与标签体系服务搜索广告aigc等场景",
+          "text": "设计多任务短文本理解模型与标签体系，服务搜索、广告、AIGC 等场景。"
+        },
+        {
+          "id": "experience-北京百度网讯科技有限公司-2020-07-highlight-3",
+          "dedupeKey": "推动知识标注工具与百科关联项目落地形成稳定的业务支撑能力",
+          "text": "推动知识标注工具与百科关联项目落地，形成稳定的业务支撑能力。"
+        },
+        {
+          "id": "experience-北京百度网讯科技有限公司-2020-07-highlight-4",
+          "dedupeKey": "短文本知识标注工具集研发本项目从词汇理解和句子理解的角度探索中文通用知识表征与应用通过构建中文全词类知识库将文本与通用词汇知识体系相关联让模型对中文语句的理解能力更接近于人从而实现通用域中文文本的精准解析与挖掘",
+          "text": "短文本知识标注工具集研发：本项目从词汇理解和句子理解的角度，探索中文通用知识表征与应用。通过构建中文全词类知识库，将文本与通用词汇知识体系相关联，让模型对中文语句的理解能力更接近于人，从而实现通用域中文文本的精准解析与挖掘。"
+        }
+      ],
       "relatedProjects": [
         "knowledge-graph"
       ]
     },
     {
       "id": "北京百度网讯科技有限公司-2018-09",
+      "dedupeKey": "北京百度网讯科技有限公司算法工程师2018.092020.07",
       "company": "北京百度网讯科技有限公司",
       "role": "算法工程师",
       "period": "2018.09-2020.07",
-      "summary": "百度百科词条与知识库关联项目：本项目是将两千万百科词条收录入知识库中以扩充知识库里的实体和概念词数量，主要通过多种分类策略对输入的百科页面进行分类细化，得到一个精准的词条类别，进而将该词条与知识库中的概念节点相关联",
-      "achievements": [
-        "百度百科词条与知识库关联项目：本项目是将两千万百科词条收录入知识库中以扩充知识库里的实体和概念词数量，主要通过多种分类策略对输入的百科页面进行分类细化，得到一个精准的词条类别，进而将该词条与知识库中的概念节点相关联"
-      ],
-      "details": {
-        "refinedTitle": "整理后的详细说明",
-        "refined": [
-          "百度百科词条与知识库关联项目：本项目是将两千万百科词条收录入知识库中以扩充知识库里的实体和概念词数量，主要通过多种分类策略对输入的百科页面进行分类细化，得到一个精准的词条类别，进而将该词条与知识库中的概念节点相关联"
+      "content": {
+        "summary": [
+          {
+            "id": "experience-北京百度网讯科技有限公司-2018-09-summary-1",
+            "dedupeKey": "百度百科词条与知识库关联项目本项目是将两千万百科词条收录入知识库中以扩充知识库里的实体和概念词数量主要通过多种分类策略对输入的百科页面进行分类细化得到一个精准的词条类别进而将该词条与知识库中的概念节点相关联",
+            "text": "百度百科词条与知识库关联项目：本项目是将两千万百科词条收录入知识库中以扩充知识库里的实体和概念词数量，主要通过多种分类策略对输入的百科页面进行分类细化，得到一个精准的词条类别，进而将该词条与知识库中的概念节点相关联"
+          }
         ],
-        "originalTitle": "简历原文",
+        "refined": [
+          {
+            "id": "experience-北京百度网讯科技有限公司-2018-09-refined-1",
+            "dedupeKey": "百度百科词条与知识库关联项目本项目是将两千万百科词条收录入知识库中以扩充知识库里的实体和概念词数量主要通过多种分类策略对输入的百科页面进行分类细化得到一个精准的词条类别进而将该词条与知识库中的概念节点相关联",
+            "text": "百度百科词条与知识库关联项目：本项目是将两千万百科词条收录入知识库中以扩充知识库里的实体和概念词数量，主要通过多种分类策略对输入的百科页面进行分类细化，得到一个精准的词条类别，进而将该词条与知识库中的概念节点相关联"
+          }
+        ],
         "original": [
-          "百度百科词条与知识库关联项目：本项目是将两千万百科词条收录入知识库中以扩充知识库里的实体和概念词数量，主要通过多种分类策略对输入的百科页面进行分类细化，得到一个精准的词条类别，进而将该词条与知识库中的概念节点相关联"
+          {
+            "id": "experience-北京百度网讯科技有限公司-2018-09-original-1",
+            "dedupeKey": "百度百科词条与知识库关联项目本项目是将两千万百科词条收录入知识库中以扩充知识库里的实体和概念词数量主要通过多种分类策略对输入的百科页面进行分类细化得到一个精准的词条类别进而将该词条与知识库中的概念节点相关联",
+            "text": "百度百科词条与知识库关联项目：本项目是将两千万百科词条收录入知识库中以扩充知识库里的实体和概念词数量，主要通过多种分类策略对输入的百科页面进行分类细化，得到一个精准的词条类别，进而将该词条与知识库中的概念节点相关联"
+          }
         ]
       },
+      "highlights": [
+        {
+          "id": "experience-北京百度网讯科技有限公司-2018-09-highlight-1",
+          "dedupeKey": "百度百科词条与知识库关联项目本项目是将两千万百科词条收录入知识库中以扩充知识库里的实体和概念词数量主要通过多种分类策略对输入的百科页面进行分类细化得到一个精准的词条类别进而将该词条与知识库中的概念节点相关联",
+          "text": "百度百科词条与知识库关联项目：本项目是将两千万百科词条收录入知识库中以扩充知识库里的实体和概念词数量，主要通过多种分类策略对输入的百科页面进行分类细化，得到一个精准的词条类别，进而将该词条与知识库中的概念节点相关联"
+        }
+      ],
       "relatedProjects": [
         "baike-knowledge-base"
       ]
@@ -430,21 +580,186 @@ export const resumeSource: ResumeSourceDocument = {
     }
   ],
   "honors": [
-    "2022 一级专利发明人，个人一作专利 2 篇",
-    "2022 百度部门奖，短文本知识标注服务产生亿级辐射收入",
-    "2020 百度新人零度突破之星",
-    "2018 ICPC 全国大学生程序设计竞赛宁夏邀请赛银牌",
-    "2018 蓝桥杯第十届计算机程序设计竞赛一等奖",
-    "2017 CCPC 第十一届东北地区大学生程序设计竞赛三等奖",
-    "2022年 一级专利发明人，个人一作专利2篇其中有一篇为公司重要专利，与其他同事共同参与公司一级专利编写工作，获得公司内部一级专利发明人称号",
-    "2022 年 部门奖，解短文本知识标注内部服务上线后辐射收入亿级别获部门项目奖",
-    "2020 年 百度新人零度突破之星",
-    "2018 年 银牌，2018ICPC 全国大学生程序设计竞赛宁夏邀请赛",
-    "2018 年 一等奖，蓝桥杯第十届计算机程序设计竞赛",
-    "2017 年 三等奖，CCPC 十一届东北地区大学生程序设计竞赛",
-    "2017 年 二等奖，蓝桥杯第九届计算机程序设计竞赛",
-    "2016 年 二等奖，蓝桥杯第八届计算机程序设计竞赛",
-    "2015 年 三等奖，CCPC 黑龙江省大学生程序设计竞赛"
+    {
+      "id": "honor-1",
+      "dedupeKey": "2022|patent",
+      "content": {
+        "summary": [
+          {
+            "id": "honor-1-summary-1",
+            "dedupeKey": "2022|patent",
+            "text": "2022 一级专利发明人，个人一作专利 2 篇"
+          }
+        ],
+        "original": [
+          {
+            "id": "honor-1-original-2",
+            "dedupeKey": "2022|patent",
+            "text": "2022年 一级专利发明人，个人一作专利2篇其中有一篇为公司重要专利，与其他同事共同参与公司一级专利编写工作，获得公司内部一级专利发明人称号"
+          }
+        ]
+      }
+    },
+    {
+      "id": "honor-2",
+      "dedupeKey": "2022|department-award",
+      "content": {
+        "summary": [
+          {
+            "id": "honor-2-summary-1",
+            "dedupeKey": "2022|department-award",
+            "text": "2022 百度部门奖，短文本知识标注服务产生亿级辐射收入"
+          }
+        ],
+        "original": [
+          {
+            "id": "honor-2-original-2",
+            "dedupeKey": "2022|department-award",
+            "text": "2022 年 部门奖，解短文本知识标注内部服务上线后辐射收入亿级别获部门项目奖"
+          }
+        ]
+      }
+    },
+    {
+      "id": "honor-3",
+      "dedupeKey": "2020|breakthrough-star",
+      "content": {
+        "summary": [
+          {
+            "id": "honor-3-summary-1",
+            "dedupeKey": "2020|breakthrough-star",
+            "text": "2020 百度新人零度突破之星"
+          }
+        ],
+        "original": [
+          {
+            "id": "honor-3-original-2",
+            "dedupeKey": "2020|breakthrough-star",
+            "text": "2020 年 百度新人零度突破之星"
+          }
+        ]
+      }
+    },
+    {
+      "id": "honor-4",
+      "dedupeKey": "2018|icpc|银牌",
+      "content": {
+        "summary": [
+          {
+            "id": "honor-4-summary-1",
+            "dedupeKey": "2018|icpc|银牌",
+            "text": "2018 ICPC 全国大学生程序设计竞赛宁夏邀请赛银牌"
+          }
+        ],
+        "original": [
+          {
+            "id": "honor-4-original-2",
+            "dedupeKey": "2018|icpc|银牌",
+            "text": "2018 年 银牌，2018ICPC 全国大学生程序设计竞赛宁夏邀请赛"
+          }
+        ]
+      }
+    },
+    {
+      "id": "honor-5",
+      "dedupeKey": "2018|lanqiao|一等奖",
+      "content": {
+        "summary": [
+          {
+            "id": "honor-5-summary-1",
+            "dedupeKey": "2018|lanqiao|一等奖",
+            "text": "2018 蓝桥杯第十届计算机程序设计竞赛一等奖"
+          }
+        ],
+        "original": [
+          {
+            "id": "honor-5-original-2",
+            "dedupeKey": "2018|lanqiao|一等奖",
+            "text": "2018 年 一等奖，蓝桥杯第十届计算机程序设计竞赛"
+          }
+        ]
+      }
+    },
+    {
+      "id": "honor-6",
+      "dedupeKey": "2017|ccpc|三等奖",
+      "content": {
+        "summary": [
+          {
+            "id": "honor-6-summary-1",
+            "dedupeKey": "2017|ccpc|三等奖",
+            "text": "2017 CCPC 第十一届东北地区大学生程序设计竞赛三等奖"
+          }
+        ],
+        "original": [
+          {
+            "id": "honor-6-original-2",
+            "dedupeKey": "2017|ccpc|三等奖",
+            "text": "2017 年 三等奖，CCPC 十一届东北地区大学生程序设计竞赛"
+          }
+        ]
+      }
+    },
+    {
+      "id": "honor-7",
+      "dedupeKey": "2017|lanqiao|二等奖",
+      "content": {
+        "summary": [
+          {
+            "id": "honor-7-summary-1",
+            "dedupeKey": "2017|lanqiao|二等奖",
+            "text": "2017 年 二等奖，蓝桥杯第九届计算机程序设计竞赛"
+          }
+        ],
+        "original": [
+          {
+            "id": "honor-7-original-1",
+            "dedupeKey": "2017|lanqiao|二等奖",
+            "text": "2017 年 二等奖，蓝桥杯第九届计算机程序设计竞赛"
+          }
+        ]
+      }
+    },
+    {
+      "id": "honor-8",
+      "dedupeKey": "2016|lanqiao|二等奖",
+      "content": {
+        "summary": [
+          {
+            "id": "honor-8-summary-1",
+            "dedupeKey": "2016|lanqiao|二等奖",
+            "text": "2016 年 二等奖，蓝桥杯第八届计算机程序设计竞赛"
+          }
+        ],
+        "original": [
+          {
+            "id": "honor-8-original-1",
+            "dedupeKey": "2016|lanqiao|二等奖",
+            "text": "2016 年 二等奖，蓝桥杯第八届计算机程序设计竞赛"
+          }
+        ]
+      }
+    },
+    {
+      "id": "honor-9",
+      "dedupeKey": "2015|ccpc|三等奖",
+      "content": {
+        "summary": [
+          {
+            "id": "honor-9-summary-1",
+            "dedupeKey": "2015|ccpc|三等奖",
+            "text": "2015 年 三等奖，CCPC 黑龙江省大学生程序设计竞赛"
+          }
+        ],
+        "original": [
+          {
+            "id": "honor-9-original-1",
+            "dedupeKey": "2015|ccpc|三等奖",
+            "text": "2015 年 三等奖，CCPC 黑龙江省大学生程序设计竞赛"
+          }
+        ]
+      }
+    }
   ],
   "education": {
     "school": "佳木斯大学",
@@ -458,14 +773,15 @@ export const resumeSource: ResumeSourceDocument = {
   "projects": [
     {
       "slug": "xiuxian-game",
+      "dedupeKey": "修仙模拟游戏",
       "title": "修仙模拟游戏",
       "track": "featured",
       "cardMeta": [
         "独立游戏",
         "4人团队",
-        "核心开发"
+        "核心开发",
+        "2024/2-2025/6"
       ],
-      "cardSummary": "围绕程序化生成、关系图、策略背包和随机事件构建世界演化与涌现式叙事体验。",
       "cardTags": [
         "Unity",
         "GameFramework",
@@ -479,7 +795,29 @@ export const resumeSource: ResumeSourceDocument = {
         "ScriptableObject"
       ],
       "heroEyebrow": "Featured Project / Game Systems",
-      "heroSubtitle": "受《环世界》启发的 2D 俯视角沙盒修仙模拟类游戏。核心目标是用程序化生成、角色关系和随机事件构建一个可持续涌现故事的动态世界。",
+      "content": {
+        "summary": [
+          {
+            "id": "project-xiuxian-game-summary-1",
+            "dedupeKey": "围绕程序化生成关系图策略背包和随机事件构建世界演化与涌现式叙事体验",
+            "text": "围绕程序化生成、关系图、策略背包和随机事件构建世界演化与涌现式叙事体验。"
+          }
+        ],
+        "refined": [
+          {
+            "id": "project-xiuxian-game-refined-1",
+            "dedupeKey": "受《环世界》启发的2d俯视角沙盒修仙模拟类游戏核心目标是用程序化生成角色关系和随机事件构建一个可持续涌现故事的动态世界",
+            "text": "受《环世界》启发的 2D 俯视角沙盒修仙模拟类游戏。核心目标是用程序化生成、角色关系和随机事件构建一个可持续涌现故事的动态世界。"
+          }
+        ],
+        "original": [
+          {
+            "id": "project-xiuxian-game-original-1",
+            "dedupeKey": "项目的设计深受《环世界》启发其核心特色是通过程序化生成的开放世界深度模拟的角色行为与社会关系以及由ai驱动的动态故事系统为玩家每一次游戏都创造出独一无二的修仙宗门经营体验离职前项目仍属于初期开发阶段各项内容都只有基础功能",
+            "text": "项目的设计深受《环世界》启发，其核心特色是通过程序化生成的开放世界、深度模拟的角色行为与社会关系、以及由 AI 驱动的动态故事系统，为玩家每一次游戏都创造出独一无二的修仙宗门经营体验。离职前项目仍属于初期开发阶段，各项内容都只有基础功能。"
+          }
+        ]
+      },
       "showcase": {
         "title": "作品展示",
         "featuredTitle": "主录屏 / 核心玩法展示位",
@@ -716,14 +1054,14 @@ export const resumeSource: ResumeSourceDocument = {
     },
     {
       "slug": "desktop-pet",
+      "dedupeKey": "虚拟桌宠",
       "title": "虚拟桌宠",
       "track": "featured",
       "cardMeta": [
-        "职业项目",
-        "独立开发",
-        "Windows 桌面应用"
+        "核心开发",
+        "Windows 桌面应用",
+        "2023/11-2023/12"
       ],
-      "cardSummary": "为公司新发行独立游戏制作的附赠桌宠软件，独立完成透明窗口、拖拽交互、多角色配置、属性成长、商店和本地存档链路。",
       "cardTags": [
         "Unity",
         "Win32",
@@ -733,7 +1071,29 @@ export const resumeSource: ResumeSourceDocument = {
         "本地存档"
       ],
       "heroEyebrow": "Featured Project / Desktop Companion",
-      "heroSubtitle": "作为公司新发行独立游戏的附赠产品，独立完成一款支持多角色的 Windows 桌宠软件，涵盖透明窗口、拖拽交互、属性成长、商店和本地数据配置链路。",
+      "content": {
+        "summary": [
+          {
+            "id": "project-desktop-pet-summary-1",
+            "dedupeKey": "为公司新发行独立游戏制作的附赠桌宠软件独立完成透明窗口拖拽交互多角色配置属性成长商店和本地存档链路",
+            "text": "为公司新发行独立游戏制作的附赠桌宠软件，独立完成透明窗口、拖拽交互、多角色配置、属性成长、商店和本地存档链路。"
+          }
+        ],
+        "refined": [
+          {
+            "id": "project-desktop-pet-refined-1",
+            "dedupeKey": "作为公司新发行独立游戏的附赠产品独立完成一款支持多角色的windows桌宠软件涵盖透明窗口拖拽交互属性成长商店和本地数据配置链路",
+            "text": "作为公司新发行独立游戏的附赠产品，独立完成一款支持多角色的 Windows 桌宠软件，涵盖透明窗口、拖拽交互、属性成长、商店和本地数据配置链路。"
+          }
+        ],
+        "original": [
+          {
+            "id": "project-desktop-pet-original-1",
+            "dedupeKey": "独立制作一款支持多角色的桌宠软件作为公司新发行独立游戏的附赠产品桌宠软件包含属性系统商店系统交互系统等",
+            "text": "独立制作一款支持多角色的桌宠软件作为公司新发行独立游戏的附赠产品，桌宠软件包含属性系统、商店系统、交互系统等。"
+          }
+        ]
+      },
       "showcase": {
         "title": "作品展示",
         "featuredTitle": "主录屏 / 桌面交互展示位",
@@ -864,7 +1224,7 @@ export const resumeSource: ResumeSourceDocument = {
                 {
                   "title": "项目角色",
                   "paragraphs": [
-                    "U3D（独立开发）"
+                    "核心开发"
                   ]
                 },
                 {
@@ -909,14 +1269,14 @@ export const resumeSource: ResumeSourceDocument = {
     },
     {
       "slug": "tower-defense",
+      "dedupeKey": "塔防手游单机化改造",
       "title": "塔防手游单机化改造",
       "track": "featured",
       "cardMeta": [
-        "职业项目",
-        "独立开发",
-        "遗留联机项目改造"
+        "核心开发",
+        "遗留联机项目改造",
+        "2023/12-至今"
       ],
-      "cardSummary": "在服务端缺失和文档断档的前提下恢复遗留联机塔防工程，将其改造成可运行的单机安卓版本，并补齐登录、奖励、战斗与接入流程。",
       "cardTags": [
         "Unity",
         "Android",
@@ -925,7 +1285,29 @@ export const resumeSource: ResumeSourceDocument = {
         "单机化改造"
       ],
       "heroEyebrow": "Featured Project / Recovery & Porting",
-      "heroSubtitle": "在服务端缺失、文档断档的前提下，分析遗留联机塔防工程并恢复关键流程，将其改造成可上线测试的单机安卓版本，同时补齐登录、奖励、战斗和适配工作。",
+      "content": {
+        "summary": [
+          {
+            "id": "project-tower-defense-summary-1",
+            "dedupeKey": "在服务端缺失和文档断档的前提下恢复遗留联机塔防工程将其改造成可运行的单机安卓版本并补齐登录奖励战斗与接入流程",
+            "text": "在服务端缺失和文档断档的前提下恢复遗留联机塔防工程，将其改造成可运行的单机安卓版本，并补齐登录、奖励、战斗与接入流程。"
+          }
+        ],
+        "refined": [
+          {
+            "id": "project-tower-defense-refined-1",
+            "dedupeKey": "在服务端缺失文档断档的前提下分析遗留联机塔防工程并恢复关键流程将其改造成可上线测试的单机安卓版本同时补齐登录奖励战斗和适配工作",
+            "text": "在服务端缺失、文档断档的前提下，分析遗留联机塔防工程并恢复关键流程，将其改造成可上线测试的单机安卓版本，同时补齐登录、奖励、战斗和适配工作。"
+          }
+        ],
+        "original": [
+          {
+            "id": "project-tower-defense-original-1",
+            "dedupeKey": "将一款联机对战塔防游戏改造成一款单机安卓游戏接入taptap登录和防沉迷系统后添加额外的功能进行二次开发",
+            "text": "将一款联机对战塔防游戏改造成一款单机安卓游戏，接入 TapTap 登录和防沉迷系统后添加额外的功能进行二次开发。"
+          }
+        ]
+      },
       "showcase": {
         "title": "作品展示",
         "featuredTitle": "主录屏 / 关卡流程展示位",
@@ -1068,7 +1450,7 @@ export const resumeSource: ResumeSourceDocument = {
                 {
                   "title": "项目角色",
                   "paragraphs": [
-                    "U3D（独立开发）"
+                    "核心开发"
                   ]
                 },
                 {
@@ -1112,14 +1494,14 @@ export const resumeSource: ResumeSourceDocument = {
     },
     {
       "slug": "knowledge-graph",
+      "dedupeKey": "短文本知识标注系统",
       "title": "短文本知识标注系统",
       "track": "featured",
       "cardMeta": [
-        "职业项目",
         "百度",
-        "技术负责人"
+        "主要RD",
+        "2020.07-2023.04"
       ],
-      "cardSummary": "覆盖知识库、模型、数据工程和服务部署的中文文本理解基础设施，服务搜索、广告和 AIGC 业务。",
       "cardTags": [
         "NLP",
         "知识图谱",
@@ -1130,7 +1512,34 @@ export const resumeSource: ResumeSourceDocument = {
         "TermTree"
       ],
       "heroEyebrow": "Featured Project / AI Infrastructure",
-      "heroSubtitle": "百度内部基础设施项目，从词汇理解和句子理解角度探索中文通用知识表征与应用，以知识库、模型、数据工程与服务部署支撑搜索、广告和 AIGC 等业务线。",
+      "content": {
+        "summary": [
+          {
+            "id": "project-knowledge-graph-summary-1",
+            "dedupeKey": "覆盖知识库模型数据工程和服务部署的中文文本理解基础设施服务搜索广告和aigc业务",
+            "text": "覆盖知识库、模型、数据工程和服务部署的中文文本理解基础设施，服务搜索、广告和 AIGC 业务。"
+          }
+        ],
+        "refined": [
+          {
+            "id": "project-knowledge-graph-refined-1",
+            "dedupeKey": "百度内部基础设施项目从词汇理解和句子理解角度探索中文通用知识表征与应用以知识库模型数据工程与服务部署支撑搜索广告和aigc等业务线",
+            "text": "百度内部基础设施项目，从词汇理解和句子理解角度探索中文通用知识表征与应用，以知识库、模型、数据工程与服务部署支撑搜索、广告和 AIGC 等业务线。"
+          }
+        ],
+        "original": [
+          {
+            "id": "project-knowledge-graph-original-1",
+            "dedupeKey": "百度内部基础设施项目从词汇理解和句子理解角度探索中文通用知识表征与应用以知识库模型数据工程与服务部署支撑搜索广告和aigc等业务线",
+            "text": "百度内部基础设施项目，从词汇理解和句子理解角度探索中文通用知识表征与应用，以知识库、模型、数据工程与服务部署支撑搜索、广告和 AIGC 等业务线。"
+          },
+          {
+            "id": "project-knowledge-graph-original-2",
+            "dedupeKey": "本项目从词汇理解和句子理解的角度探索中文通用知识表征与应用通过构建中文全词类知识库将文本与通用词汇知识体系相关联让模型对中文语句的理解能力更接近于人从而实现通用域中文文本的精准解析与挖掘",
+            "text": "本项目从词汇理解和句子理解的角度，探索中文通用知识表征与应用。通过构建中文全词类知识库，将文本与通用词汇知识体系相关联，让模型对中文语句的理解能力更接近于人，从而实现通用域中文文本的精准解析与挖掘。"
+          }
+        ]
+      },
       "showcase": {
         "title": "作品展示",
         "featuredTitle": "架构图 / 方案录屏展示位",
@@ -1352,6 +1761,7 @@ export const resumeSource: ResumeSourceDocument = {
     },
     {
       "slug": "sceneblueprint",
+      "dedupeKey": "sceneblueprint场景蓝图框架",
       "title": "SceneBlueprint 场景蓝图框架",
       "track": "open_source",
       "cardMeta": [
@@ -1359,7 +1769,6 @@ export const resumeSource: ResumeSourceDocument = {
         "独立开发",
         "Unity Package"
       ],
-      "cardSummary": "面向 Unity 的场景级蓝图编辑框架，以 DSL、节点图编辑、导出契约和运行时解释执行构建完整工具链。",
       "cardTags": [
         "Unity",
         "Editor Tooling",
@@ -1367,7 +1776,34 @@ export const resumeSource: ResumeSourceDocument = {
         "Runtime Interpreter"
       ],
       "heroEyebrow": "Open Source / Tooling Framework",
-      "heroSubtitle": "面向 Unity 的场景级蓝图编辑框架。围绕 DSL 定义、可视化节点图编辑、导出契约与运行时解释执行构建完整工具链，目标是在“制作蓝图”和“执行蓝图”之间建立稳定边界。",
+      "content": {
+        "summary": [
+          {
+            "id": "project-sceneblueprint-summary-1",
+            "dedupeKey": "面向unity的场景级蓝图编辑框架以dsl节点图编辑导出契约和运行时解释执行构建完整工具链",
+            "text": "面向 Unity 的场景级蓝图编辑框架，以 DSL、节点图编辑、导出契约和运行时解释执行构建完整工具链。"
+          }
+        ],
+        "refined": [
+          {
+            "id": "project-sceneblueprint-refined-1",
+            "dedupeKey": "面向unity的场景级蓝图编辑框架围绕dsl定义可视化节点图编辑导出契约与运行时解释执行构建完整工具链目标是在制作蓝图和执行蓝图之间建立稳定边界",
+            "text": "面向 Unity 的场景级蓝图编辑框架。围绕 DSL 定义、可视化节点图编辑、导出契约与运行时解释执行构建完整工具链，目标是在“制作蓝图”和“执行蓝图”之间建立稳定边界。"
+          }
+        ],
+        "original": [
+          {
+            "id": "project-sceneblueprint-original-1",
+            "dedupeKey": "sceneblueprint不是单纯的节点编辑器而是一套正式的场景蓝图框架",
+            "text": "SceneBlueprint 不是单纯的节点编辑器，而是一套正式的场景蓝图框架。"
+          },
+          {
+            "id": "project-sceneblueprint-original-2",
+            "dedupeKey": "它把编辑器制作流程和运行时执行流程拆成清晰的两个子系统使蓝图资产能够被定义校验编译导出再由运行时稳定加载和解释执行",
+            "text": "它把编辑器制作流程和运行时执行流程拆成清晰的两个子系统，使蓝图资产能够被定义、校验、编译、导出，再由运行时稳定加载和解释执行。"
+          }
+        ]
+      },
       "showcase": {
         "title": "作品展示",
         "featuredTitle": "编辑器工作台 / 录屏展示位",
@@ -1551,17 +1987,39 @@ export const resumeSource: ResumeSourceDocument = {
     },
     {
       "slug": "baike-knowledge-base",
+      "dedupeKey": "百度百科词条与知识库关联项目",
       "title": "百度百科词条与知识库关联项目",
       "track": "featured",
       "cardMeta": [
         "北京百度网讯科技有限公司",
-        "主要RD（项目团队共3人）",
+        "主要RD",
         "2018.09-2020.07"
       ],
-      "cardSummary": "本项目是将两千万百科词条收录入知识库中以扩充知识库里的实体和概念词数量，主要通过多种分类策略对输入的百科页面进行分类细化，得到一个精准的词条类别，进而将该词条与知识库中的概念节点相关联",
       "cardTags": [],
       "heroEyebrow": "Featured Project / Imported Draft",
-      "heroSubtitle": "本项目是将两千万百科词条收录入知识库中以扩充知识库里的实体和概念词数量，主要通过多种分类策略对输入的百科页面进行分类细化，得到一个精准的词条类别，进而将该词条与知识库中的概念节点相关联",
+      "content": {
+        "summary": [
+          {
+            "id": "project-baike-knowledge-base-summary-1",
+            "dedupeKey": "本项目是将两千万百科词条收录入知识库中以扩充知识库里的实体和概念词数量主要通过多种分类策略对输入的百科页面进行分类细化得到一个精准的词条类别进而将该词条与知识库中的概念节点相关联",
+            "text": "本项目是将两千万百科词条收录入知识库中以扩充知识库里的实体和概念词数量，主要通过多种分类策略对输入的百科页面进行分类细化，得到一个精准的词条类别，进而将该词条与知识库中的概念节点相关联"
+          }
+        ],
+        "refined": [
+          {
+            "id": "project-baike-knowledge-base-refined-1",
+            "dedupeKey": "本项目是将两千万百科词条收录入知识库中以扩充知识库里的实体和概念词数量主要通过多种分类策略对输入的百科页面进行分类细化得到一个精准的词条类别进而将该词条与知识库中的概念节点相关联",
+            "text": "本项目是将两千万百科词条收录入知识库中以扩充知识库里的实体和概念词数量，主要通过多种分类策略对输入的百科页面进行分类细化，得到一个精准的词条类别，进而将该词条与知识库中的概念节点相关联"
+          }
+        ],
+        "original": [
+          {
+            "id": "project-baike-knowledge-base-original-1",
+            "dedupeKey": "本项目是将两千万百科词条收录入知识库中以扩充知识库里的实体和概念词数量主要通过多种分类策略对输入的百科页面进行分类细化得到一个精准的词条类别进而将该词条与知识库中的概念节点相关联",
+            "text": "本项目是将两千万百科词条收录入知识库中以扩充知识库里的实体和概念词数量，主要通过多种分类策略对输入的百科页面进行分类细化，得到一个精准的词条类别，进而将该词条与知识库中的概念节点相关联"
+          }
+        ]
+      },
       "showcase": {
         "title": "作品展示",
         "featuredTitle": "百度百科词条与知识库关联项目 展示位",
@@ -1587,7 +2045,7 @@ export const resumeSource: ResumeSourceDocument = {
           },
           {
             "title": "职责",
-            "description": "主要RD（项目团队共3人）"
+            "description": "主要RD"
           },
           {
             "title": "周期",
@@ -1669,7 +2127,7 @@ export const resumeSource: ResumeSourceDocument = {
                 {
                   "title": "项目角色",
                   "paragraphs": [
-                    "主要RD（项目团队共3人）"
+                    "主要RD"
                   ]
                 },
                 {
@@ -1686,3 +2144,6 @@ export const resumeSource: ResumeSourceDocument = {
     }
   ]
 };
+
+
+

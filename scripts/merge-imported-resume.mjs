@@ -59,713 +59,15 @@ async function resolveLatestImportedSource() {
   return stats[0].candidate;
 }
 
-function deepClone(value) {
-  return JSON.parse(JSON.stringify(value));
-}
-
-function uniq(items) {
-  return Array.from(new Set(items.filter(Boolean)));
-}
-
-function normalizeTextKey(text) {
-  return text.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
-}
-
-function parseMonthValue(value) {
-  const match = value.match(/(\d{4})[./](\d{1,2})/);
-  if (!match) {
-    return null;
-  }
-  return Number(match[1]) * 12 + Number(match[2]) - 1;
-}
-
-function parsePeriodRange(text) {
-  const compact = text.replace(/[–]/g, "-").replace(/\s+/g, " ").trim();
-  const match = compact.match(/(\d{4}[./]\d{1,2})\s*-\s*(\d{4}[./]\d{1,2}|至今)/);
-  if (!match) {
-    return null;
-  }
-  const start = parseMonthValue(match[1]);
-  const end = match[2] === "至今" ? 999999 : parseMonthValue(match[2]);
-  if (start === null || end === null) {
-    return null;
-  }
-  return { start, end };
-}
-
-function overlapScore(left, right) {
-  if (!left || !right) {
-    return 0;
-  }
-  const start = Math.max(left.start, right.start);
-  const end = Math.min(left.end, right.end);
-  return Math.max(0, end - start + 1);
-}
-
-function companyKey(company) {
-  return normalizeTextKey(company.replace(/[（）()]/g, ""));
-}
-
-function normalizePeriodText(period) {
-  return (period ?? "").replace(/[–]/g, "-").replace(/\s+/g, "");
-}
-
-function rangeContains(container, inner) {
-  return Boolean(container && inner && inner.start >= container.start && inner.end <= container.end);
-}
-
-function compareRangeStartDescending(left, right) {
-  const leftStart = left.range?.start ?? Number.NEGATIVE_INFINITY;
-  const rightStart = right.range?.start ?? Number.NEGATIVE_INFINITY;
-  return rightStart - leftStart;
-}
-
-function countSharedItems(left, right) {
-  const rightSet = new Set(right ?? []);
-  return (left ?? []).filter((item) => rightSet.has(item)).length;
-}
-
-function hasNonOverlappingRanges(items) {
-  const sorted = [...items].sort((left, right) => (left.range?.start ?? 0) - (right.range?.start ?? 0));
-  for (let index = 1; index < sorted.length; index += 1) {
-    const previous = sorted[index - 1].range;
-    const current = sorted[index].range;
-    if (!previous || !current) {
-      return false;
-    }
-    if (current.start < previous.end) {
-      return false;
-    }
-  }
-  return true;
-}
-
-const PROJECT_KEY_RULES = [
-  { key: "scene-blueprint", patterns: [/scene\s*blueprint/i, /场景蓝图/] },
-  { key: "xiuxian", patterns: [/修仙/] },
-  { key: "knowledge-tagging", patterns: [/短文本知识标注/, /text\s*to\s*knowledge/i] },
-  { key: "baike-knowledge-base", patterns: [/百科词条.*知识库/, /百科.*知识库/, /baike/] },
-  { key: "desktop-pet", patterns: [/桌宠/] },
-  { key: "tower-defense", patterns: [/塔防/] },
-];
-
-const STANDARD_ARCHIVE_SECTION_TITLES = new Set(["项目介绍", "主要工作", "技术档案"]);
-
-function normalizeArchiveStoryTitle(title) {
-  return /档案/.test(title ?? "") ? "项目档案" : (title ?? "项目档案");
-}
-
-function normalizeArchiveSectionTitle(title) {
-  switch (title) {
-    case "项目概述":
-    case "核心定位":
-      return "项目介绍";
-    case "整理后的详细说明":
-    case "架构设计":
-      return "主要工作";
-    case "项目角色":
-    case "项目时间":
-    case "项目难点":
-    case "项目性能优化工作":
-    case "其他工作":
-    case "项目影响":
-    case "影响":
-    case "简历原文":
-    case "工具链亮点":
-    case "运行时与调试能力":
-      return "技术档案";
-    default:
-      return title;
-  }
-}
-
-function sectionHasContent(section) {
-  return Boolean(
-    (section.paragraphs ?? []).length > 0
-    || (section.groups ?? []).length > 0
-    || section.intro,
-  );
-}
-
-function groupHasContent(group) {
-  return Boolean((group.paragraphs ?? []).length > 0 || (group.items ?? []).length > 0);
-}
-
-function convertArchiveSectionToGroups(section, titlePrefix) {
-  const groups = [];
-  const introParagraphs = [section.intro, ...(section.paragraphs ?? [])].filter(Boolean);
-
-  if ((section.groups ?? []).length === 0) {
-    if (introParagraphs.length > 0) {
-      groups.push({
-        title: titlePrefix,
-        paragraphs: introParagraphs,
-      });
-    }
-    return groups;
-  }
-
-  if (introParagraphs.length > 0) {
-    groups.push({
-      title: titlePrefix,
-      paragraphs: introParagraphs,
-    });
-  }
-
-  for (const group of section.groups ?? []) {
-    const nextGroup = {
-      title: titlePrefix ? (group.title ? `${titlePrefix} / ${group.title}` : titlePrefix) : group.title,
-      paragraphs: group.paragraphs,
-      items: group.items,
-    };
-    if (groupHasContent(nextGroup)) {
-      groups.push(nextGroup);
-    }
-  }
-
-  return groups;
-}
-
-function normalizeArchiveSections(sections) {
-  const normalized = [];
-  const ensureSection = (title) => {
-    let section = normalized.find((item) => item.title === title);
-    if (!section) {
-      section = { title };
-      normalized.push(section);
-    }
-    return section;
-  };
-
-  for (const section of sections ?? []) {
-    const rawTitle = section.title;
-    const normalizedTitle = normalizeArchiveSectionTitle(rawTitle);
-    const prefixTitle = STANDARD_ARCHIVE_SECTION_TITLES.has(rawTitle) ? undefined : rawTitle;
-
-    if (normalizedTitle === "项目介绍") {
-      const target = ensureSection("项目介绍");
-      target.paragraphs = uniq([
-        ...(target.paragraphs ?? []),
-        ...[section.intro, ...(section.paragraphs ?? [])].filter(Boolean),
-      ]);
-      continue;
-    }
-
-    const target = ensureSection(normalizedTitle);
-    target.groups = [
-      ...(target.groups ?? []),
-      ...convertArchiveSectionToGroups(section, prefixTitle),
-    ];
-  }
-
-  return normalized.filter(sectionHasContent);
-}
-
-function normalizeImportedProject(project) {
-  const nextProject = deepClone(project);
-  nextProject.storySections = (nextProject.storySections ?? []).map((section) => {
-    if (section.kind !== "archive") {
-      return section;
-    }
-
-    return {
-      ...section,
-      title: normalizeArchiveStoryTitle(section.title),
-      sections: normalizeArchiveSections(section.sections ?? []),
-    };
-  });
-  return nextProject;
-}
-
-function resolveProjectKey(project) {
-  const candidates = [project.slug, project.title, ...(project.cardTags ?? []), ...(project.cardMeta ?? [])].filter(Boolean);
-  const joined = candidates.join(" ");
-
-  for (const rule of PROJECT_KEY_RULES) {
-    if (rule.patterns.some((pattern) => pattern.test(joined))) {
-      return rule.key;
-    }
-  }
-
-  return normalizeTextKey(project.title || project.slug || "project");
-}
-
-function mapProjectSlugs(slugs, slugMap) {
-  return uniq((slugs ?? []).map((slug) => slugMap.get(slug) ?? slug));
-}
-
-function mergeProfile(existingProfile, importedProfile) {
-  const nextProfile = deepClone(existingProfile);
-
-  if ((!nextProfile.role || nextProfile.role.includes("待")) && importedProfile.role) {
-    nextProfile.role = importedProfile.role;
-  }
-  if ((!nextProfile.bio || nextProfile.bio.includes("待")) && importedProfile.bio) {
-    nextProfile.bio = importedProfile.bio;
-  }
-  if ((!nextProfile.headline || nextProfile.headline.includes("待")) && importedProfile.headline) {
-    nextProfile.headline = importedProfile.headline;
-  }
-
-  nextProfile.strengths = uniq([...(existingProfile.strengths ?? []), ...(importedProfile.strengths ?? [])]);
-  nextProfile.summaryPoints = uniq([...(existingProfile.summaryPoints ?? []), ...(importedProfile.summaryPoints ?? [])]).slice(0, 6);
-  nextProfile.focusAreas = [...(existingProfile.focusAreas ?? [])];
-  for (const area of importedProfile.focusAreas ?? []) {
-    if (!nextProfile.focusAreas.some((existing) => existing.title === area.title || existing.description === area.description)) {
-      nextProfile.focusAreas.push(area);
-    }
-  }
-
-  nextProfile.facts = [...(existingProfile.facts ?? [])];
-  for (const fact of importedProfile.facts ?? []) {
-    if (!nextProfile.facts.some((existing) => existing.label === fact.label && existing.value === fact.value)) {
-      nextProfile.facts.push(fact);
-    }
-  }
-
-  nextProfile.contacts = [...(existingProfile.contacts ?? [])];
-  for (const contact of importedProfile.contacts ?? []) {
-    if (!nextProfile.contacts.some((existing) => existing.href === contact.href)) {
-      nextProfile.contacts.push(contact);
-    }
-  }
-
-  return nextProfile;
-}
-
-function mergeSkills(existingSkills, importedSkills) {
-  const nextSkills = deepClone(existingSkills);
-
-  for (const group of importedSkills) {
-    const match = nextSkills.find((existing) => existing.title === group.title);
-    if (match) {
-      match.items = uniq([...(match.items ?? []), ...(group.items ?? [])]);
-      continue;
-    }
-    nextSkills.push(group);
-  }
-
-  return nextSkills;
-}
-
-function mergeEducation(existingEducation, importedEducation) {
-  const nextEducation = deepClone(existingEducation);
-
-  if ((!nextEducation.school || nextEducation.school.includes("待")) && importedEducation.school) {
-    nextEducation.school = importedEducation.school;
-  }
-  if ((!nextEducation.degree || nextEducation.degree.includes("待")) && importedEducation.degree) {
-    nextEducation.degree = importedEducation.degree;
-  }
-  if ((!nextEducation.period || nextEducation.period.includes("待")) && importedEducation.period) {
-    nextEducation.period = importedEducation.period;
-  }
-  nextEducation.details = uniq([...(existingEducation.details ?? []), ...(importedEducation.details ?? [])]);
-
-  return nextEducation;
-}
-
-function mergeProjectCollections(existingProjects, importedProjects) {
-  const nextProjects = deepClone(existingProjects);
-  const slugMap = new Map();
-  let matchedCount = 0;
-  let addedCount = 0;
-
-  const existingByKey = new Map();
-  for (const project of nextProjects) {
-    existingByKey.set(resolveProjectKey(project), project);
-  }
-
-  for (const importedProjectRaw of importedProjects) {
-    const importedProject = normalizeImportedProject(importedProjectRaw);
-    const key = resolveProjectKey(importedProject);
-    const existingMatch = existingByKey.get(key);
-
-    if (existingMatch) {
-      matchedCount += 1;
-      slugMap.set(importedProject.slug, existingMatch.slug);
-      existingMatch.cardTags = uniq([...(existingMatch.cardTags ?? []), ...(importedProject.cardTags ?? [])]);
-
-      const importedLinks = importedProject.storySections?.find((section) => section.kind === "links")?.items ?? [];
-      if (importedLinks.length > 0) {
-        const existingLinksSection = existingMatch.storySections?.find((section) => section.kind === "links");
-        if (existingLinksSection) {
-          const existingItems = existingLinksSection.items ?? [];
-          existingLinksSection.items = [...existingItems];
-          for (const item of importedLinks) {
-            if (!existingLinksSection.items.some((existing) => existing.href === item.href)) {
-              existingLinksSection.items.push(item);
-            }
-          }
-        }
-      }
-
-      const importedLayeredSection = importedProject.storySections?.find((section) => section.kind === "layered_bullets");
-      if (importedLayeredSection) {
-        const existingLayeredSection = existingMatch.storySections?.find((section) => section.kind === "layered_bullets");
-        if (existingLayeredSection) {
-          existingLayeredSection.refinedTitle = existingLayeredSection.refinedTitle ?? importedLayeredSection.refinedTitle;
-          existingLayeredSection.originalTitle = existingLayeredSection.originalTitle ?? importedLayeredSection.originalTitle;
-          existingLayeredSection.refinedItems = uniq([...(existingLayeredSection.refinedItems ?? []), ...(importedLayeredSection.refinedItems ?? [])]);
-          existingLayeredSection.originalItems = uniq([...(existingLayeredSection.originalItems ?? []), ...(importedLayeredSection.originalItems ?? [])]);
-        } else {
-          existingMatch.storySections.push(deepClone(importedLayeredSection));
-        }
-      }
-
-      const importedArchiveSection = importedProject.storySections?.find((section) => section.kind === "archive");
-      if (importedArchiveSection) {
-        const existingArchiveSection = existingMatch.storySections?.find((section) => section.kind === "archive");
-        if (existingArchiveSection) {
-          existingArchiveSection.title = normalizeArchiveStoryTitle(existingArchiveSection.title);
-          existingArchiveSection.description = existingArchiveSection.description ?? importedArchiveSection.description;
-          existingArchiveSection.sections = normalizeArchiveSections(existingArchiveSection.sections ?? []);
-          const existingByTitle = new Map((existingArchiveSection.sections ?? []).map((section) => [section.title, section]));
-          for (const importedSection of importedArchiveSection.sections ?? []) {
-            const existingSection = existingByTitle.get(importedSection.title);
-            if (!existingSection) {
-              existingArchiveSection.sections.push(deepClone(importedSection));
-              continue;
-            }
-            existingSection.intro = existingSection.intro ?? importedSection.intro;
-            existingSection.paragraphs = uniq([...(existingSection.paragraphs ?? []), ...(importedSection.paragraphs ?? [])]);
-            const existingGroups = existingSection.groups ?? [];
-            const importedGroups = importedSection.groups ?? [];
-            const nextGroups = [...existingGroups];
-            for (const importedGroup of importedGroups) {
-              const matchIndex = nextGroups.findIndex((group) => (group.title ?? "") === (importedGroup.title ?? ""));
-              if (matchIndex < 0) {
-                nextGroups.push(deepClone(importedGroup));
-                continue;
-              }
-              nextGroups[matchIndex] = {
-                ...nextGroups[matchIndex],
-                paragraphs: uniq([...(nextGroups[matchIndex].paragraphs ?? []), ...(importedGroup.paragraphs ?? [])]),
-                items: uniq([...(nextGroups[matchIndex].items ?? []), ...(importedGroup.items ?? [])]),
-              };
-            }
-            existingSection.groups = nextGroups;
-          }
-        } else {
-          existingMatch.storySections.push(deepClone(importedArchiveSection));
-        }
-      }
-      continue;
-    }
-
-    const appendedProject = deepClone(importedProject);
-    nextProjects.push(appendedProject);
-    existingByKey.set(key, appendedProject);
-    slugMap.set(importedProject.slug, appendedProject.slug);
-    addedCount += 1;
-  }
-
-  return { nextProjects, slugMap, matchedCount, addedCount };
-}
-
-function findExperienceMatchIndex(existingExperiences, importedExperience, mappedProjectSlugs = []) {
-  const importedCompanyKey = companyKey(importedExperience.company);
-  const importedRange = parsePeriodRange(importedExperience.period);
-  const normalizedImportedPeriod = normalizePeriodText(importedExperience.period);
-  let bestIndex = -1;
-  let bestScore = Number.NEGATIVE_INFINITY;
-
-  existingExperiences.forEach((experience, index) => {
-    if (companyKey(experience.company) !== importedCompanyKey) {
-      return;
-    }
-
-    const existingRange = parsePeriodRange(experience.period);
-    const overlap = overlapScore(existingRange, importedRange);
-    const sharedProjects = countSharedItems(experience.relatedProjects, mappedProjectSlugs);
-    let score = 80;
-
-    if (experience.role === importedExperience.role) {
-      score += 40;
-    }
-    if (normalizePeriodText(experience.period) === normalizedImportedPeriod) {
-      score += 260;
-    }
-    score += overlap * 16;
-
-    if (rangeContains(existingRange, importedRange)) {
-      score += 30;
-    }
-    if (sharedProjects > 0) {
-      score += sharedProjects * 260;
-    }
-    if ((experience.note ?? "") === (importedExperience.note ?? "") && importedExperience.note) {
-      score += 90;
-    } else if (Boolean(experience.note) !== Boolean(importedExperience.note)) {
-      score -= 60;
-    }
-    if (importedRange && existingRange && overlap === 0) {
-      score -= 180;
-    }
-
-    if (score > bestScore) {
-      bestScore = score;
-      bestIndex = index;
-    }
-  });
-
-  return bestScore > 0 ? bestIndex : -1;
-}
-
-function mergeDetailLayer(existingLayer, importedLayer) {
-  if (!existingLayer && !importedLayer) {
-    return undefined;
-  }
-
-  return {
-    refinedTitle: existingLayer?.refinedTitle ?? importedLayer?.refinedTitle,
-    refined: uniq([...(existingLayer?.refined ?? []), ...(importedLayer?.refined ?? [])]),
-    originalTitle: existingLayer?.originalTitle ?? importedLayer?.originalTitle,
-    original: uniq([...(existingLayer?.original ?? []), ...(importedLayer?.original ?? [])]),
-  };
-}
-
-function mergeExperience(existingExperience, importedExperience, mappedProjectSlugs) {
-  const nextExperience = deepClone(existingExperience);
-
-  if ((!nextExperience.summary || nextExperience.summary.includes("待")) && importedExperience.summary) {
-    nextExperience.summary = importedExperience.summary;
-  }
-
-  nextExperience.achievements = uniq([...(existingExperience.achievements ?? []), ...(importedExperience.achievements ?? [])]).slice(0, 8);
-  nextExperience.details = mergeDetailLayer(existingExperience.details, importedExperience.details);
-  const mergedProjectSlugs = uniq([...(existingExperience.relatedProjects ?? []), ...mappedProjectSlugs]);
-  if (mergedProjectSlugs.length > 0) {
-    nextExperience.relatedProjects = mergedProjectSlugs;
-  }
-  if (!nextExperience.note && importedExperience.note) {
-    nextExperience.note = importedExperience.note;
-  }
-
-  return nextExperience;
-}
-
-function buildImportedExperienceCandidates(importedExperiences, slugMap) {
-  return importedExperiences.map((experience, index) => ({
-    experience,
-    mappedProjectSlugs: mapProjectSlugs(experience.relatedProjects, slugMap),
-    range: parsePeriodRange(experience.period),
-    originalIndex: index,
-  }));
-}
-
-function shouldSplitExistingExperience(existingEntries, importedEntries) {
-  if (existingEntries.length !== 1 || importedEntries.length < 2) {
-    return false;
-  }
-
-  const existingRange = parsePeriodRange(existingEntries[0].experience.period);
-  if (!existingRange || importedEntries.some((entry) => !entry.range)) {
-    return false;
-  }
-
-  if (!hasNonOverlappingRanges(importedEntries)) {
-    return false;
-  }
-
-  const sortedImported = [...importedEntries].sort(compareRangeStartDescending);
-  const newestImported = sortedImported[0].range;
-  const oldestImported = sortedImported[sortedImported.length - 1].range;
-  if (!newestImported || !oldestImported) {
-    return false;
-  }
-
-  const importedCoverage = {
-    start: oldestImported.start,
-    end: newestImported.end,
-  };
-
-  if (!rangeContains(existingRange, importedCoverage)) {
-    return false;
-  }
-
-  return sortedImported.every((entry) => normalizePeriodText(entry.experience.period) !== normalizePeriodText(existingEntries[0].experience.period));
-}
-
-function choosePrimarySplitImportedIndex(existingExperience, importedEntries) {
-  let bestIndex = 0;
-  let bestScore = Number.NEGATIVE_INFINITY;
-
-  importedEntries.forEach((entry, index) => {
-    let score = 0;
-    const sharedProjects = countSharedItems(existingExperience.relatedProjects, entry.mappedProjectSlugs);
-    score += sharedProjects * 320;
-
-    if ((existingExperience.note ?? "") === (entry.experience.note ?? "")) {
-      score += entry.experience.note ? 90 : 40;
-    } else if (Boolean(existingExperience.note) !== Boolean(entry.experience.note)) {
-      score -= 50;
-    }
-
-    if (existingExperience.role === entry.experience.role) {
-      score += 30;
-    }
-
-    score += entry.range?.start ?? 0;
-
-    if (score > bestScore) {
-      bestScore = score;
-      bestIndex = index;
-    }
-  });
-
-  return bestIndex;
-}
-
-function extractExperienceAnchors(experience) {
-  const sources = [
-    experience.summary,
-    ...(experience.achievements ?? []),
-    ...(experience.details?.refined ?? []),
-    ...(experience.details?.original ?? []),
-  ].filter(Boolean);
-
-  return uniq(sources.map((text) => {
-    const match = text.match(/^([^：:]{2,48})[：:]/);
-    return match ? normalizeTextKey(match[1]) : undefined;
-  }));
-}
-
-function filterExperienceItemsByAnchors(items, anchors) {
-  if (!items || anchors.length === 0) {
-    return items;
-  }
-
-  return items.filter((item) => {
-    const normalized = normalizeTextKey(item);
-    return !anchors.some((anchor) => normalized.includes(anchor));
-  });
-}
-
-function pruneSplitPrimaryExperience(existingExperience, siblingImportedEntries) {
-  const anchors = uniq(siblingImportedEntries.flatMap((entry) => extractExperienceAnchors(entry.experience)));
-  if (anchors.length === 0) {
-    return deepClone(existingExperience);
-  }
-
-  const nextExperience = deepClone(existingExperience);
-  nextExperience.achievements = filterExperienceItemsByAnchors(nextExperience.achievements, anchors);
-
-  if (nextExperience.details) {
-    nextExperience.details.refined = filterExperienceItemsByAnchors(nextExperience.details.refined, anchors);
-    nextExperience.details.original = filterExperienceItemsByAnchors(nextExperience.details.original, anchors);
-  }
-
-  return nextExperience;
-}
-
-function expandExistingExperiencesForImported(existingExperiences, importedExperiences, slugMap) {
-  const existingEntriesByCompany = new Map();
-  existingExperiences.forEach((experience, index) => {
-    const key = companyKey(experience.company);
-    if (!existingEntriesByCompany.has(key)) {
-      existingEntriesByCompany.set(key, []);
-    }
-    existingEntriesByCompany.get(key).push({ experience, index });
-  });
-
-  const importedCandidatesByCompany = new Map();
-  for (const candidate of buildImportedExperienceCandidates(importedExperiences, slugMap)) {
-    const key = companyKey(candidate.experience.company);
-    if (!importedCandidatesByCompany.has(key)) {
-      importedCandidatesByCompany.set(key, []);
-    }
-    importedCandidatesByCompany.get(key).push(candidate);
-  }
-
-  const splitPlan = new Map();
-
-  for (const [key, importedEntries] of importedCandidatesByCompany.entries()) {
-    const existingEntries = existingEntriesByCompany.get(key) ?? [];
-    if (!shouldSplitExistingExperience(existingEntries, importedEntries)) {
-      continue;
-    }
-
-    const existingExperience = existingEntries[0].experience;
-    const sortedImported = [...importedEntries].sort((left, right) => left.originalIndex - right.originalIndex);
-    const primaryIndex = choosePrimarySplitImportedIndex(existingExperience, sortedImported);
-
-    const replacementExperiences = sortedImported.map((entry, index) => {
-      if (index !== primaryIndex) {
-        const placeholder = deepClone(entry.experience);
-        placeholder.relatedProjects = entry.mappedProjectSlugs.length > 0 ? entry.mappedProjectSlugs : placeholder.relatedProjects;
-        return placeholder;
-      }
-
-      const prunedExistingExperience = pruneSplitPrimaryExperience(
-        existingExperience,
-        sortedImported.filter((_, candidateIndex) => candidateIndex !== primaryIndex),
-      );
-
-      return {
-        ...prunedExistingExperience,
-        id: entry.experience.id,
-        company: entry.experience.company,
-        role: entry.experience.role,
-        period: entry.experience.period,
-        note: entry.experience.note,
-        relatedProjects: uniq([...(existingExperience.relatedProjects ?? []), ...entry.mappedProjectSlugs]),
-      };
-    });
-
-    splitPlan.set(existingEntries[0].index, replacementExperiences);
-  }
-
-  if (splitPlan.size === 0) {
-    return deepClone(existingExperiences);
-  }
-
-  const nextExperiences = [];
-  existingExperiences.forEach((experience, index) => {
-    const replacements = splitPlan.get(index);
-    if (replacements) {
-      nextExperiences.push(...replacements);
-      return;
-    }
-    nextExperiences.push(deepClone(experience));
-  });
-
-  return nextExperiences;
-}
-
-function mergeExperienceCollections(existingExperiences, importedExperiences, slugMap) {
-  const nextExperiences = expandExistingExperiencesForImported(existingExperiences, importedExperiences, slugMap);
-  let mergedCount = 0;
-  let addedCount = 0;
-
-  for (const importedExperience of importedExperiences) {
-    const mappedProjectSlugs = mapProjectSlugs(importedExperience.relatedProjects, slugMap);
-    const matchIndex = findExperienceMatchIndex(nextExperiences, importedExperience, mappedProjectSlugs);
-
-    if (matchIndex >= 0) {
-      nextExperiences[matchIndex] = mergeExperience(nextExperiences[matchIndex], importedExperience, mappedProjectSlugs);
-      mergedCount += 1;
-      continue;
-    }
-
-    const appendedExperience = deepClone(importedExperience);
-    appendedExperience.relatedProjects = mappedProjectSlugs.length > 0 ? mappedProjectSlugs : appendedExperience.relatedProjects;
-    nextExperiences.push(appendedExperience);
-    addedCount += 1;
-  }
-
-  return { nextExperiences, mergedCount, addedCount };
-}
-
-function extractObjectLiteral(moduleText) {
-  const exportIndex = moduleText.indexOf(EXPORT_MARKER);
+function extractObjectLiteral(moduleText, marker) {
+  const exportIndex = moduleText.indexOf(marker);
   if (exportIndex < 0) {
-    throw new Error("Could not find resumeSource export in target file.");
+    throw new Error(`Could not find export marker: ${marker}`);
   }
 
-  const startIndex = moduleText.indexOf("{", exportIndex + EXPORT_MARKER.length);
+  const startIndex = moduleText.indexOf("{", exportIndex + marker.length);
   if (startIndex < 0) {
-    throw new Error("Could not locate object literal start in target file.");
+    throw new Error(`Could not locate object literal start for export: ${marker}`);
   }
 
   let depth = 0;
@@ -806,147 +108,494 @@ function extractObjectLiteral(moduleText) {
     if (char === "}") {
       depth -= 1;
       if (depth === 0) {
-        return {
-          prefix: moduleText.slice(0, exportIndex),
-          objectLiteral: moduleText.slice(startIndex, index + 1),
-        };
+        return moduleText.slice(startIndex, index + 1);
       }
     }
   }
 
-  throw new Error("Could not locate object literal end in target file.");
+  throw new Error(`Could not locate object literal end for export: ${marker}`);
 }
 
-function parseSourceModule(moduleText) {
-  const { prefix, objectLiteral } = extractObjectLiteral(moduleText);
-  const normalizedLiteral = objectLiteral.replaceAll("RESUME_SCHEMA_VERSION", JSON.stringify(SCHEMA_VERSION));
-  const source = Function(`"use strict"; return (${normalizedLiteral});`)();
-  return { prefix, source };
+async function parseSourceModule(filePath) {
+  const raw = await fs.readFile(filePath, "utf8");
+  const objectLiteral = extractObjectLiteral(raw, EXPORT_MARKER)
+    .replaceAll("RESUME_SCHEMA_VERSION", JSON.stringify(SCHEMA_VERSION));
+  const document = Function(`"use strict"; return (${objectLiteral});`)();
+  return { raw, document };
 }
 
-function buildSourceModule(prefix, resumeSource) {
-  const objectLiteral = JSON.stringify(resumeSource, null, 2);
-  return `${prefix}${EXPORT_MARKER}${objectLiteral};\n`;
+function normalizeText(text) {
+  return String(text ?? "").replace(/\s+/g, " ").trim();
 }
 
-function basicValidateResumeSource(source) {
-  if (source.schemaVersion !== SCHEMA_VERSION) {
-    throw new Error(`Merged resume source schemaVersion must be ${SCHEMA_VERSION}.`);
-  }
+function normalizeTextKey(text) {
+  return normalizeText(text)
+    .toLowerCase()
+    .replace(/[\s\u3000]+/g, "")
+    .replace(/[，。,、；：:（）()【】\[\]“”"'‘’`~!@#$%^&*_+=<>?/\\|-]/g, "");
+}
 
-  const slugs = new Set();
-  for (const project of source.projects ?? []) {
-    if (!project.slug) {
-      throw new Error("Merged resume source contains a project without slug.");
-    }
-    if (slugs.has(project.slug)) {
-      throw new Error(`Merged resume source contains duplicate project slug: ${project.slug}`);
-    }
-    slugs.add(project.slug);
-  }
+const PROJECT_IDENTITY_RULES = [
+  { slug: "sceneblueprint", dedupeKey: "scene-blueprint", patterns: [/scene\s*blueprint/i, /场景蓝图/] },
+  { slug: "xiuxian-game", dedupeKey: "xiuxian-game", patterns: [/修仙/] },
+  { slug: "knowledge-graph", dedupeKey: "knowledge-graph", patterns: [/短文本知识标注/, /knowledge\s*tagging/i, /text\s*to\s*knowledge/i] },
+  { slug: "baike-knowledge-base", dedupeKey: "baike-knowledge-base", patterns: [/百科词条.*知识库/, /百科.*知识库/, /baike/i] },
+  { slug: "desktop-pet", dedupeKey: "desktop-pet", patterns: [/桌宠/] },
+  { slug: "tower-defense", dedupeKey: "tower-defense", patterns: [/塔防/] },
+];
 
-  const experienceIds = new Set();
-  for (const experience of source.experiences ?? []) {
-    if (!experience.id) {
-      throw new Error(`Merged resume source contains an experience without id: ${experience.company ?? "unknown"}`);
-    }
-    if (experienceIds.has(experience.id)) {
-      throw new Error(`Merged resume source contains duplicate experience id: ${experience.id}`);
-    }
-    experienceIds.add(experience.id);
-    for (const slug of experience.relatedProjects ?? []) {
-      if (!slugs.has(slug)) {
-        throw new Error(`Experience ${experience.id} references unknown project slug: ${slug}`);
-      }
+function resolveProjectIdentity(project, fallbackSlug) {
+  const joined = [project.title, project.slug, ...(project.cardMeta ?? []), ...(project.cardTags ?? [])].filter(Boolean).join(" ");
+  for (const rule of PROJECT_IDENTITY_RULES) {
+    if (rule.patterns.some((pattern) => pattern.test(joined))) {
+      return { slug: rule.slug, dedupeKey: rule.dedupeKey };
     }
   }
-}
-
-function mergeDocuments(existingSource, importedSource) {
-  const { nextProjects, slugMap, matchedCount: matchedProjects, addedCount: addedProjects } = mergeProjectCollections(
-    existingSource.projects ?? [],
-    importedSource.projects ?? [],
-  );
-
-  const { nextExperiences, mergedCount: mergedExperiences, addedCount: addedExperiences } = mergeExperienceCollections(
-    existingSource.experiences ?? [],
-    importedSource.experiences ?? [],
-    slugMap,
-  );
 
   return {
-    mergedSource: {
-      schemaVersion: existingSource.schemaVersion ?? importedSource.schemaVersion ?? SCHEMA_VERSION,
-      profile: mergeProfile(existingSource.profile, importedSource.profile),
-      experiences: nextExperiences,
-      skills: mergeSkills(existingSource.skills ?? [], importedSource.skills ?? []),
-      honors: uniq([...(existingSource.honors ?? []), ...(importedSource.honors ?? [])]),
-      education: mergeEducation(existingSource.education, importedSource.education),
-      projects: nextProjects,
-    },
-    summary: {
-      matchedProjects,
-      addedProjects,
-      mergedExperiences,
-      addedExperiences,
-    },
+    slug: fallbackSlug || project.slug,
+    dedupeKey: project.dedupeKey || normalizeTextKey(project.title || project.slug) || fallbackSlug || project.slug,
   };
+}
+
+function buildHonorDedupeKey(text) {
+  const value = normalizeText(text);
+  const year = value.match(/\b(20\d{2})\b/)?.[1] ?? "unknown";
+  const level = value.match(/(特等奖|金牌|银牌|铜牌|一等奖|二等奖|三等奖)/)?.[1] ?? "";
+  if (/专利|发明人/.test(value)) return `${year}|patent`;
+  if (/部门奖|项目奖/.test(value)) return `${year}|department-award`;
+  if (/零度突破之星/.test(value)) return `${year}|breakthrough-star`;
+  if (/ICPC/.test(value)) return `${year}|icpc|${level || normalizeTextKey(value)}`;
+  if (/CCPC/.test(value)) return `${year}|ccpc|${level || normalizeTextKey(value)}`;
+  if (/蓝桥杯/.test(value)) return `${year}|lanqiao|${level || normalizeTextKey(value)}`;
+  return `${year}|${normalizeTextKey(value)}`;
+}
+
+function createEntry(text, prefix, index, keyBuilder = normalizeTextKey) {
+  const normalized = normalizeText(text);
+  return {
+    id: `${prefix}-${index + 1}`,
+    dedupeKey: keyBuilder(normalized) || `${prefix}-${index + 1}`,
+    text: normalized,
+  };
+}
+
+function normalizeEntries(items, prefix, keyBuilder = normalizeTextKey) {
+  const map = new Map();
+  for (const [index, item] of (items ?? []).entries()) {
+    const entry = typeof item === "string"
+      ? createEntry(item, prefix, index, keyBuilder)
+      : {
+          id: item?.id || `${prefix}-${index + 1}`,
+          dedupeKey: item?.dedupeKey || keyBuilder(item?.text || item?.value || "") || `${prefix}-${index + 1}`,
+          text: normalizeText(item?.text || item?.value || ""),
+        };
+    if (!entry.text) {
+      continue;
+    }
+    const current = map.get(entry.dedupeKey);
+    if (!current || entry.text.length > current.text.length) {
+      map.set(entry.dedupeKey, entry);
+    }
+  }
+  return Array.from(map.values());
+}
+
+function normalizeLayeredContent(content, prefix, keyBuilder = normalizeTextKey) {
+  const next = {
+    summary: normalizeEntries(content?.summary, `${prefix}-summary`, keyBuilder),
+    refined: normalizeEntries(content?.refined, `${prefix}-refined`, keyBuilder),
+    original: normalizeEntries(content?.original, `${prefix}-original`, keyBuilder),
+  };
+
+  if (next.summary.length === 0) delete next.summary;
+  if (next.refined.length === 0) delete next.refined;
+  if (next.original.length === 0) delete next.original;
+
+  return Object.keys(next).length > 0 ? next : undefined;
+}
+
+function buildLayeredContentFromLegacy(summary, details, prefix, keyBuilder = normalizeTextKey) {
+  return normalizeLayeredContent({
+    summary: summary ? [summary] : [],
+    refined: details?.refined ?? [],
+    original: details?.original ?? [],
+  }, prefix, keyBuilder);
+}
+
+function normalizeHonors(honors) {
+  const grouped = new Map();
+
+  for (const honor of honors ?? []) {
+    if (typeof honor === "string") {
+      const text = normalizeText(honor);
+      if (!text) continue;
+      const key = buildHonorDedupeKey(text);
+      if (!grouped.has(key)) grouped.set(key, []);
+      grouped.get(key).push(text);
+      continue;
+    }
+
+    if (honor?.content) {
+      const key = honor.dedupeKey || buildHonorDedupeKey(honor.content.summary?.[0]?.text || honor.content.original?.[0]?.text || "");
+      const existing = grouped.get(key) ?? [];
+      const layers = [
+        ...(honor.content.summary ?? []).map((entry) => normalizeText(entry.text)),
+        ...(honor.content.refined ?? []).map((entry) => normalizeText(entry.text)),
+        ...(honor.content.original ?? []).map((entry) => normalizeText(entry.text)),
+      ].filter(Boolean);
+      grouped.set(key, [...existing, ...layers]);
+    }
+  }
+
+  return Array.from(grouped.entries()).map(([dedupeKey, texts], index) => {
+    const uniqueTexts = Array.from(new Set(texts)).sort((left, right) => left.length - right.length);
+    return {
+      id: `honor-${index + 1}`,
+      dedupeKey,
+      content: normalizeLayeredContent({
+        summary: uniqueTexts[0] ? [uniqueTexts[0]] : [],
+        original: uniqueTexts,
+      }, `honor-${index + 1}`, buildHonorDedupeKey),
+    };
+  });
+}
+
+function normalizeDocument(document) {
+  const experiences = (document.experiences ?? []).map((experience, index) => ({
+    id: experience.id,
+    dedupeKey: experience.dedupeKey || normalizeTextKey(`${experience.company}|${experience.role}|${experience.period}`) || `experience-${index + 1}`,
+    company: experience.company,
+    role: experience.role,
+    period: experience.period,
+    content: experience.content
+      ? normalizeLayeredContent(experience.content, `experience-${experience.id}`)
+      : buildLayeredContentFromLegacy(experience.summary, experience.details, `experience-${experience.id}`),
+    highlights: normalizeEntries(experience.highlights ?? experience.achievements, `experience-${experience.id}-highlight`),
+    relatedProjects: experience.relatedProjects,
+    note: experience.note,
+  }));
+
+  const projects = (document.projects ?? []).map((project, index) => {
+    const identity = resolveProjectIdentity(project, project.slug || `project-${index + 1}`);
+    return {
+    slug: identity.slug,
+    dedupeKey: identity.dedupeKey,
+    title: project.title,
+    track: project.track,
+    cardMeta: project.cardMeta ?? [],
+    cardTags: project.cardTags ?? [],
+    heroEyebrow: project.heroEyebrow,
+    content: project.content
+      ? normalizeLayeredContent(project.content, `project-${project.slug}`)
+      : buildLayeredContentFromLegacy(project.cardSummary, { refined: [project.heroSubtitle], original: [] }, `project-${project.slug}`),
+    showcase: project.showcase,
+    storySections: project.storySections ?? [],
+  };
+  });
+
+  return {
+    schemaVersion: SCHEMA_VERSION,
+    profile: document.profile,
+    experiences,
+    skills: document.skills ?? [],
+    honors: normalizeHonors(document.honors ?? []),
+    education: document.education,
+    projects,
+  };
+}
+
+function uniq(items) {
+  return Array.from(new Set((items ?? []).filter(Boolean)));
+}
+
+function mergeEntries(base, incoming) {
+  const merged = new Map((base ?? []).map((entry) => [entry.dedupeKey, entry]));
+  for (const entry of incoming ?? []) {
+    const existing = merged.get(entry.dedupeKey);
+    if (!existing || entry.text.length >= existing.text.length) {
+      merged.set(entry.dedupeKey, entry);
+    }
+  }
+  return Array.from(merged.values());
+}
+
+function mergeLayeredContent(base, incoming) {
+  if (!base && !incoming) {
+    return undefined;
+  }
+  const merged = {
+    summary: mergeEntries(base?.summary, incoming?.summary),
+    refined: mergeEntries(base?.refined, incoming?.refined),
+    original: mergeEntries(base?.original, incoming?.original),
+  };
+  if (merged.summary.length === 0) delete merged.summary;
+  if (merged.refined.length === 0) delete merged.refined;
+  if (merged.original.length === 0) delete merged.original;
+  return Object.keys(merged).length > 0 ? merged : undefined;
+}
+
+function mergeProfile(existingProfile, importedProfile) {
+  const nextProfile = JSON.parse(JSON.stringify(existingProfile));
+  if ((!nextProfile.role || nextProfile.role.includes("待")) && importedProfile.role) nextProfile.role = importedProfile.role;
+  if ((!nextProfile.bio || nextProfile.bio.includes("待")) && importedProfile.bio) nextProfile.bio = importedProfile.bio;
+  if ((!nextProfile.headline || nextProfile.headline.includes("待")) && importedProfile.headline) nextProfile.headline = importedProfile.headline;
+  nextProfile.strengths = uniq([...(existingProfile.strengths ?? []), ...(importedProfile.strengths ?? [])]);
+  nextProfile.summaryPoints = uniq([...(existingProfile.summaryPoints ?? []), ...(importedProfile.summaryPoints ?? [])]).slice(0, 6);
+  nextProfile.focusAreas = [...(existingProfile.focusAreas ?? [])];
+  for (const area of importedProfile.focusAreas ?? []) {
+    if (!nextProfile.focusAreas.some((existing) => existing.title === area.title && existing.description === area.description)) {
+      nextProfile.focusAreas.push(area);
+    }
+  }
+  nextProfile.facts = [...(existingProfile.facts ?? [])];
+  for (const fact of importedProfile.facts ?? []) {
+    if (!nextProfile.facts.some((existing) => existing.label === fact.label && existing.value === fact.value)) {
+      nextProfile.facts.push(fact);
+    }
+  }
+  nextProfile.contacts = [...(existingProfile.contacts ?? [])];
+  for (const contact of importedProfile.contacts ?? []) {
+    if (!nextProfile.contacts.some((existing) => existing.href === contact.href)) {
+      nextProfile.contacts.push(contact);
+    }
+  }
+  return nextProfile;
+}
+
+function mergeSkills(existingSkills, importedSkills) {
+  const nextSkills = JSON.parse(JSON.stringify(existingSkills));
+  for (const group of importedSkills ?? []) {
+    const match = nextSkills.find((existing) => existing.title === group.title);
+    if (match) {
+      match.items = uniq([...(match.items ?? []), ...(group.items ?? [])]);
+      continue;
+    }
+    nextSkills.push(group);
+  }
+  return nextSkills;
+}
+
+function mergeEducation(existingEducation, importedEducation) {
+  const nextEducation = JSON.parse(JSON.stringify(existingEducation));
+  if ((!nextEducation.school || nextEducation.school.includes("待")) && importedEducation.school) nextEducation.school = importedEducation.school;
+  if ((!nextEducation.degree || nextEducation.degree.includes("待")) && importedEducation.degree) nextEducation.degree = importedEducation.degree;
+  if ((!nextEducation.period || nextEducation.period.includes("待")) && importedEducation.period) nextEducation.period = importedEducation.period;
+  nextEducation.details = uniq([...(existingEducation.details ?? []), ...(importedEducation.details ?? [])]);
+  return nextEducation;
+}
+
+function mergeStorySections(existingSections, importedSections) {
+  const next = JSON.parse(JSON.stringify(existingSections ?? []));
+
+  for (const section of importedSections ?? []) {
+    const match = next.find((item) => item.kind === section.kind && item.title === section.title);
+    if (!match) {
+      next.push(JSON.parse(JSON.stringify(section)));
+      continue;
+    }
+
+    if (section.kind === "links") {
+      match.items = uniq([...(match.items ?? []), ...(section.items ?? [])].map((item) => JSON.stringify(item))).map((item) => JSON.parse(item));
+      continue;
+    }
+
+    if (section.kind === "stack") {
+      match.items = uniq([...(match.items ?? []), ...(section.items ?? [])]);
+      continue;
+    }
+
+    if (section.kind === "story") {
+      match.paragraphs = uniq([...(match.paragraphs ?? []), ...(section.paragraphs ?? [])]);
+      continue;
+    }
+
+    if (section.kind === "archive") {
+      const existingByTitle = new Map((match.sections ?? []).map((item) => [item.title, item]));
+      for (const importedArchiveSection of section.sections ?? []) {
+        const existingArchiveSection = existingByTitle.get(importedArchiveSection.title);
+        if (!existingArchiveSection) {
+          match.sections.push(JSON.parse(JSON.stringify(importedArchiveSection)));
+          continue;
+        }
+        existingArchiveSection.intro = existingArchiveSection.intro ?? importedArchiveSection.intro;
+        existingArchiveSection.paragraphs = uniq([...(existingArchiveSection.paragraphs ?? []), ...(importedArchiveSection.paragraphs ?? [])]);
+        const groups = [...(existingArchiveSection.groups ?? [])];
+        for (const importedGroup of importedArchiveSection.groups ?? []) {
+          const groupIndex = groups.findIndex((group) => (group.title ?? "") === (importedGroup.title ?? ""));
+          if (groupIndex < 0) {
+            groups.push(JSON.parse(JSON.stringify(importedGroup)));
+            continue;
+          }
+          groups[groupIndex] = {
+            ...groups[groupIndex],
+            paragraphs: uniq([...(groups[groupIndex].paragraphs ?? []), ...(importedGroup.paragraphs ?? [])]),
+            items: uniq([...(groups[groupIndex].items ?? []), ...(importedGroup.items ?? [])]),
+          };
+        }
+        existingArchiveSection.groups = groups;
+      }
+      continue;
+    }
+  }
+
+  return next;
+}
+
+function mergeProjects(existingProjects, importedProjects) {
+  const nextProjects = JSON.parse(JSON.stringify(existingProjects));
+  const slugMap = new Map();
+  let matchedCount = 0;
+  let addedCount = 0;
+
+  const existingByKey = new Map();
+  for (const project of nextProjects) {
+    existingByKey.set(project.dedupeKey, project);
+    existingByKey.set(project.slug, project);
+  }
+
+  for (const importedProject of importedProjects ?? []) {
+    const existing = existingByKey.get(importedProject.dedupeKey) ?? existingByKey.get(importedProject.slug);
+    if (!existing) {
+      nextProjects.push(JSON.parse(JSON.stringify(importedProject)));
+      existingByKey.set(importedProject.dedupeKey, nextProjects[nextProjects.length - 1]);
+      existingByKey.set(importedProject.slug, nextProjects[nextProjects.length - 1]);
+      slugMap.set(importedProject.slug, importedProject.slug);
+      addedCount += 1;
+      continue;
+    }
+
+    matchedCount += 1;
+    slugMap.set(importedProject.slug, existing.slug);
+    existing.cardMeta = uniq([...(existing.cardMeta ?? []), ...(importedProject.cardMeta ?? [])]);
+    existing.cardTags = uniq([...(existing.cardTags ?? []), ...(importedProject.cardTags ?? [])]);
+    existing.heroEyebrow = existing.heroEyebrow || importedProject.heroEyebrow;
+    existing.content = mergeLayeredContent(existing.content, importedProject.content);
+    existing.showcase = { ...existing.showcase, ...(importedProject.showcase ?? {}) };
+    existing.storySections = mergeStorySections(existing.storySections, importedProject.storySections);
+  }
+
+  return { nextProjects, slugMap, matchedCount, addedCount };
+}
+
+function remapProjectSlugs(slugs, slugMap) {
+  return uniq((slugs ?? []).map((slug) => slugMap.get(slug) ?? slug));
+}
+
+function findExperienceMatch(existingExperiences, importedExperience) {
+  return existingExperiences.find((experience) => (
+    experience.id === importedExperience.id
+      || experience.dedupeKey === importedExperience.dedupeKey
+      || (
+        normalizeTextKey(experience.company) === normalizeTextKey(importedExperience.company)
+        && experience.period === importedExperience.period
+        && experience.role === importedExperience.role
+      )
+  ));
+}
+
+function mergeExperiences(existingExperiences, importedExperiences, slugMap) {
+  const nextExperiences = JSON.parse(JSON.stringify(existingExperiences));
+  let matchedCount = 0;
+  let addedCount = 0;
+
+  for (const importedExperience of importedExperiences ?? []) {
+    const normalizedImported = {
+      ...importedExperience,
+      relatedProjects: remapProjectSlugs(importedExperience.relatedProjects, slugMap),
+    };
+    const existing = findExperienceMatch(nextExperiences, normalizedImported);
+    if (!existing) {
+      nextExperiences.push(JSON.parse(JSON.stringify(normalizedImported)));
+      addedCount += 1;
+      continue;
+    }
+
+    matchedCount += 1;
+    existing.content = mergeLayeredContent(existing.content, normalizedImported.content);
+    existing.highlights = mergeEntries(existing.highlights, normalizedImported.highlights);
+    existing.relatedProjects = uniq([...(existing.relatedProjects ?? []), ...(normalizedImported.relatedProjects ?? [])]);
+    if (!existing.note && normalizedImported.note) {
+      existing.note = normalizedImported.note;
+    }
+  }
+
+  return { nextExperiences, matchedCount, addedCount };
+}
+
+function mergeHonors(existingHonors, importedHonors) {
+  const merged = new Map((existingHonors ?? []).map((honor) => [honor.dedupeKey, JSON.parse(JSON.stringify(honor))]));
+  let matchedCount = 0;
+  let addedCount = 0;
+
+  for (const honor of importedHonors ?? []) {
+    const existing = merged.get(honor.dedupeKey);
+    if (!existing) {
+      merged.set(honor.dedupeKey, JSON.parse(JSON.stringify(honor)));
+      addedCount += 1;
+      continue;
+    }
+    matchedCount += 1;
+    existing.content = mergeLayeredContent(existing.content, honor.content);
+  }
+
+  return {
+    honors: Array.from(merged.values()),
+    matchedCount,
+    addedCount,
+  };
+}
+
+function serializeModule(rawModuleText, document) {
+  const objectLiteral = extractObjectLiteral(rawModuleText, EXPORT_MARKER);
+  return rawModuleText.replace(objectLiteral, JSON.stringify(document, null, 2));
 }
 
 async function main() {
   const options = parseArgs(args);
-  const input = options.input ?? await resolveLatestImportedSource();
+  const inputPath = options.input ?? await resolveLatestImportedSource();
+  const importedRaw = JSON.parse(await fs.readFile(inputPath, "utf8"));
+  const importedSource = normalizeDocument(importedRaw);
+  const { raw: existingRawModule, document: existingDocument } = await parseSourceModule(options.target);
+  const existingSource = normalizeDocument(existingDocument);
 
-  const [importedRaw, targetRaw] = await Promise.all([
-    fs.readFile(input, "utf8"),
-    fs.readFile(options.target, "utf8"),
-  ]);
+  const { nextProjects, slugMap, matchedCount: matchedProjects, addedCount: addedProjects } = mergeProjects(existingSource.projects, importedSource.projects);
+  const { nextExperiences, matchedCount: matchedExperiences, addedCount: addedExperiences } = mergeExperiences(existingSource.experiences, importedSource.experiences, slugMap);
+  const { honors, matchedCount: matchedHonors, addedCount: addedHonors } = mergeHonors(existingSource.honors, importedSource.honors);
 
-  const importedResumeSource = JSON.parse(importedRaw);
-  const { prefix, source: existingResumeSource } = parseSourceModule(targetRaw);
-  const { mergedSource, summary } = mergeDocuments(existingResumeSource, importedResumeSource);
-  basicValidateResumeSource(mergedSource);
-  const nextContent = buildSourceModule(prefix, mergedSource);
+  const mergedDocument = {
+    schemaVersion: SCHEMA_VERSION,
+    profile: mergeProfile(existingSource.profile, importedSource.profile),
+    experiences: nextExperiences,
+    skills: mergeSkills(existingSource.skills, importedSource.skills),
+    honors,
+    education: mergeEducation(existingSource.education, importedSource.education),
+    projects: nextProjects,
+  };
 
-  if (!options.write) {
-    console.log(`Dry run only. Imported source: ${input}`);
-    console.log(`Target file: ${options.target}`);
-    console.log(`Projects matched: ${summary.matchedProjects}`);
-    console.log(`Projects added: ${summary.addedProjects}`);
-    console.log(`Experiences merged: ${summary.mergedExperiences}`);
-    console.log(`Experiences added: ${summary.addedExperiences}`);
-    console.log(`Backup dir: ${options.backupDir}`);
-    console.log("Use --write to update src/data/resume-source.ts with merged content.");
-    return;
+  const summary = {
+    input: inputPath,
+    write: options.write,
+    projects: { matched: matchedProjects, added: addedProjects, total: mergedDocument.projects.length },
+    experiences: { matched: matchedExperiences, added: addedExperiences, total: mergedDocument.experiences.length },
+    honors: { matched: matchedHonors, added: addedHonors, total: mergedDocument.honors.length },
+    skills: mergedDocument.skills.length,
+  };
+
+  if (options.write) {
+    await fs.mkdir(options.backupDir, { recursive: true });
+    const backupPath = path.join(options.backupDir, `${path.basename(options.target, ".ts")}.${Date.now()}.bak.ts`);
+    await fs.writeFile(backupPath, existingRawModule, "utf8");
+    await fs.writeFile(options.target, serializeModule(existingRawModule, mergedDocument), "utf8");
+    summary.backup = backupPath;
+    summary.target = options.target;
   }
 
-  await fs.mkdir(options.backupDir, { recursive: true });
-  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-  const backupPath = path.join(options.backupDir, `resume-source.${timestamp}.ts`);
-
-  await Promise.all([
-    fs.writeFile(backupPath, targetRaw, "utf8"),
-    fs.writeFile(options.target, nextContent, "utf8"),
-  ]);
-
-  console.log(`Merged imported resume source: ${input}`);
-  console.log(`- target updated: ${options.target}`);
-  console.log(`- backup created: ${backupPath}`);
-  console.log(`- projects matched: ${summary.matchedProjects}`);
-  console.log(`- projects added: ${summary.addedProjects}`);
-  console.log(`- experiences merged: ${summary.mergedExperiences}`);
-  console.log(`- experiences added: ${summary.addedExperiences}`);
+  console.log(JSON.stringify(summary, null, 2));
 }
 
 main().catch((error) => {
-  console.error(error instanceof Error ? error.message : String(error));
+  console.error(error instanceof Error ? error.message : error);
   process.exitCode = 1;
 });
-
-
-
-
-
-
-
 

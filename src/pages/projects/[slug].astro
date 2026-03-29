@@ -54,10 +54,6 @@ function isArchiveSection(section: ProjectSection): section is ArchiveSection {
   return section.type === "archive";
 }
 
-function isTagsSection(section: ProjectSection): section is TagsSection {
-  return section.type === "tags";
-}
-
 function isLinksSection(section: ProjectSection): section is LinksSection {
   return section.type === "links";
 }
@@ -85,17 +81,17 @@ const showcaseSectionIndex = project.sections.findIndex((section) => section.typ
 const archiveSectionIndex = project.sections.findIndex((section) => section.type === "archive");
 const hasArchiveSection = archiveSectionIndex >= 0;
 const hasLinksSection = project.sections.some((section) => section.type === "links");
-const hasTagsSection = project.sections.some((section) => section.type === "tags");
+const tagsSection = project.sections.find((section) => section.type === "tags") as TagsSection | undefined;
+const heroTags = Array.from(new Set([...(project.tags ?? []), ...(tagsSection?.items ?? [])].filter(Boolean)));
 
 function shouldRenderSection(section: ProjectSection) {
   if (!hasArchiveSection) {
-    return true;
+    return section.type !== "tags";
   }
 
   return (
     section.type === "showcase" ||
     section.type === "archive" ||
-    section.type === "tags" ||
     section.type === "links"
   );
 }
@@ -237,6 +233,7 @@ function shouldRenderSection(section: ProjectSection) {
 
     .meta-row,
     .hero-actions,
+    .hero-tag-row,
     .tag-row,
     .link-row {
       display: flex;
@@ -263,12 +260,18 @@ function shouldRenderSection(section: ProjectSection) {
       border: 1px solid rgba(31, 111, 235, 0.12);
     }
 
-    .hero-tags {
-      opacity: 0.78;
+    .hero-tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 2px;
     }
 
     .hero-tag {
-      background: rgba(255, 255, 255, 0.68);
+      padding: 5px 12px;
+      color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.66);
+      border: 1px solid rgba(24, 39, 58, 0.08);
     }
 
     .hero-actions {
@@ -753,11 +756,6 @@ function shouldRenderSection(section: ProjectSection) {
       line-height: 1.75;
     }
 
-    .tech-stack {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
 
     .tag {
       padding: 5px 10px;
@@ -864,16 +862,13 @@ function shouldRenderSection(section: ProjectSection) {
               <span class="meta-pill">{item}</span>
             ))}
           </div>
-          <div class="hero-actions">
-            {!hasTagsSection && (
-              <div class="tag-row hero-tags">
-                {project.tags.map((tag) => (
-                  <span class="tag hero-tag">{tag}</span>
-                ))}
-              </div>
-            )}
-            {/* 顶部只保留跳转和基础信息，不显示提示性说明。 */}
-          </div>
+          {heroTags.length > 0 && (
+            <div class="hero-tag-row">
+              {heroTags.map((tag) => (
+                <span class="tag hero-tag">{tag}</span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </header>
@@ -1122,18 +1117,6 @@ function shouldRenderSection(section: ProjectSection) {
         );
       }
 
-      if (isTagsSection(section)) {
-        return (
-          <section class="section">
-            <h2 class="section-title">{section.title}</h2>
-            <div class="tech-stack">
-              {section.items.map((item) => (
-                <span class="tag">{item}</span>
-              ))}
-            </div>
-          </section>
-        );
-      }
 
       if (isLinksSection(section)) {
         return (
@@ -1211,6 +1194,13 @@ function shouldRenderSection(section: ProjectSection) {
   </script>
 </body>
 </html>
+
+
+
+
+
+
+
 
 
 
