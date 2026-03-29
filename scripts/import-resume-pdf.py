@@ -10,7 +10,14 @@ from pypdf import PdfReader
 
 def extract_text(pdf_path: Path) -> str:
     reader = PdfReader(str(pdf_path))
-    pages = [(page.extract_text() or "") for page in reader.pages]
+    pages = []
+    for page in reader.pages:
+        text = ""
+        try:
+            text = page.extract_text(extraction_mode="layout") or ""
+        except Exception:
+            text = page.extract_text() or ""
+        pages.append(text)
     return "\n".join(pages).strip()
 
 
@@ -69,3 +76,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

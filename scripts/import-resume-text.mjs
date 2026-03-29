@@ -3,7 +3,7 @@ import path from "node:path";
 import process from "node:process";
 
 const args = process.argv.slice(2);
-const NOISE_LINES = new Set(["社交主页", "个人优势", "工作经历", "实习经历", "荣誉奖项", "教育经历"]);
+const NOISE_LINES = new Set(["社交主页", "个人优势", "荣誉奖项", "教育经历"]);
 
 function parseArgs(argv) {
   const options = {
@@ -74,14 +74,25 @@ function sanitizeStem(value) {
 }
 
 function isExperienceHeader(line) {
-  return /\d{4}[./]\d{2}\s*[-–]\s*(?:\d{4}[./]\d{2}|至今)/.test(line)
-    && !line.startsWith("项目")
-    && !line.includes("项目时间")
-    && !line.includes("求职意向")
-    && !line.includes("https://")
-    && !line.includes("开源链接")
-    && !line.includes("本科")
-    && line.length <= 80;
+  const normalized = compactSentence(line);
+  return /\d{4}[./]\d{2}\s*[-–]\s*(?:\d{4}[./]\d{2}|至今)/.test(normalized)
+    && !normalized.startsWith("项目")
+    && !normalized.includes("项目时间")
+    && !normalized.includes("求职意向")
+    && !normalized.includes("https://")
+    && !normalized.includes("开源链接")
+    && !normalized.includes("本科")
+    && normalized.length <= 120;
+}
+
+function detectExperienceSection(line) {
+  if (line === "工作经历") {
+    return "work";
+  }
+  if (line === "实习经历") {
+    return "internship";
+  }
+  return undefined;
 }
 
 function findFirst(lines, pattern) {
@@ -175,6 +186,7 @@ function shouldJoinWrappedLine(previous, current) {
 
   if (
     isNoiseLine(current)
+    || detectExperienceSection(current) !== undefined
     || isExperienceHeader(current)
     || isExperienceHeader(previous)
     || isTailBoundaryLine(current)
@@ -188,7 +200,7 @@ function shouldJoinWrappedLine(previous, current) {
     return false;
   }
 
-  if (isNoiseLine(previous) || isLabelOnlyLine(previous) || /^https?:\/\//.test(previous)) {
+  if (isNoiseLine(previous) || detectExperienceSection(previous) !== undefined || isLabelOnlyLine(previous) || /^https?:\/\//.test(previous)) {
     return false;
   }
 
@@ -313,22 +325,34 @@ function buildSkillGroups(lines) {
 }
 
 function splitExperienceBlocks(lines) {
-  const headerIndexes = [];
+  const headers = [];
+  let currentSection = undefined;
+
   for (let index = 0; index < lines.length; index += 1) {
+    const section = detectExperienceSection(lines[index]);
+    if (section) {
+      currentSection = section;
+      continue;
+    }
+
     if (isExperienceHeader(lines[index])) {
-      headerIndexes.push(index);
+      headers.push({ index, sectionType: currentSection ?? "work" });
     }
   }
 
-  return headerIndexes.map((start, index) => {
-    const end = headerIndexes[index + 1] ?? lines.length;
+  return headers.map((headerEntry, index) => {
+    const start = headerEntry.index;
+    const end = headers[index + 1]?.index ?? lines.length;
     return {
       start,
       end,
       headerLine: lines[start],
       prevLine: lines[start - 1] ?? "",
       lines: lines.slice(start, end),
-      header: parseExperienceHeader(lines[start]),
+      header: {
+        ...parseExperienceHeader(lines[start]),
+        sectionType: headerEntry.sectionType,
+      },
     };
   });
 }
@@ -377,7 +401,7 @@ function parseLabeledSections(lines) {
   sections.set(currentKey, []);
 
   for (const line of lines) {
-    const labelMatch = line.match(/^(项目介绍|项目角色|项目时间|项目难点|主要工作|项目性能优化工作|其他工作|影响|开源链接)[：:]\s*(.*)$/);
+    const labelMatch = line.match(/^(项目介绍|项目角色|项目时间|项目难点|主要工作|项目性能优化工作|其他工作|项目影响|影响|开源链接)[：:]\s*(.*)$/);
     if (labelMatch) {
       currentKey = labelMatch[1];
       if (!sections.has(currentKey)) {
@@ -492,7 +516,7 @@ function buildArchiveGroups(lines) {
       continue;
     }
 
-    if (/^d+.s*/.test(line) || matchInlineLabel(line)) {
+    if (/^\d+\.\s*/.test(line) || matchInlineLabel(line)) {
       const group = ensureGroup();
       group.items = group.items ?? [];
       group.items.push(line);
@@ -512,27 +536,80 @@ function buildArchiveGroups(lines) {
   return { introParagraphs, groups };
 }
 
-function buildArchiveSections(labeledSections) {
-  const orderedKeys = ["项目介绍", "项目难点", "主要工作", "项目性能优化工作", "其他工作", "影响"];
-  const sections = [];
+function buildArchiveGroupsForLabel(title, lines) {
+  const { introParagraphs, groups } = buildArchiveGroups(lines);
+  const normalizedGroups = [];
 
-  for (const key of orderedKeys) {
-    const lines = (labeledSections.get(key) ?? []).map((line) => compactSentence(line)).filter(Boolean);
+  if (groups.length === 0) {
+    if (introParagraphs.length > 0) {
+      normalizedGroups.push({
+        title,
+        paragraphs: introParagraphs,
+      });
+    }
+    return normalizedGroups;
+  }
+
+  if (introParagraphs.length > 0) {
+    normalizedGroups.push({
+      title,
+      paragraphs: introParagraphs,
+    });
+  }
+
+  for (const group of groups) {
+    normalizedGroups.push({
+      title: group.title ? `${title} / ${group.title}` : title,
+      paragraphs: group.paragraphs,
+      items: group.items,
+    });
+  }
+
+  return normalizedGroups;
+}
+
+function buildArchiveSections(labeledSections) {
+  const sections = [];
+  const prefaceLines = (labeledSections.get("__preface__") ?? []).map((line) => compactSentence(line)).filter(Boolean);
+  const introLines = [
+    ...prefaceLines,
+    ...((labeledSections.get("项目介绍") ?? []).map((line) => compactSentence(line)).filter(Boolean)),
+  ];
+  const mainWorkLines = (labeledSections.get("主要工作") ?? []).map((line) => compactSentence(line)).filter(Boolean);
+  const technicalLabels = ["项目角色", "项目时间", "项目难点", "项目性能优化工作", "其他工作", "项目影响", "影响"];
+  const technicalGroups = [];
+
+  if (introLines.length > 0) {
+    sections.push({
+      title: "项目介绍",
+      paragraphs: introLines,
+    });
+  }
+
+  if (mainWorkLines.length > 0) {
+    const { introParagraphs, groups } = buildArchiveGroups(mainWorkLines);
+    sections.push({
+      title: "主要工作",
+      intro: groups.length > 0 && introParagraphs.length > 0 ? introParagraphs.join(" ") : undefined,
+      paragraphs: groups.length === 0 ? introParagraphs : undefined,
+      groups: groups.length > 0 ? groups : undefined,
+    });
+  }
+
+  for (const label of technicalLabels) {
+    const lines = (labeledSections.get(label) ?? []).map((line) => compactSentence(line)).filter(Boolean);
     if (lines.length === 0) {
       continue;
     }
 
-    if (key === "项目介绍" || key === "项目难点") {
-      sections.push({ title: key, paragraphs: lines });
-      continue;
-    }
+    const normalizedLabel = label === "影响" ? "项目影响" : label;
+    technicalGroups.push(...buildArchiveGroupsForLabel(normalizedLabel, lines));
+  }
 
-    const { introParagraphs, groups } = buildArchiveGroups(lines);
+  if (technicalGroups.length > 0) {
     sections.push({
-      title: key,
-      intro: groups.length > 0 && introParagraphs.length > 0 ? introParagraphs.join(" ") : undefined,
-      paragraphs: groups.length === 0 ? introParagraphs : undefined,
-      groups: groups.length > 0 ? groups : undefined,
+      title: "技术档案",
+      groups: technicalGroups,
     });
   }
 
@@ -702,7 +779,7 @@ function buildProjectDraft(projectBlock, experience, index) {
   const storySections = [
     {
       kind: "story",
-      title: "项目概述",
+      title: "项目介绍",
       paragraphs: [summary, challenge].filter(Boolean),
     },
   ];
@@ -722,8 +799,8 @@ function buildProjectDraft(projectBlock, experience, index) {
   if (archiveSections.length > 0) {
     storySections.push({
       kind: "archive",
-      title: "简历原文档案",
-      description: "以下内容按原始简历的层次结构保留，页面只在头部补充摘要和展示信息，不裁掉原文。",
+      title: "项目档案",
+      description: "按统一栏目保留项目原始信息，并补充必要的结构化归档。",
       sections: archiveSections,
     });
   }
@@ -769,6 +846,7 @@ function buildProjectDraft(projectBlock, experience, index) {
       sourceExperienceIndex: projectBlock.sourceExperienceIndex,
       sourceCompany: experience.company,
       sourceRole: role,
+      sourceSectionType: experience.sectionType,
       sourcePeriod: explicitPeriodText || experience.period,
       rawBulletCount: bullets.length,
       anchorIndex: projectBlock.anchorIndex,
@@ -783,23 +861,47 @@ function assignProjectsToExperiences(experiences, projects) {
     let bestIndex = project.importMeta.sourceExperienceIndex;
     let bestScore = Number.NEGATIVE_INFINITY;
 
-    if (project.importMeta.explicitTime && project.importMeta.projectRange) {
-      const startMonth = project.importMeta.projectRange.start;
-      experiences.forEach((experience, index) => {
-        let score = 0;
-        if (containsMonth(experience.importMeta.periodRange, startMonth)) {
-          score += 200;
+    experiences.forEach((experience, index) => {
+      let score = 0;
+      const distance = Math.abs(index - project.importMeta.sourceExperienceIndex);
+      const sameSourceBlock = index === project.importMeta.sourceExperienceIndex;
+      const sameCompany = experience.company === project.importMeta.sourceCompany;
+      const sameSection = experience.importMeta.sectionType === project.importMeta.sourceSectionType;
+
+      score += sameSourceBlock ? 320 : Math.max(0, 120 - distance * 22);
+
+      if (sameCompany) {
+        score += 240;
+      } else {
+        score -= 160;
+      }
+
+      if (sameSection) {
+        score += 140;
+      } else {
+        score -= 100;
+      }
+
+      if (!project.importMeta.explicitTime && sameCompany && !sameSourceBlock) {
+        score -= 120;
+      }
+
+      if (project.importMeta.explicitTime && project.importMeta.projectRange) {
+        const overlap = overlapScore(project.importMeta.projectRange, experience.importMeta.periodRange);
+        score += overlap * 18;
+        if (containsMonth(experience.importMeta.periodRange, project.importMeta.projectRange.start)) {
+          score += 260;
         }
-        score += overlapScore(project.importMeta.projectRange, experience.importMeta.periodRange);
-        score -= Math.abs(index - project.importMeta.sourceExperienceIndex) * 5;
-        if (score > bestScore) {
-          bestScore = score;
-          bestIndex = index;
+        if (containsMonth(experience.importMeta.periodRange, project.importMeta.projectRange.end)) {
+          score += 120;
         }
-      });
-    } else {
-      bestScore = 100 - Math.abs(project.importMeta.sourceExperienceIndex - bestIndex) * 10;
-    }
+      }
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestIndex = index;
+      }
+    });
 
     project.importMeta.assignedExperienceIndex = bestIndex;
   }
@@ -816,7 +918,7 @@ function assignProjectsToExperiences(experiences, projects) {
 
     if (currentProjects.length === 0 && nextProjects.length > 1) {
       const candidate = nextProjects.find((project) => !project.importMeta.explicitTime) ?? nextProjects[0];
-      if (candidate) {
+      if (candidate && candidate.importMeta.sourceSectionType === current.importMeta.sectionType) {
         candidate.importMeta.assignedExperienceIndex = index;
       }
     }
@@ -837,8 +939,10 @@ function buildExperiences(blocks) {
     company: block.header.company,
     role: block.header.role,
     period: block.header.period,
+    note: block.header.sectionType === "internship" ? "实习经历" : undefined,
     importMeta: {
       headerIndex: block.start,
+      sectionType: block.header.sectionType,
       periodRange: parsePeriodRange(block.header.period),
       fallbackBullets: extractBullets(block.lines.slice(1)).slice(0, 6),
     },
@@ -909,7 +1013,10 @@ function buildEducation(lines) {
 function buildDraft(text, inputStem) {
   const lines = splitLines(text).filter((line) => !isNoiseLine(line));
   const firstProjectIndex = lines.findIndex((line) => /^项目(?:[一二三四五六七八九十]|\d+)?[：:]/.test(line));
-  const profileLines = firstProjectIndex > 0 ? lines.slice(0, firstProjectIndex) : lines.slice(0, 20);
+  const firstExperienceIndex = lines.findIndex((line) => detectExperienceSection(line) !== undefined || isExperienceHeader(line));
+  const profileCutoffCandidates = [firstProjectIndex, firstExperienceIndex].filter((index) => index >= 0);
+  const profileCutoff = profileCutoffCandidates.length > 0 ? Math.min(...profileCutoffCandidates) : -1;
+  const profileLines = profileCutoff > 0 ? lines.slice(0, profileCutoff) : lines.slice(0, 20);
   const profile = buildProfile(profileLines, text);
   const skillGroups = buildSkillGroups(profileLines);
   const experienceBlocks = splitExperienceBlocks(lines);
@@ -972,6 +1079,27 @@ function buildWarnings(draft) {
   return warnings;
 }
 
+function isAssignmentHighConfidence(project, draft) {
+  const assignedExperience = draft.experiences[project.importMeta.assignedExperienceIndex];
+  if (!assignedExperience) {
+    return false;
+  }
+
+  const sameCompany = assignedExperience.company === project.importMeta.sourceCompany;
+  const sameSourceBlock = project.importMeta.sourceExperienceIndex === project.importMeta.assignedExperienceIndex;
+
+  if (!sameCompany) {
+    return false;
+  }
+
+  if (project.importMeta.explicitTime && project.importMeta.projectRange) {
+    const assignedRange = parsePeriodRange(assignedExperience.period);
+    return overlapScore(project.importMeta.projectRange, assignedRange) > 0;
+  }
+
+  return sameSourceBlock;
+}
+
 function buildReport(draft, warnings) {
   const missingRequiredFields = [];
   if (!draft.profile.name || draft.profile.name.includes("待补充")) {
@@ -995,7 +1123,8 @@ function buildReport(draft, warnings) {
     return {
       slug: project.slug,
       title: project.title,
-      company: project.importMeta.sourceCompany,
+      sourceCompany: project.importMeta.sourceCompany,
+      assignedCompany: draft.experiences[project.importMeta.assignedExperienceIndex]?.company ?? project.importMeta.sourceCompany,
       assignedExperienceIndex: project.importMeta.assignedExperienceIndex,
       sourceExperienceIndex: project.importMeta.sourceExperienceIndex,
       explicitTime: project.importMeta.explicitTime,
@@ -1006,13 +1135,17 @@ function buildReport(draft, warnings) {
   });
 
   const lowConfidenceAssignments = draft.projects
-    .filter((project) => !project.importMeta.explicitTime || project.importMeta.sourceExperienceIndex !== project.importMeta.assignedExperienceIndex)
+    .filter((project) => !isAssignmentHighConfidence(project, draft))
     .map((project) => ({
       slug: project.slug,
       title: project.title,
+      sourceCompany: project.importMeta.sourceCompany,
+      assignedCompany: draft.experiences[project.importMeta.assignedExperienceIndex]?.company ?? project.importMeta.sourceCompany,
       sourceExperienceIndex: project.importMeta.sourceExperienceIndex,
       assignedExperienceIndex: project.importMeta.assignedExperienceIndex,
-      reason: !project.importMeta.explicitTime ? "缺少明确项目时间，归属依赖启发式规则。" : "项目被重新归属到更匹配的经历。",
+      reason: project.importMeta.explicitTime
+        ? "项目被重新归属到更匹配的经历。"
+        : "缺少明确项目时间，且当前归属未能由原始项目块位置直接支撑。",
     }));
 
   const projectsNeedingReview = projectDiagnostics
@@ -1102,6 +1235,15 @@ main().catch((error) => {
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });
+
+
+
+
+
+
+
+
+
 
 
 

@@ -106,6 +106,40 @@ function companyKey(company) {
   return normalizeTextKey(company.replace(/[（）()]/g, ""));
 }
 
+function normalizePeriodText(period) {
+  return (period ?? "").replace(/[–]/g, "-").replace(/\s+/g, "");
+}
+
+function rangeContains(container, inner) {
+  return Boolean(container && inner && inner.start >= container.start && inner.end <= container.end);
+}
+
+function compareRangeStartDescending(left, right) {
+  const leftStart = left.range?.start ?? Number.NEGATIVE_INFINITY;
+  const rightStart = right.range?.start ?? Number.NEGATIVE_INFINITY;
+  return rightStart - leftStart;
+}
+
+function countSharedItems(left, right) {
+  const rightSet = new Set(right ?? []);
+  return (left ?? []).filter((item) => rightSet.has(item)).length;
+}
+
+function hasNonOverlappingRanges(items) {
+  const sorted = [...items].sort((left, right) => (left.range?.start ?? 0) - (right.range?.start ?? 0));
+  for (let index = 1; index < sorted.length; index += 1) {
+    const previous = sorted[index - 1].range;
+    const current = sorted[index].range;
+    if (!previous || !current) {
+      return false;
+    }
+    if (current.start < previous.end) {
+      return false;
+    }
+  }
+  return true;
+}
+
 const PROJECT_KEY_RULES = [
   { key: "scene-blueprint", patterns: [/scene\s*blueprint/i, /场景蓝图/] },
   { key: "xiuxian", patterns: [/修仙/] },
@@ -114,6 +148,134 @@ const PROJECT_KEY_RULES = [
   { key: "desktop-pet", patterns: [/桌宠/] },
   { key: "tower-defense", patterns: [/塔防/] },
 ];
+
+const STANDARD_ARCHIVE_SECTION_TITLES = new Set(["项目介绍", "主要工作", "技术档案"]);
+
+function normalizeArchiveStoryTitle(title) {
+  return /档案/.test(title ?? "") ? "项目档案" : (title ?? "项目档案");
+}
+
+function normalizeArchiveSectionTitle(title) {
+  switch (title) {
+    case "项目概述":
+    case "核心定位":
+      return "项目介绍";
+    case "整理后的详细说明":
+    case "架构设计":
+      return "主要工作";
+    case "项目角色":
+    case "项目时间":
+    case "项目难点":
+    case "项目性能优化工作":
+    case "其他工作":
+    case "项目影响":
+    case "影响":
+    case "简历原文":
+    case "工具链亮点":
+    case "运行时与调试能力":
+      return "技术档案";
+    default:
+      return title;
+  }
+}
+
+function sectionHasContent(section) {
+  return Boolean(
+    (section.paragraphs ?? []).length > 0
+    || (section.groups ?? []).length > 0
+    || section.intro,
+  );
+}
+
+function groupHasContent(group) {
+  return Boolean((group.paragraphs ?? []).length > 0 || (group.items ?? []).length > 0);
+}
+
+function convertArchiveSectionToGroups(section, titlePrefix) {
+  const groups = [];
+  const introParagraphs = [section.intro, ...(section.paragraphs ?? [])].filter(Boolean);
+
+  if ((section.groups ?? []).length === 0) {
+    if (introParagraphs.length > 0) {
+      groups.push({
+        title: titlePrefix,
+        paragraphs: introParagraphs,
+      });
+    }
+    return groups;
+  }
+
+  if (introParagraphs.length > 0) {
+    groups.push({
+      title: titlePrefix,
+      paragraphs: introParagraphs,
+    });
+  }
+
+  for (const group of section.groups ?? []) {
+    const nextGroup = {
+      title: titlePrefix ? (group.title ? `${titlePrefix} / ${group.title}` : titlePrefix) : group.title,
+      paragraphs: group.paragraphs,
+      items: group.items,
+    };
+    if (groupHasContent(nextGroup)) {
+      groups.push(nextGroup);
+    }
+  }
+
+  return groups;
+}
+
+function normalizeArchiveSections(sections) {
+  const normalized = [];
+  const ensureSection = (title) => {
+    let section = normalized.find((item) => item.title === title);
+    if (!section) {
+      section = { title };
+      normalized.push(section);
+    }
+    return section;
+  };
+
+  for (const section of sections ?? []) {
+    const rawTitle = section.title;
+    const normalizedTitle = normalizeArchiveSectionTitle(rawTitle);
+    const prefixTitle = STANDARD_ARCHIVE_SECTION_TITLES.has(rawTitle) ? undefined : rawTitle;
+
+    if (normalizedTitle === "项目介绍") {
+      const target = ensureSection("项目介绍");
+      target.paragraphs = uniq([
+        ...(target.paragraphs ?? []),
+        ...[section.intro, ...(section.paragraphs ?? [])].filter(Boolean),
+      ]);
+      continue;
+    }
+
+    const target = ensureSection(normalizedTitle);
+    target.groups = [
+      ...(target.groups ?? []),
+      ...convertArchiveSectionToGroups(section, prefixTitle),
+    ];
+  }
+
+  return normalized.filter(sectionHasContent);
+}
+
+function normalizeImportedProject(project) {
+  const nextProject = deepClone(project);
+  nextProject.storySections = (nextProject.storySections ?? []).map((section) => {
+    if (section.kind !== "archive") {
+      return section;
+    }
+
+    return {
+      ...section,
+      title: normalizeArchiveStoryTitle(section.title),
+      sections: normalizeArchiveSections(section.sections ?? []),
+    };
+  });
+  return nextProject;
+}
 
 function resolveProjectKey(project) {
   const candidates = [project.slug, project.title, ...(project.cardTags ?? []), ...(project.cardMeta ?? [])].filter(Boolean);
@@ -214,7 +376,8 @@ function mergeProjectCollections(existingProjects, importedProjects) {
     existingByKey.set(resolveProjectKey(project), project);
   }
 
-  for (const importedProject of importedProjects) {
+  for (const importedProjectRaw of importedProjects) {
+    const importedProject = normalizeImportedProject(importedProjectRaw);
     const key = resolveProjectKey(importedProject);
     const existingMatch = existingByKey.get(key);
 
@@ -252,9 +415,11 @@ function mergeProjectCollections(existingProjects, importedProjects) {
 
       const importedArchiveSection = importedProject.storySections?.find((section) => section.kind === "archive");
       if (importedArchiveSection) {
-        const existingArchiveSection = existingMatch.storySections?.find((section) => section.kind === "archive" && section.title === importedArchiveSection.title);
+        const existingArchiveSection = existingMatch.storySections?.find((section) => section.kind === "archive");
         if (existingArchiveSection) {
+          existingArchiveSection.title = normalizeArchiveStoryTitle(existingArchiveSection.title);
           existingArchiveSection.description = existingArchiveSection.description ?? importedArchiveSection.description;
+          existingArchiveSection.sections = normalizeArchiveSections(existingArchiveSection.sections ?? []);
           const existingByTitle = new Map((existingArchiveSection.sections ?? []).map((section) => [section.title, section]));
           for (const importedSection of importedArchiveSection.sections ?? []) {
             const existingSection = existingByTitle.get(importedSection.title);
@@ -298,9 +463,10 @@ function mergeProjectCollections(existingProjects, importedProjects) {
   return { nextProjects, slugMap, matchedCount, addedCount };
 }
 
-function findExperienceMatchIndex(existingExperiences, importedExperience) {
+function findExperienceMatchIndex(existingExperiences, importedExperience, mappedProjectSlugs = []) {
   const importedCompanyKey = companyKey(importedExperience.company);
   const importedRange = parsePeriodRange(importedExperience.period);
+  const normalizedImportedPeriod = normalizePeriodText(importedExperience.period);
   let bestIndex = -1;
   let bestScore = Number.NEGATIVE_INFINITY;
 
@@ -309,18 +475,32 @@ function findExperienceMatchIndex(existingExperiences, importedExperience) {
       return;
     }
 
-    let score = 50;
-    const overlap = overlapScore(parsePeriodRange(experience.period), importedRange);
-    score += overlap * 10;
+    const existingRange = parsePeriodRange(experience.period);
+    const overlap = overlapScore(existingRange, importedRange);
+    const sharedProjects = countSharedItems(experience.relatedProjects, mappedProjectSlugs);
+    let score = 80;
 
     if (experience.role === importedExperience.role) {
-      score += 20;
-    }
-    if (experience.period === importedExperience.period) {
       score += 40;
     }
-    if (importedRange && parsePeriodRange(experience.period) && overlap === 0) {
-      score -= 30;
+    if (normalizePeriodText(experience.period) === normalizedImportedPeriod) {
+      score += 260;
+    }
+    score += overlap * 16;
+
+    if (rangeContains(existingRange, importedRange)) {
+      score += 30;
+    }
+    if (sharedProjects > 0) {
+      score += sharedProjects * 260;
+    }
+    if ((experience.note ?? "") === (importedExperience.note ?? "") && importedExperience.note) {
+      score += 90;
+    } else if (Boolean(experience.note) !== Boolean(importedExperience.note)) {
+      score -= 60;
+    }
+    if (importedRange && existingRange && overlap === 0) {
+      score -= 180;
     }
 
     if (score > bestScore) {
@@ -365,14 +545,202 @@ function mergeExperience(existingExperience, importedExperience, mappedProjectSl
   return nextExperience;
 }
 
+function buildImportedExperienceCandidates(importedExperiences, slugMap) {
+  return importedExperiences.map((experience, index) => ({
+    experience,
+    mappedProjectSlugs: mapProjectSlugs(experience.relatedProjects, slugMap),
+    range: parsePeriodRange(experience.period),
+    originalIndex: index,
+  }));
+}
+
+function shouldSplitExistingExperience(existingEntries, importedEntries) {
+  if (existingEntries.length !== 1 || importedEntries.length < 2) {
+    return false;
+  }
+
+  const existingRange = parsePeriodRange(existingEntries[0].experience.period);
+  if (!existingRange || importedEntries.some((entry) => !entry.range)) {
+    return false;
+  }
+
+  if (!hasNonOverlappingRanges(importedEntries)) {
+    return false;
+  }
+
+  const sortedImported = [...importedEntries].sort(compareRangeStartDescending);
+  const newestImported = sortedImported[0].range;
+  const oldestImported = sortedImported[sortedImported.length - 1].range;
+  if (!newestImported || !oldestImported) {
+    return false;
+  }
+
+  const importedCoverage = {
+    start: oldestImported.start,
+    end: newestImported.end,
+  };
+
+  if (!rangeContains(existingRange, importedCoverage)) {
+    return false;
+  }
+
+  return sortedImported.every((entry) => normalizePeriodText(entry.experience.period) !== normalizePeriodText(existingEntries[0].experience.period));
+}
+
+function choosePrimarySplitImportedIndex(existingExperience, importedEntries) {
+  let bestIndex = 0;
+  let bestScore = Number.NEGATIVE_INFINITY;
+
+  importedEntries.forEach((entry, index) => {
+    let score = 0;
+    const sharedProjects = countSharedItems(existingExperience.relatedProjects, entry.mappedProjectSlugs);
+    score += sharedProjects * 320;
+
+    if ((existingExperience.note ?? "") === (entry.experience.note ?? "")) {
+      score += entry.experience.note ? 90 : 40;
+    } else if (Boolean(existingExperience.note) !== Boolean(entry.experience.note)) {
+      score -= 50;
+    }
+
+    if (existingExperience.role === entry.experience.role) {
+      score += 30;
+    }
+
+    score += entry.range?.start ?? 0;
+
+    if (score > bestScore) {
+      bestScore = score;
+      bestIndex = index;
+    }
+  });
+
+  return bestIndex;
+}
+
+function extractExperienceAnchors(experience) {
+  const sources = [
+    experience.summary,
+    ...(experience.achievements ?? []),
+    ...(experience.details?.refined ?? []),
+    ...(experience.details?.original ?? []),
+  ].filter(Boolean);
+
+  return uniq(sources.map((text) => {
+    const match = text.match(/^([^：:]{2,48})[：:]/);
+    return match ? normalizeTextKey(match[1]) : undefined;
+  }));
+}
+
+function filterExperienceItemsByAnchors(items, anchors) {
+  if (!items || anchors.length === 0) {
+    return items;
+  }
+
+  return items.filter((item) => {
+    const normalized = normalizeTextKey(item);
+    return !anchors.some((anchor) => normalized.includes(anchor));
+  });
+}
+
+function pruneSplitPrimaryExperience(existingExperience, siblingImportedEntries) {
+  const anchors = uniq(siblingImportedEntries.flatMap((entry) => extractExperienceAnchors(entry.experience)));
+  if (anchors.length === 0) {
+    return deepClone(existingExperience);
+  }
+
+  const nextExperience = deepClone(existingExperience);
+  nextExperience.achievements = filterExperienceItemsByAnchors(nextExperience.achievements, anchors);
+
+  if (nextExperience.details) {
+    nextExperience.details.refined = filterExperienceItemsByAnchors(nextExperience.details.refined, anchors);
+    nextExperience.details.original = filterExperienceItemsByAnchors(nextExperience.details.original, anchors);
+  }
+
+  return nextExperience;
+}
+
+function expandExistingExperiencesForImported(existingExperiences, importedExperiences, slugMap) {
+  const existingEntriesByCompany = new Map();
+  existingExperiences.forEach((experience, index) => {
+    const key = companyKey(experience.company);
+    if (!existingEntriesByCompany.has(key)) {
+      existingEntriesByCompany.set(key, []);
+    }
+    existingEntriesByCompany.get(key).push({ experience, index });
+  });
+
+  const importedCandidatesByCompany = new Map();
+  for (const candidate of buildImportedExperienceCandidates(importedExperiences, slugMap)) {
+    const key = companyKey(candidate.experience.company);
+    if (!importedCandidatesByCompany.has(key)) {
+      importedCandidatesByCompany.set(key, []);
+    }
+    importedCandidatesByCompany.get(key).push(candidate);
+  }
+
+  const splitPlan = new Map();
+
+  for (const [key, importedEntries] of importedCandidatesByCompany.entries()) {
+    const existingEntries = existingEntriesByCompany.get(key) ?? [];
+    if (!shouldSplitExistingExperience(existingEntries, importedEntries)) {
+      continue;
+    }
+
+    const existingExperience = existingEntries[0].experience;
+    const sortedImported = [...importedEntries].sort((left, right) => left.originalIndex - right.originalIndex);
+    const primaryIndex = choosePrimarySplitImportedIndex(existingExperience, sortedImported);
+
+    const replacementExperiences = sortedImported.map((entry, index) => {
+      if (index !== primaryIndex) {
+        const placeholder = deepClone(entry.experience);
+        placeholder.relatedProjects = entry.mappedProjectSlugs.length > 0 ? entry.mappedProjectSlugs : placeholder.relatedProjects;
+        return placeholder;
+      }
+
+      const prunedExistingExperience = pruneSplitPrimaryExperience(
+        existingExperience,
+        sortedImported.filter((_, candidateIndex) => candidateIndex !== primaryIndex),
+      );
+
+      return {
+        ...prunedExistingExperience,
+        id: entry.experience.id,
+        company: entry.experience.company,
+        role: entry.experience.role,
+        period: entry.experience.period,
+        note: entry.experience.note,
+        relatedProjects: uniq([...(existingExperience.relatedProjects ?? []), ...entry.mappedProjectSlugs]),
+      };
+    });
+
+    splitPlan.set(existingEntries[0].index, replacementExperiences);
+  }
+
+  if (splitPlan.size === 0) {
+    return deepClone(existingExperiences);
+  }
+
+  const nextExperiences = [];
+  existingExperiences.forEach((experience, index) => {
+    const replacements = splitPlan.get(index);
+    if (replacements) {
+      nextExperiences.push(...replacements);
+      return;
+    }
+    nextExperiences.push(deepClone(experience));
+  });
+
+  return nextExperiences;
+}
+
 function mergeExperienceCollections(existingExperiences, importedExperiences, slugMap) {
-  const nextExperiences = deepClone(existingExperiences);
+  const nextExperiences = expandExistingExperiencesForImported(existingExperiences, importedExperiences, slugMap);
   let mergedCount = 0;
   let addedCount = 0;
 
   for (const importedExperience of importedExperiences) {
     const mappedProjectSlugs = mapProjectSlugs(importedExperience.relatedProjects, slugMap);
-    const matchIndex = findExperienceMatchIndex(nextExperiences, importedExperience);
+    const matchIndex = findExperienceMatchIndex(nextExperiences, importedExperience, mappedProjectSlugs);
 
     if (matchIndex >= 0) {
       nextExperiences[matchIndex] = mergeExperience(nextExperiences[matchIndex], importedExperience, mappedProjectSlugs);
@@ -574,6 +942,9 @@ main().catch((error) => {
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });
+
+
+
 
 
 

@@ -148,6 +148,36 @@ function validateLinks(report, links, pathValue) {
   }
 }
 
+function validateProjectArchive(report, project, projectPath) {
+  const archiveSections = (project.storySections ?? []).filter((section) => section.kind === "archive");
+  if (archiveSections.length === 0) {
+    pushIssue(report, "warning", `${projectPath}.storySections`, "建议项目提供 archive 档案区，保证简历原始信息可完整落到详情页。");
+    return;
+  }
+
+  if (archiveSections.length > 1) {
+    pushIssue(report, "warning", `${projectPath}.storySections`, "项目存在多个 archive 档案区，建议合并为单个“项目档案”。");
+  }
+
+  const archive = archiveSections[0];
+  if (archive.title !== "项目档案") {
+    pushIssue(report, "warning", `${projectPath}.storySections.archive.title`, "archive 标题建议统一为“项目档案”。");
+  }
+
+  const requiredTitles = ["项目介绍", "主要工作", "技术档案"];
+  const existingTitles = new Set((archive.sections ?? []).map((section) => section.title));
+  for (const title of requiredTitles) {
+    if (!existingTitles.has(title)) {
+      pushIssue(report, "warning", `${projectPath}.storySections.archive.sections`, `archive 建议包含“${title}”栏目。`);
+    }
+  }
+
+  const legacySections = (archive.sections ?? []).filter((section) => !requiredTitles.includes(section.title));
+  if (legacySections.length > 0) {
+    pushIssue(report, "warning", `${projectPath}.storySections.archive.sections`, `archive 仍含旧栏目命名：${legacySections.map((section) => section.title).join("、")}。`);
+  }
+}
+
 function mergeSource(source, overrides) {
   return {
     ...source,
@@ -279,6 +309,7 @@ function validateSource(source, assetRoot) {
     }
     const links = (project.storySections ?? []).filter((section) => section.kind === "links").flatMap((section) => section.items ?? []);
     validateLinks(report, links, `${projectPath}.links`);
+    validateProjectArchive(report, project, projectPath);
   }
 
   const experienceIds = new Set();
@@ -372,3 +403,6 @@ function main() {
 }
 
 main();
+
+
+

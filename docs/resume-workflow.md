@@ -91,12 +91,12 @@ public/project-assets/
   <project-slug>/
     manifest.json
     cover.png
-    demo.mp4
+    remote-video.url
     gallery-1.png
     gallery-2.png
 ```
 
-其中 `manifest.json` 用于声明素材：
+其中 `manifest.json` 用于声明素材。当前图片、视频都支持本地路径或外链，视频还支持 `embed` 类型，例如 Bilibili 页面链接：
 
 ```json
 {
@@ -116,9 +116,16 @@ public/project-assets/
     {
       "kind": "video",
       "title": "演示视频",
-      "src": "demo.mp4",
+      "src": "https://cdn.example.com/demo.mp4",
       "poster": "cover.png",
-      "description": "关键流程录屏"
+      "description": "关键流程录屏",
+      "external": true
+    },
+    {
+      "kind": "embed",
+      "title": "Bilibili 演示",
+      "src": "https://www.bilibili.com/video/BV1xx411c7mD/",
+      "description": "也可以直接放外部嵌入页链接"
     }
   ],
   "resources": [
@@ -157,6 +164,11 @@ public/project-assets/
 - `resume-overrides.ts` 负责“保留人工打磨过的最终表达”。
 
 这样后续重复导入时，已经整理过的内容不会轻易被覆盖。
+
+
+
+
+
 
 
 
