@@ -17,6 +17,12 @@ Thumbs.db
 # 日志
 *.log
 npm-debug.log*
+*.pyc
+
+# 简历导入产物
+generated/
+scripts/__pycache__/
+张国鑫-U3D-202507.pdf
 
 # 编辑器
 .vscode/

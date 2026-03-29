@@ -1,0 +1,1302 @@
+import {
+  RESUME_SCHEMA_VERSION,
+  type DetailLayerContent,
+  type Education,
+  type FocusArea,
+  type ProjectArchiveSection,
+  type LinkItem,
+  type ProjectCategory,
+  type ResumeSchemaVersion,
+  type ShowcaseBlock,
+  type ShowcaseCard,
+  type SkillGroup,
+} from "./resume-schema";
+
+export type ResumeFact = {
+  label: string;
+  value: string;
+};
+
+export type ResumeSourceProfile = {
+  name: string;
+  role: string;
+  bio: string;
+  headline: string;
+  strengths: string[];
+  summaryPoints: string[];
+  focusAreas: FocusArea[];
+  facts: ResumeFact[];
+  contacts: LinkItem[];
+};
+
+export type ResumeSourceExperience = {
+  id: string;
+  company: string;
+  role: string;
+  period: string;
+  summary: string;
+  achievements: string[];
+  details?: DetailLayerContent;
+  relatedProjects?: string[];
+  note?: string;
+};
+
+export type ResumeSourceProjectStorySection =
+  | {
+      kind: "metrics";
+      title: string;
+      items: { value: string; label: string }[];
+    }
+  | {
+      kind: "capabilities";
+      title: string;
+      items: { title: string; detail: string }[];
+    }
+  | {
+      kind: "story";
+      title: string;
+      paragraphs: string[];
+    }
+  | {
+      kind: "bullets";
+      title: string;
+      items: string[];
+    }
+  | {
+      kind: "layered_bullets";
+      title: string;
+      refinedTitle?: string;
+      refinedItems?: string[];
+      originalTitle?: string;
+      originalItems?: string[];
+    }
+  | {
+      kind: "archive";
+      title: string;
+      description?: string;
+      sections: ProjectArchiveSection[];
+    }
+  | {
+      kind: "stack";
+      title?: string;
+      items: string[];
+    }
+  | {
+      kind: "links";
+      title?: string;
+      items: LinkItem[];
+    };
+
+export type ResumeSourceProject = {
+  slug: string;
+  title: string;
+  track: ProjectCategory;
+  cardMeta: string[];
+  cardSummary: string;
+  cardTags: string[];
+  heroEyebrow: string;
+  heroSubtitle: string;
+  showcase: {
+    title: string;
+    featuredTitle: string;
+    featuredDescription: string;
+    sideBlocks: ShowcaseBlock[];
+    gallery: ShowcaseCard[];
+    note: string;
+  };
+  storySections: ResumeSourceProjectStorySection[];
+};
+
+export type ResumeSourceDocument = {
+  schemaVersion: ResumeSchemaVersion;
+  profile: ResumeSourceProfile;
+  experiences: ResumeSourceExperience[];
+  skills: SkillGroup[];
+  honors: string[];
+  education: Education;
+  projects: ResumeSourceProject[];
+};
+
+export const resumeSource: ResumeSourceDocument = {
+  "schemaVersion": "resume-schema@v1",
+  "profile": {
+    "name": "张国鑫",
+    "role": "现游戏开发工程师，前知识图谱 / NLP 算法工程师",
+    "bio": "目前关注 AI 游戏应用、系统架构、性能优化与程序化生成。",
+    "headline": "现游戏开发工程师，前知识图谱 / NLP 算法工程师。目前关注 AI 游戏应用、系统架构、性能优化与程序化生成。",
+    "strengths": [
+      "擅长把复杂需求抽成可维护的系统边界，再落到可迭代的工程实现。",
+      "既能做游戏玩法与运行时系统，也能做编辑器工具、DSL 与框架抽象。",
+      "有 NLP / 知识图谱基础设施背景，习惯用长期维护视角看待技术设计。"
+    ],
+    "summaryPoints": [
+      "近年的工作重点分布在 Unity 游戏研发、编辑器工具链和运行时架构。",
+      "既能做玩法系统与运行时工程，也能做工具、DSL 和框架抽象。",
+      "知识图谱与 NLP 背景让我更关注抽象、验证和长期可维护性。"
+    ],
+    "focusAreas": [
+      {
+        "title": "Unity 游戏开发",
+        "description": "关注玩法系统、运行时架构、程序化生成与性能优化。"
+      },
+      {
+        "title": "工具链与框架",
+        "description": "偏好把复杂问题抽成可维护的编辑器工具、DSL 与运行时系统。"
+      },
+      {
+        "title": "AI / NLP 背景",
+        "description": "有知识图谱、模型、数据工程和服务部署经验。"
+      }
+    ],
+    "facts": [
+      {
+        "label": "技术能力",
+        "value": "游戏开发 / AI 游戏应用 / 系统架构 / 性能优化 / 程序化生成"
+      },
+      {
+        "label": "相关背景",
+        "value": "知识图谱 / NLP / 数据工程 / 服务部署"
+      },
+      {
+        "label": "擅长事项",
+        "value": "复杂系统拆解 / 数据驱动设计 / 工具链建设 / 工程落地"
+      },
+      {
+        "label": "联系方式",
+        "value": "guoxin_zhang@outlook.com"
+      }
+    ],
+    "contacts": [
+      {
+        "label": "简历",
+        "href": "/resume"
+      },
+      {
+        "label": "GitHub",
+        "href": "https://github.com/zgx197",
+        "external": true
+      },
+      {
+        "label": "Steam",
+        "href": "https://steamcommunity.com/profiles/76561198340584094",
+        "external": true
+      },
+      {
+        "label": "Email",
+        "href": "mailto:guoxin_zhang@outlook.com"
+      }
+    ]
+  },
+  "experiences": [
+    {
+      "id": "yaoxiang-2024-02",
+      "company": "遥响动漫设计（北京）有限公司",
+      "role": "U3D 游戏开发工程师",
+      "period": "2024.02 - 2025.06",
+      "summary": "负责 2D 沙盒修仙游戏的核心系统与底层架构开发。",
+      "achievements": [
+        "基于 GameFramework 搭建基础框架，并用 MVC 思路重组核心数据流。",
+        "实现世界生成、社会关系、随机事件与策略背包等关键系统。",
+        "通过 protobuf-net、对象池、分帧执行和动态 LOD 优化存档与运行时性能。"
+      ],
+      "details": {
+        "refinedTitle": "整理后的详细说明",
+        "refined": [
+          "负责 2D 沙盒修仙项目的底层框架、核心玩法系统和性能优化，工作覆盖框架选型、数据流设计、配置管线、世界生成与存档方案。",
+          "项目阶段仍处于早期原型验证，更强调先搭出可持续迭代的 demo，再为后续复杂系统预留清晰边界。"
+        ],
+        "originalTitle": "简历原文",
+        "original": [
+          "2D俯视角沙盒修仙模拟类游戏：项目的设计深受《环世界》启发，其核心特色是通过程序化生成的开放世界、深度模拟的角色行为与社会关系、以及由 AI 驱动的动态故事系统，为玩家每一次游戏都创造出独一无二的修仙宗门经营体验。离职前项目仍属于初期开发阶段，各项内容都只有基础功能。"
+        ]
+      },
+      "relatedProjects": [
+        "xiuxian-game"
+      ]
+    },
+    {
+      "id": "yuyue-2023-11",
+      "company": "北京愉悦非凡科技有限公司",
+      "role": "U3D 游戏开发工程师",
+      "period": "2023.11 - 2024.02",
+      "summary": "独立承担桌宠软件和塔防游戏改造项目，重点解决遗留工程恢复与快速交付。",
+      "achievements": [
+        "完成虚拟桌宠的窗口、交互、多角色配置、本地存档与商店系统。",
+        "在服务端缺失和文档不足的情况下恢复塔防项目关键功能，并改造成单机安卓版本。"
+      ],
+      "details": {
+        "refinedTitle": "整理后的详细说明",
+        "refined": [
+          "这一阶段的核心任务不是从零做新项目，而是在时间很短、资料缺失的前提下独立推进两个不同方向的交付。",
+          "一方面负责从零实现多角色桌宠软件，另一方面对遗留联机塔防项目做单机化和安卓化改造，重点解决工程恢复、功能补齐和上线准备问题。"
+        ],
+        "originalTitle": "简历原文",
+        "original": [
+          "虚拟桌宠：独立制作一款支持多角色的桌宠软件作为公司新发行独立游戏的附赠产品，桌宠软件包含属性系统、商店系统、交互系统等。",
+          "联机塔防游戏脱壳：将一款联机对战塔防游戏改造成一款单机安卓游戏，接入 TapTap 登录和防沉迷系统后添加额外的功能进行二次开发。"
+        ]
+      },
+      "relatedProjects": [
+        "desktop-pet",
+        "tower-defense"
+      ]
+    },
+    {
+      "id": "baidu-2018-09",
+      "company": "北京百度网讯科技有限公司",
+      "role": "算法工程师",
+      "period": "2018.09 - 2023.04",
+      "summary": "长期参与中文知识表征与应用基础设施建设，覆盖知识库、模型、数据工程与服务部署。",
+      "achievements": [
+        "参与维护百万级 TermTree，并主导知识库数据生产流程建设。",
+        "设计多任务短文本理解模型与标签体系，服务搜索、广告、AIGC 等场景。",
+        "推动知识标注工具与百科关联项目落地，形成稳定的业务支撑能力。"
+      ],
+      "details": {
+        "refinedTitle": "整理后的详细说明",
+        "refined": [
+          "长期负责中文知识理解基础设施建设，工作横跨知识库、模型、数据工程、标注流程和在线服务部署。",
+          "这段经历培养了我对抽象建模、数据质量控制和长期可维护工程链路的敏感度，也直接影响了后续做游戏系统和工具框架时的设计方式。"
+        ],
+        "originalTitle": "简历原文",
+        "original": [
+          "短文本知识标注工具集研发：本项目从词汇理解和句子理解的角度，探索中文通用知识表征与应用。通过构建中文全词类知识库，将文本与通用词汇知识体系相关联，让模型对中文语句的理解能力更接近于人，从而实现通用域中文文本的精准解析与挖掘。",
+          "百度百科词条与知识库关联项目：本项目是将两千万百科词条收录入知识库中以扩充知识库里的实体和概念词数量，主要通过多种分类策略对输入的百科页面进行分类细化，得到一个精准的词条类别，进而将该词条与知识库中的概念节点相关联。"
+        ]
+      },
+      "relatedProjects": [
+        "knowledge-graph"
+      ]
+    }
+  ],
+  "skills": [
+    {
+      "title": "引擎与语言",
+      "items": [
+        "Unity",
+        "C#",
+        "C++",
+        "Python",
+        "Shell"
+      ]
+    },
+    {
+      "title": "游戏系统",
+      "items": [
+        "GameFramework",
+        "数据驱动",
+        "程序化生成",
+        "关系图系统",
+        "Unity Input System"
+      ]
+    },
+    {
+      "title": "工具与框架",
+      "items": [
+        "Editor Tooling",
+        "Node Graph",
+        "DSL",
+        "Code Generation",
+        "Runtime Interpreter"
+      ]
+    },
+    {
+      "title": "AI / NLP",
+      "items": [
+        "知识图谱",
+        "Prompt Learning",
+        "序列标注",
+        "数据工程",
+        "服务部署"
+      ]
+    }
+  ],
+  "honors": [
+    "2022 一级专利发明人，个人一作专利 2 篇",
+    "2022 百度部门奖，短文本知识标注服务产生亿级辐射收入",
+    "2020 百度新人零度突破之星",
+    "2018 ICPC 全国大学生程序设计竞赛宁夏邀请赛银牌",
+    "2018 蓝桥杯第十届计算机程序设计竞赛一等奖",
+    "2017 CCPC 第十一届东北地区大学生程序设计竞赛三等奖"
+  ],
+  "education": {
+    "school": "佳木斯大学",
+    "degree": "本科 · 计算机科学与技术",
+    "period": "2015 - 2020",
+    "details": [
+      "ACM 集训队队员，负责训练与算法及数据结构知识讲解。",
+      "2017 黑龙江省 NOIP 夏令营和冬令营学生助教。"
+    ]
+  },
+  "projects": [
+    {
+      "slug": "xiuxian-game",
+      "title": "修仙模拟游戏",
+      "track": "featured",
+      "cardMeta": [
+        "独立游戏",
+        "4人团队",
+        "核心开发"
+      ],
+      "cardSummary": "围绕程序化生成、关系图、策略背包和随机事件构建世界演化与涌现式叙事体验。",
+      "cardTags": [
+        "Unity",
+        "GameFramework",
+        "程序化生成",
+        "图算法"
+      ],
+      "heroEyebrow": "Featured Project / Game Systems",
+      "heroSubtitle": "受《环世界》启发的 2D 俯视角沙盒修仙模拟类游戏。核心目标是用程序化生成、角色关系和随机事件构建一个可持续涌现故事的动态世界。",
+      "showcase": {
+        "title": "作品展示",
+        "featuredTitle": "主录屏 / 核心玩法展示位",
+        "featuredDescription": "这里适合放一段 30 到 60 秒的主展示视频，优先展示世界生成结果、地图浏览、角色活动和策略背包交互。",
+        "sideBlocks": [
+          {
+            "title": "推荐素材",
+            "items": [
+              "世界生成总览截图",
+              "角色社交或关系变化界面",
+              "背包布局与法宝联动演示"
+            ]
+          },
+          {
+            "title": "展示重点",
+            "description": "尽量让读者先看到“系统之间如何互相作用”，而不是单独的 UI 或静态场景。"
+          }
+        ],
+        "gallery": [
+          {
+            "title": "世界生成",
+            "description": "大陆、河流、生物群落与国家边界"
+          },
+          {
+            "title": "社会关系",
+            "description": "角色互动、家谱、阵营与事件触发"
+          },
+          {
+            "title": "策略背包",
+            "description": "二维布局、旋转组合与法宝联动"
+          }
+        ],
+        "note": "这部分目前先搭好展示结构，后续只需要替换成真实截图、GIF 或嵌入视频即可。"
+      },
+      "storySections": [
+        {
+          "kind": "capabilities",
+          "title": "核心系统",
+          "items": [
+            {
+              "title": "程序化世界生成",
+              "detail": "从零构建 Hex-Grid 世界生成管线，结合多层 Perlin 噪声、BFS 河流生成、温湿度与海拔维度，为上层文明演化与叙事系统提供可信世界基础。"
+            },
+            {
+              "title": "文明演化模拟",
+              "detail": "通过人口承载力评分、扩散模拟、峰值查找与区域生长算法，生成自然的人口热力图、首都分布与国家边界。"
+            },
+            {
+              "title": "社会关系图系统",
+              "detail": "以通用关系图抽象角色、阵营与血缘等多维关系，并让其与 AI 行为和事件系统形成动态闭环。"
+            },
+            {
+              "title": "策略背包系统",
+              "detail": "参考《背包乱斗》设计二维法宝布局系统，让背包管理与策略构筑、技能联动深度结合。"
+            },
+            {
+              "title": "随机事件系统",
+              "detail": "基于 Excel 配置与原子化效果模块，让策划能零代码配置奇遇触发、结果和世界影响。"
+            }
+          ]
+        },
+        {
+          "kind": "capabilities",
+          "title": "性能优化",
+          "items": [
+            {
+              "title": "高效存档",
+              "detail": "引入 protobuf-net 替代原生 JSON 序列化，提升读写速度并显著压缩存档体积。"
+            },
+            {
+              "title": "对象池与分帧执行",
+              "detail": "通过对象池和协程分帧，将频繁实例化与高成本计算拆散，降低运行时卡顿和 GC 峰值。"
+            },
+            {
+              "title": "动态 LOD 与可见性管理",
+              "detail": "根据摄像机距离与视锥体状态控制更新和渲染逻辑，降低大场景性能开销。"
+            }
+          ]
+        },
+        {
+          "kind": "story",
+          "title": "架构设计",
+          "paragraphs": [
+            "项目基于 GameFramework 进行二次开发，并通过 MVC 思想将核心数据、业务逻辑和前端表现解耦。",
+            "配置层采用混合方案：高频表格数据使用 Excel 管线，复杂结构使用 ScriptableObject，可变对话和事件使用 JSON 管理，从而兼顾性能、表达力与迭代效率。"
+          ]
+        },
+        {
+          "kind": "archive",
+          "title": "项目档案",
+          "description": "按统一栏目保留项目原始信息，并补充必要的结构化归档。",
+          "sections": [
+            {
+              "title": "项目介绍",
+              "paragraphs": [
+                "项目的设计深受《环世界》启发，其核心特色是通过程序化生成的开放世界、深度模拟的角色行为与社会关系、以及由 AI 驱动的动态故事系统，为玩家每一次游戏都创造出独一无二的修仙宗门经营体验。离职前项目仍属于初期开发阶段，各项内容都只有基础功能。"
+              ]
+            },
+            {
+              "title": "主要工作",
+              "groups": [
+                {
+                  "title": "整体设计",
+                  "items": [
+                    "1. 游戏基础框架：经过对比多个常见框架后，最终选择基于成熟的 GameFramework 框架进行二次开发，充分利用其模块化、事件驱动、资源管理等特性，并根据项目需求定制了多个核心组件，尽可能加快游戏开发进度制作 demo。",
+                    "2. 数据驱动流程：为支撑游戏高度复杂和动态的特性，项目中采用了 MVC 的思想，将核心数据（如角色、事件数据等）与业务逻辑（如后台“饱食度”计算）及前端视觉表现进行解耦，构建了清晰的数据流。此举有效提升了系统的可扩展性和可维护性，并极大加速了玩法的迭代效率。"
+                  ]
+                },
+                {
+                  "title": "具体模块",
+                  "items": [
+                    "1. 配置解析模块：针对不同数据类型，我采用了混合配置方案。对于策划需要频繁调整的大量表格数据（如角色属性、物品）使用 Excel 管理，并通过自定义工具链（集成 EPPlus 库）将其转换为二进制数据或直接在游戏中读取。对于具有复杂结构和逻辑的数据模板（如动态 NPC 队伍生成规则），我利用 ScriptableObject，让策划可以在 Unity Editor 中进行可视化、可嵌套的配置。对话流、事件等动态内容则使用 JSON 进行管理，方便解析。",
+                    "2. 游戏存档模块：为解决 JSON 序列化大地图存档导致的性能瓶颈，我主导引入 protobuf-net 作为核心解决方案。通过为 Vector3 等 Unity 类型编写自定义包装器，我成功将此方案集成。最终，存档读写速度提升数倍，文件体积压缩超 60%。我还设计了分离式存档策略，对重量级地图数据采用 Protobuf，对轻量级全局数据保留 JSON，实现了性能与灵活性的平衡。",
+                    "3. 程序化世界生成系统：我从零开始构建了一套高度可配置的六边形网格（Hex-Grid）程序化世界生成系统。该系统的核心是一条精密的多通道生成管线：首先，通过叠加多层 Perlin 噪声生成富有层次感的大陆架与基础海拔；随后使用 BFS 算法模拟水力侵蚀，通过从高地向水体搜索路径生成了蜿蜒连贯的河流网络，极大地增强了地形真实感。最后，系统综合海拔、温度与湿度三大环境维度，为每个地块赋予精确的生物群落类型。该系统的亮点不止于物理世界的生成，更在于其上层基于地形的文明演化模拟。我独立设计的人口流动模拟模块，通过加权评分系统量化各地块的人口承载力。在此基础上，一个巧妙的扩散模拟算法使得高承载力区域能“吸引”周边人口，从而生成了从都市核心到边远乡村的自然人口热力图。最终，系统利用这张热力图，通过峰值查找算法定位出各国首都，并以其为“种子”采用区域生长算法进行领土扩张，形成了犬牙交错、形态自然的国家疆界。这套从物理地貌到社会格局的完整生成逻辑，为上层的 AI 与动态故事系统提供了坚实而可信的数据基础。",
+                    "4. 策略背包系统：为进一步深化游戏策略性，我们参考了《背包乱斗》的策略背包系统。该系统将传统的库存管理与策略构筑和角色养成深度融合，成为游戏核心玩法的重要一环。游戏中的背包有两种，分别是支持策略构筑的法宝策略背包系统和常规素材储物背包系统。其中法宝策略背包是系统的核心亮点，我为其设计了一套基于二维网格的布局系统，专门用于放置“法宝”。法宝拥有独一无二的实体形状，玩家必须通过旋转和组合在有限的背包空间中尽可能触发法宝之间的关联效果（系统会实时检测一个法宝影响范围内其他法宝的元素属性。若满足预设的条件，该法宝的技能效果就会被触发，从而驱动玩家不断优化布局，以寻求最优的元素组合）。",
+                    "5. 输入管理系统：我基于 Unity 新输入系统构建了一套上下文感知的输入框架。该框架通过状态驱动的 Action Map 管理，能根据当前游戏场景（如世界地图、UI）动态切换激活的输入指令，彻底杜绝了不同状态下的输入冲突。为解决 UI 与游戏世界的交互问题，并且设计了阻塞式 UI 输入栈，可智能挂起和恢复游戏世界输入。架构上，采用服务注册模式将各模块的输入处理逻辑解耦，大幅提升了系统的可扩展性，并内置了完整的用户按键重绑定功能。",
+                    "6. 随机事件系统：为创造动态叙事体验，我构建了随机事件系统。该系统基于一条数据驱动的 Excel 管线，允许策划零代码配置事件的触发条件、概率及结果。其核心是一个上下文感知的触发模块，能实时监听玩家行为与世界状态，在最恰当的时机激活相应“奇遇”。事件的结果由一套原子化的“效果”模块（如给予物品、改变关系）灵活组合而成，极大提升了设计效率。最重要的是，该系统与 AI、社会关系图等核心模块深度联动，形成了一个“行为触发事件，事件影响世界”的动态闭环，为游戏带来了真实的蝴蝶效应和无限的重玩价值。",
+                    "7. 社会关系系统：为实现涌现式叙事，我从零构建了一套基于图的社会关系系统。其核心是通用的 BaseRelationshipGraph，通过泛型设计，它能为任何实体（角色、阵营）构建关系图。关系本身被抽象为可携带多维度、可扩展数据的边，用以存储好感度、仇恨值、血缘等信息。该系统不仅能程序化生成逻辑自洽的多代宗族家谱，为世界提供深厚背景；更重要的是，它与 AI 系统深度集成：AI 的社交行为会动态修改关系权重，而这些关系权重又是 AI 决策的关键输入，驱动 AI 做出更真实的行为。最终，关系的变化会成为新事件与任务的触发器，为游戏世界注入了源源不断的动态与活力。"
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "技术档案",
+              "intro": "为确保游戏在拥有大规模动态单位和复杂逻辑的同时依然能流畅运行，我采用了多种性能和内存优化方案。",
+              "groups": [
+                {
+                  "title": "性能优化",
+                  "items": [
+                    "1. 预加载与异步工作流：在游戏启动阶段，通过 Preload 状态，利用异步的方式预加载所有核心数据表、配置文件和常用资源。此举将耗时操作集中于初始加载阶段，并确保了游戏运行时的即时数据访问，避免了后续操作中的加载卡顿。整个过程伴有对玩家透明的 UI 进度反馈，保证了流畅的启动体验。",
+                    "2. 对象池驱动的资源复用：项目中频繁创建和销毁的实体（如 UI 项、特效、单位等）均由对象池统一管理。当实体不再需要时，它会被“回收”到池中而非立即销毁，需要时则从池中重新获取。这套机制从根本上避免了因频繁实例化 / 销毁操作引发的 GC 峰值，显著降低了运行时的性能毛刺，保障了战斗和大规模场景的流畅性。",
+                    "3. 分帧执行与平滑处理：对于程序化生成等计算密集型任务（如 NPC 营地和队伍的生成），我设计了分帧执行机制。系统会将重量级任务拆解为多个子任务，并通过协程将其分散到连续的多个帧中去完成。这种“削峰填谷”的方式有效避免了单帧计算耗时过长导致的掉帧和卡顿，确保了宏观体验的平滑。",
+                    "4. 动态 LOD 与智能剔除：解决大规模场景下的渲染瓶颈，我实现了一个 VisibilityManager。该管理器会实时追踪所有动态特效和部分实体，并根据它们与主摄像机的距离及是否在视锥体内，智能地启用或禁用其渲染器和更新逻辑。这套动态 LOD 系统极大地降低了远距离或不可见对象的性能开销，在不牺牲视觉效果的前提下显著提升了帧率。",
+                    "5. 高效数据序列化：针对大地图存档读写缓慢的瓶颈，我主导用 protobuf-net 替代了原生的 JSON 序列化方案。通过实现对 Unity 核心数据类型的支持，新方案将存档速度提升了数倍，同时将文件体积压缩了 60% 以上，彻底解决了游戏的存档性能问题。"
+                  ]
+                },
+                {
+                  "title": "其他工作",
+                  "items": [
+                    "1. 游戏 / 技术分享：我倡导了开发小组内部例行分享机制，开发小组每月会通过分析近期热门游戏以及相关技术方案来不断为游戏引入更多丰富有趣的概念和提供一些解决当前技术难点的探索方案。"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "stack",
+          "title": "技术栈",
+          "items": [
+            "Unity",
+            "C#",
+            "GameFramework",
+            "MVC",
+            "Protobuf",
+            "EPPlus",
+            "ScriptableObject",
+            "Perlin Noise",
+            "BFS",
+            "图算法",
+            "对象池",
+            "动态 LOD"
+          ]
+        },
+        {
+          "kind": "links",
+          "title": "相关链接",
+          "items": [
+            {
+              "label": "返回项目列表",
+              "href": "/about"
+            },
+            {
+              "label": "返回简历",
+              "href": "/resume"
+            },
+            {
+              "label": "Steam 主页",
+              "href": "https://steamcommunity.com/profiles/76561198340584094",
+              "external": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "desktop-pet",
+      "title": "虚拟桌宠",
+      "track": "featured",
+      "cardMeta": [
+        "职业项目",
+        "独立开发",
+        "Windows 桌面应用"
+      ],
+      "cardSummary": "为公司新发行独立游戏制作的附赠桌宠软件，独立完成透明窗口、拖拽交互、多角色配置、属性成长、商店和本地存档链路。",
+      "cardTags": [
+        "Unity",
+        "Win32",
+        "Luban",
+        "Excel",
+        "JSON",
+        "本地存档"
+      ],
+      "heroEyebrow": "Featured Project / Desktop Companion",
+      "heroSubtitle": "作为公司新发行独立游戏的附赠产品，独立完成一款支持多角色的 Windows 桌宠软件，涵盖透明窗口、拖拽交互、属性成长、商店和本地数据配置链路。",
+      "showcase": {
+        "title": "作品展示",
+        "featuredTitle": "主录屏 / 桌面交互展示位",
+        "featuredDescription": "这里适合放一段 20 到 40 秒的桌面录屏，展示透明窗口效果、拖拽反馈、多角色切换和商店 / 属性交互。",
+        "sideBlocks": [
+          {
+            "title": "推荐素材",
+            "items": [
+              "桌面悬浮效果截图",
+              "多角色切换界面",
+              "商店或属性面板截图"
+            ]
+          },
+          {
+            "title": "展示重点",
+            "description": "优先让读者看到它作为桌面 companion 的交互质感，而不只是单个 UI 页面。"
+          }
+        ],
+        "gallery": [
+          {
+            "title": "透明窗口",
+            "description": "桌宠角色自然悬浮于桌面环境中"
+          },
+          {
+            "title": "多角色配置",
+            "description": "同一套程序支持多个角色资源与参数"
+          },
+          {
+            "title": "成长与商店",
+            "description": "属性变化、交互反馈与商品购买闭环"
+          }
+        ],
+        "note": "后续只需要把真实录屏和截图补进来，这个项目页就能很快达到完整展示效果。"
+      },
+      "storySections": [
+        {
+          "kind": "story",
+          "title": "项目背景",
+          "paragraphs": [
+            "项目定位不是单纯的小工具，而是配合公司新发行独立游戏一同交付的桌面 companion，用来延长产品触达时间并增强角色陪伴感。",
+            "因此实现重点既包括桌面层面的透明窗口与拖拽体验，也包括多角色、属性成长、商店和本地配置等可持续扩展能力。"
+          ]
+        },
+        {
+          "kind": "capabilities",
+          "title": "核心实现",
+          "items": [
+            {
+              "title": "透明窗口方案",
+              "detail": "通过 Win32 API 获取 Unity 窗口句柄，结合窗口参数调整与摄像机设置，隐藏窗口背景并保留角色可见区域。"
+            },
+            {
+              "title": "拖拽与屏幕约束",
+              "detail": "监听鼠标拖拽行为并处理越界情况，让桌宠拖动过程更自然，同时保证窗口不会丢失到屏幕可视区域之外。"
+            },
+            {
+              "title": "多角色与本地配置",
+              "detail": "搭建支持多角色的资源和参数组织方式，使角色切换、后续扩展和运营内容补充不需要重做底层逻辑。"
+            },
+            {
+              "title": "属性、交互与商店",
+              "detail": "补齐桌宠的属性系统、交互反馈、商品购买与本地存档，让应用从演示原型变成可持续迭代的桌面产品。"
+            }
+          ]
+        },
+        {
+          "kind": "capabilities",
+          "title": "工程方式",
+          "items": [
+            {
+              "title": "配置数据组织",
+              "detail": "使用 Excel、JSON 与 Luban 组织配置，降低后续补角色、调参数和扩玩法时的维护成本。"
+            },
+            {
+              "title": "独立推进交付",
+              "detail": "项目由我独立实现，既要完成程序逻辑，也要兼顾产品交互体验和后续可扩展性。"
+            }
+          ]
+        },
+        {
+          "kind": "archive",
+          "title": "项目档案",
+          "description": "按统一栏目保留项目原始信息，并补充必要的结构化归档。",
+          "sections": [
+            {
+              "title": "项目介绍",
+              "paragraphs": [
+                "独立制作一款支持多角色的桌宠软件作为公司新发行独立游戏的附赠产品，桌宠软件包含属性系统、商店系统、交互系统等。"
+              ]
+            },
+            {
+              "title": "主要工作",
+              "groups": [
+                {
+                  "items": [
+                    "透明窗口：使用 win32 中的 API 获取当前窗口句柄，通过重设窗口参数和调整 Unity 摄像机设置达到隐藏 Unity 窗口背景的效果。",
+                    "拖拽逻辑：监控当前鼠标拖拽行为，当鼠标拖拽桌宠窗口时判断是否超出当前屏幕边界，当拖拽出边界时重设窗口位置，使其限定在屏幕窗口内，防止桌宠被拖拽到屏幕外。",
+                    "数据读取 / 存储：支持本地数据存档，分别对多角色数据进行存档和读取，当玩家切换角色时存档也会随之切换。",
+                    "商店系统：制作商店页面 UI，支持通过商品名称搜索商品，还可以根据不同商品类型、价格、属性对所有商品进行排序。使用 Luban 插件转化配置表，将 Excel 表格转化为程序可读的 Json 文件，方便后续修改商店数据。",
+                    "交互逻辑：桌宠设置有游玩、学习、工作三种模式，当进入不同模式时会通过 FSM 播放帧动画并统计当前状态持续，根据不同的金币、经验、口渴、好感度变化公式实时统计当前角色属性变化，当状态结束或者改变时将统计的结果统一累计到角色属性中，并通知相关事件修改软件中的各类 UI。",
+                    "多角色：支持多角色设置，方便后续扩展角色，目前将角色数据、依赖资源抽象成一份配置表，在游戏开始时通过 Luban 读取数据表中的数据初始化角色控制类，后续方便扩展和接入 Steam 创意工坊。"
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "技术档案",
+              "groups": [
+                {
+                  "title": "工程方式",
+                  "items": [
+                    "配置数据组织：使用 Excel、JSON 与 Luban 组织配置，降低后续补角色、调参数和扩玩法时的维护成本。",
+                    "独立推进交付：项目由我独立实现，既要完成程序逻辑，也要兼顾产品交互体验和后续可扩展性。"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "stack",
+          "title": "技术栈",
+          "items": [
+            "Unity",
+            "C#",
+            "Win32 API",
+            "Luban",
+            "Excel",
+            "JSON",
+            "本地存档"
+          ]
+        },
+        {
+          "kind": "links",
+          "title": "相关链接",
+          "items": [
+            {
+              "label": "返回项目列表",
+              "href": "/about"
+            },
+            {
+              "label": "返回简历",
+              "href": "/resume"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "tower-defense",
+      "title": "塔防手游单机化改造",
+      "track": "featured",
+      "cardMeta": [
+        "职业项目",
+        "独立开发",
+        "遗留联机项目改造"
+      ],
+      "cardSummary": "在服务端缺失和文档断档的前提下恢复遗留联机塔防工程，将其改造成可运行的单机安卓版本，并补齐登录、奖励、战斗与接入流程。",
+      "cardTags": [
+        "Unity",
+        "Android",
+        "TapTap",
+        "遗留系统恢复",
+        "单机化改造"
+      ],
+      "heroEyebrow": "Featured Project / Recovery & Porting",
+      "heroSubtitle": "在服务端缺失、文档断档的前提下，分析遗留联机塔防工程并恢复关键流程，将其改造成可上线测试的单机安卓版本，同时补齐登录、奖励、战斗和适配工作。",
+      "showcase": {
+        "title": "作品展示",
+        "featuredTitle": "主录屏 / 关卡流程展示位",
+        "featuredDescription": "这里适合放从登录、主界面到一局战斗完成的完整录屏，让读者直观看到单机化改造后的闭环是否打通。",
+        "sideBlocks": [
+          {
+            "title": "推荐素材",
+            "items": [
+              "登录与主界面截图",
+              "战斗场景录屏",
+              "TapTap 接入或安卓适配截图"
+            ]
+          },
+          {
+            "title": "展示重点",
+            "description": "这个项目的价值在于恢复遗留工程并完成交付，不只是单个玩法功能。"
+          }
+        ],
+        "gallery": [
+          {
+            "title": "遗留工程恢复",
+            "description": "先读懂客户端 / 服务端边界和场景跳转关系"
+          },
+          {
+            "title": "单机化改造",
+            "description": "把依赖服务端的数据流替换为本地初始化流程"
+          },
+          {
+            "title": "安卓交付准备",
+            "description": "UI 适配、资源梳理、TapTap 接入与版号准备"
+          }
+        ],
+        "note": "后续如果补素材，建议优先放“恢复前后”的流程对比，这样最能体现项目难度。"
+      },
+      "storySections": [
+        {
+          "kind": "story",
+          "title": "项目背景",
+          "paragraphs": [
+            "原项目是一款联机对战塔防游戏，但由于服务端服务丢失、原开发人员离职且没有留下文档，项目已经无法正常运行。",
+            "我需要在几乎只有工程代码可用的前提下先恢复关键流程，再把它改造成单机安卓版本，并补齐新需求和接入能力。"
+          ]
+        },
+        {
+          "kind": "capabilities",
+          "title": "恢复与脱壳",
+          "items": [
+            {
+              "title": "梳理客户端 / 服务端边界",
+              "detail": "通过阅读工程代码、配置文件和通信逻辑，先确认哪些数据在服务端维护、哪些流程在客户端执行。"
+            },
+            {
+              "title": "梳理场景跳转关系",
+              "detail": "分析 Build Settings 与关键脚本，确认登录、主界面、教程和战斗之间的流程依赖。"
+            },
+            {
+              "title": "重构登录初始化",
+              "detail": "解除登录模块对原服务端通信的依赖，改为使用本地数据初始化单机版启动流程。"
+            }
+          ]
+        },
+        {
+          "kind": "capabilities",
+          "title": "功能改造与交付",
+          "items": [
+            {
+              "title": "补齐奖励与成长",
+              "detail": "新增等级奖励系统，让教程后到战斗循环之间形成更完整的成长反馈。"
+            },
+            {
+              "title": "修复战斗与教程问题",
+              "detail": "优化 BattleManager 资源回收逻辑、修复教程同步异常并逐步调通整套战斗流程。"
+            },
+            {
+              "title": "安卓适配与资源梳理",
+              "detail": "调整 UI 锚点、中心点和背景资源，适配常见手机比例，并为版号准备处理敏感图标和词汇。"
+            },
+            {
+              "title": "TapTap 接入",
+              "detail": "完成 TapTap 登录与防沉迷相关接入工作，为后续测试和正式发行预留接口。"
+            }
+          ]
+        },
+        {
+          "kind": "archive",
+          "title": "项目档案",
+          "description": "按统一栏目保留项目原始信息，并补充必要的结构化归档。",
+          "sections": [
+            {
+              "title": "项目介绍",
+              "paragraphs": [
+                "将一款联机对战塔防游戏改造成一款单机安卓游戏，接入 TapTap 登录和防沉迷系统后添加额外的功能进行二次开发。"
+              ]
+            },
+            {
+              "title": "主要工作",
+              "groups": [
+                {
+                  "items": [
+                    "游戏架构：根据工程代码分析游戏架构，游戏分为客户端和服务端，服务端主要负责记录角色数据、战斗数值、buff 数据等，具体执行逻辑在客户端中，通过查看服务端代码和对应配置文件大致了解了服务端数据接收和发送情况以及各个标识码的含义。后续通过尝试补全数据库中数据的方式重启服务端，但人员流失导致部分字段找不到默认值而作罢。",
+                    "场景跳转关系：通过分析 BuildSetting 中各个场景的顺序并进入相关关键脚本梳理场景跳转关系。",
+                    "登录场景：重构游戏登录代码，解除登录模块与服务器之间相互通信的逻辑，改成使用本地数据作为初始化数据启动登录场景。",
+                    "等级奖励：添加等级奖励系统，当玩家玩完教程后会解锁等级奖励，随着战斗次数增加而获得更多经验值，进而解锁不同的英雄和金币。",
+                    "战斗逻辑：优化战斗逻辑代码，补全 BattleManager 资源回收逻辑，避免重开时导致场上仍存在上局遗留的游戏物体；优化教程代码，避免教程进度数据无法同步服务器导致的异常 bug；修复各项异常问题，调通战斗逻辑。",
+                    "UI：调整 UI 界面，重新设置 UI 物体的锚点、中心点、部分背景图片，使其适应常见手机屏幕比例；梳理 UI 资源，调整敏感图标和词汇，为版号申请做准备。",
+                    "接入 TapTap：在 taptap 开发者中心设置好相关登录设置后下载并在 Unity 中接入 SDK，使用应用中心获取的 token 初始化 SDK。",
+                    "添加 TapTap 登录功能，并在程序启动和结束时向 Taptap 上报游戏时间。",
+                    "打包和测试：设置包名称、图标，添加安卓打包签名，将游戏锁定为横屏显示；使用真机 + Unity Remote 简单测试游戏功能，避免出包安装后出现奇怪问题。"
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "技术档案",
+              "groups": [
+                {
+                  "title": "项目难点",
+                  "items": [
+                    "因为服务端服务丢失、服务端开发人员突然离职且未留下文档导致游戏无法正常运行，在仅有代码的情况下恢复游戏正常功能后脱壳进行二次开发。"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "stack",
+          "title": "技术栈",
+          "items": [
+            "Unity",
+            "C#",
+            "Android",
+            "TapTap",
+            "遗留工程恢复",
+            "UI 适配"
+          ]
+        },
+        {
+          "kind": "links",
+          "title": "相关链接",
+          "items": [
+            {
+              "label": "返回项目列表",
+              "href": "/about"
+            },
+            {
+              "label": "返回简历",
+              "href": "/resume"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "knowledge-graph",
+      "title": "短文本知识标注系统",
+      "track": "featured",
+      "cardMeta": [
+        "职业项目",
+        "百度",
+        "技术负责人"
+      ],
+      "cardSummary": "覆盖知识库、模型、数据工程和服务部署的中文文本理解基础设施，服务搜索、广告和 AIGC 业务。",
+      "cardTags": [
+        "NLP",
+        "知识图谱",
+        "PaddlePaddle",
+        "大规模系统"
+      ],
+      "heroEyebrow": "Featured Project / AI Infrastructure",
+      "heroSubtitle": "百度内部基础设施项目，从词汇理解和句子理解角度探索中文通用知识表征与应用，以知识库、模型、数据工程与服务部署支撑搜索、广告和 AIGC 等业务线。",
+      "showcase": {
+        "title": "作品展示",
+        "featuredTitle": "架构图 / 方案录屏展示位",
+        "featuredDescription": "这里适合放系统架构图、模型流程图，或者一段解释知识库、模型和服务部署关系的视频讲解。",
+        "sideBlocks": [
+          {
+            "title": "推荐素材",
+            "items": [
+              "知识库生产流程图",
+              "模型训练与标签体系示意",
+              "服务部署与业务接入关系图"
+            ]
+          },
+          {
+            "title": "展示重点",
+            "description": "优先展示“基础设施如何被业务消费”，比单独展示某个模型指标更容易体现系统价值。"
+          }
+        ],
+        "gallery": [
+          {
+            "title": "知识库层",
+            "description": "TermTree 结构与数据生产流程"
+          },
+          {
+            "title": "模型层",
+            "description": "分类、序列标注与标签体系"
+          },
+          {
+            "title": "服务层",
+            "description": "GPU / CPU 集群部署与业务接入"
+          }
+        ],
+        "note": "后续如果补真实材料，建议优先放流程图、指标卡片和业务接入链路，而不是抽象描述。"
+      },
+      "storySections": [
+        {
+          "kind": "metrics",
+          "title": "项目影响",
+          "items": [
+            {
+              "value": "30+",
+              "label": "支持上线项目"
+            },
+            {
+              "value": "亿级",
+              "label": "年度辐射收入"
+            },
+            {
+              "value": "95%+",
+              "label": "分类 F1"
+            }
+          ]
+        },
+        {
+          "kind": "capabilities",
+          "title": "知识库建设",
+          "items": [
+            {
+              "title": "TermTree 知识库",
+              "detail": "参与设计层次体系并主导数据生产流程，筛选高频实体与常见概念收录入百万级知识库，有效支持多项在线和离线检索需求。"
+            },
+            {
+              "title": "百科词条关联",
+              "detail": "负责将两千万百科词条收录入知识库，设计从预处理、粗分类、召回、细分类到知识库更新的完整流程。"
+            }
+          ]
+        },
+        {
+          "kind": "capabilities",
+          "title": "模型与数据工程",
+          "items": [
+            {
+              "title": "多任务模型结构",
+              "detail": "基于 prompt-learning 对短文本做主题、意图分类和词类序列标注，并利用类别与词类相关性提升概念和实体识别效果。"
+            },
+            {
+              "title": "标签体系设计",
+              "detail": "分类覆盖 20+ 大类与 600+ 小类，序列标注对中文词汇空间做全划分并细化常见复合词。"
+            },
+            {
+              "title": "训练集与测试集建设",
+              "detail": "从 0 搭建样本生产和测试集体系，兼顾通用文本、特殊垂类、重点业务和恶劣 case，确保模型迭代结果稳定可控。"
+            }
+          ]
+        },
+        {
+          "kind": "capabilities",
+          "title": "知识应用与服务",
+          "items": [
+            {
+              "title": "知识关联与挖掘",
+              "detail": "研发 term-linking 与知识挖掘策略，将文本与知识库更高效地关联起来。"
+            },
+            {
+              "title": "服务部署",
+              "detail": "开发服务代码并部署到 GPU 与 CPU 集群，支撑内部业务线大规模高频调用。"
+            }
+          ]
+        },
+        {
+          "kind": "archive",
+          "title": "项目档案",
+          "description": "按统一栏目保留项目原始信息，并补充必要的结构化归档。",
+          "sections": [
+            {
+              "title": "项目介绍",
+              "paragraphs": [
+                "百度内部基础设施项目，从词汇理解和句子理解角度探索中文通用知识表征与应用，以知识库、模型、数据工程与服务部署支撑搜索、广告和 AIGC 等业务线。"
+              ],
+              "groups": [
+                {
+                  "title": "项目影响",
+                  "items": [
+                    "支持上线项目：30+",
+                    "年度辐射收入：亿级",
+                    "短文本分类效果：95%+ F1"
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "主要工作",
+              "groups": [
+                {
+                  "title": "知识库建设",
+                  "items": [
+                    "参与设计 TermTree 层次体系并主导数据生产流程，把高频实体与常见概念沉淀为可复用知识底座。",
+                    "负责将两千万百科词条收录入知识库，设计从预处理、粗分类、召回、细分类到知识库更新的完整流程。"
+                  ]
+                },
+                {
+                  "title": "模型与数据工程",
+                  "items": [
+                    "构建短文本多任务模型，同时处理主题与意图分类、词类序列标注，并利用类别和词类相关性提升概念与实体识别。",
+                    "辅助设计分类与序列标注标签体系，覆盖 20+ 大类与 600+ 小类，并细化常见复合词表达。",
+                    "从 0 搭建训练集与测试集体系，让样本生产、人工标注和模型评估形成可持续迭代链路。"
+                  ]
+                },
+                {
+                  "title": "知识应用与服务",
+                  "items": [
+                    "推动知识关联、知识挖掘与服务部署落地，使模型和策略模块能够被搜索、广告、AIGC 等业务高频调用。",
+                    "完成模型与策略模块的 GPU / CPU 集群部署，支撑内部业务线大规模调用。"
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "技术档案",
+              "groups": [
+                {
+                  "title": "简历原文",
+                  "items": [
+                    "负责维护解语知识库 TermTree，参与设计层次体系并主导数据生产流程，最终筛选出高频实体和常见概念收录入百万级知识库，有效支持多项在线与离线知识数据检索需求。",
+                    "负责构建多任务模型结构，基于 prompt-learning 对短文本进行主题和意图分类，以及词类序列标注，并利用类别和词类相关性关系提升概念和实体识别准确率。",
+                    "辅助设计模型分类及序列标注标签体系，分类覆盖 20+ 大类与 600+ 小类，序列标注对中文词汇空间进行全划分，并对常见复合词做更细粒度划分。",
+                    "从 0 构建底层模型训练集与测试集，通过搜索日志及各项垂类业务采样出百万级文本样本，并按通用文本、特殊垂类、重点业务和恶劣 case 设计测试集，保证模型升级效果持续为正。",
+                    "参与知识关联、知识挖掘、知识判定等策略研发，通过结合底层模型与知识库设计两阶段知识关联策略，并负责将模型和策略模块部署到 GPU / CPU 集群以支持内部业务线大规模高频调用。"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "stack",
+          "title": "技术栈",
+          "items": [
+            "Python",
+            "PaddlePaddle",
+            "NLP",
+            "深度学习",
+            "Prompt Learning",
+            "知识图谱",
+            "数据工程",
+            "模型部署",
+            "GPU / CPU 集群",
+            "Airflow"
+          ]
+        },
+        {
+          "kind": "links",
+          "title": "相关链接",
+          "items": [
+            {
+              "label": "返回项目列表",
+              "href": "/about"
+            },
+            {
+              "label": "返回简历",
+              "href": "/resume"
+            },
+            {
+              "label": "Text to Knowledge",
+              "href": "https://www.paddlepaddle.org.cn/textToKnowledge",
+              "external": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "sceneblueprint",
+      "title": "SceneBlueprint 场景蓝图框架",
+      "track": "open_source",
+      "cardMeta": [
+        "开源框架",
+        "独立开发",
+        "Unity Package"
+      ],
+      "cardSummary": "面向 Unity 的场景级蓝图编辑框架，以 DSL、节点图编辑、导出契约和运行时解释执行构建完整工具链。",
+      "cardTags": [
+        "Unity",
+        "Editor Tooling",
+        "DSL",
+        "Runtime Interpreter"
+      ],
+      "heroEyebrow": "Open Source / Tooling Framework",
+      "heroSubtitle": "面向 Unity 的场景级蓝图编辑框架。围绕 DSL 定义、可视化节点图编辑、导出契约与运行时解释执行构建完整工具链，目标是在“制作蓝图”和“执行蓝图”之间建立稳定边界。",
+      "showcase": {
+        "title": "作品展示",
+        "featuredTitle": "编辑器工作台 / 录屏展示位",
+        "featuredDescription": "这里最适合放一段主录屏，依次展示 DSL 定义、节点图编辑、校验预览和运行时测试，让读者直接理解这不是单纯的节点编辑器。",
+        "sideBlocks": [
+          {
+            "title": "推荐素材",
+            "items": [
+              "主编辑器窗口截图",
+              ".sbdef 定义文件示例",
+              "运行时状态或调试快照"
+            ]
+          },
+          {
+            "title": "展示重点",
+            "description": "重点不是“画节点”，而是“从定义、制作到执行”的完整工具链与正式分层。"
+          }
+        ],
+        "gallery": [
+          {
+            "title": "DSL 定义",
+            "description": "Action、Marker、Signal 与代码生成"
+          },
+          {
+            "title": "编辑器工作台",
+            "description": "节点图、分析面板、专项工作区"
+          },
+          {
+            "title": "运行时调试",
+            "description": "加载、执行、状态快照与调试视图"
+          }
+        ],
+        "note": "现在先把展示骨架搭好，后续你只需要把真实截图和录屏贴进来，就能很快形成成熟的项目页。"
+      },
+      "storySections": [
+        {
+          "kind": "story",
+          "title": "核心定位",
+          "paragraphs": [
+            "SceneBlueprint 不是单纯的节点编辑器，而是一套正式的场景蓝图框架。",
+            "它把编辑器制作流程和运行时执行流程拆成清晰的两个子系统，使蓝图资产能够被定义、校验、编译、导出，再由运行时稳定加载和解释执行。"
+          ]
+        },
+        {
+          "kind": "capabilities",
+          "title": "架构设计",
+          "items": [
+            {
+              "title": "编辑器与运行时双子系统",
+              "detail": "编辑器侧聚焦 authoring、校验、导出与预览，运行时侧聚焦加载、调度、解释执行与状态管理，避免制作逻辑与运行时逻辑纠缠。"
+            },
+            {
+              "title": "稳定的数据边界",
+              "detail": "通过 `BlueprintAsset`、`SceneBlueprintData` 与 `BlueprintFrame` 区分工作资产、导出契约和运行时真相。"
+            },
+            {
+              "title": "解释器式运行时",
+              "detail": "以 `BlueprintLoader`、`BlueprintRunner`、System 调度和状态域为核心，组织蓝图的加载、执行、观察与调试。"
+            }
+          ]
+        },
+        {
+          "kind": "capabilities",
+          "title": "工具链亮点",
+          "items": [
+            {
+              "title": "`.sbdef` DSL + 代码生成",
+              "detail": "以 `.sbdef` 作为单一事实来源，经 Unity Importer 与外部 CLI 生成运行时和编辑器注册代码，减少手写样板与定义漂移。"
+            },
+            {
+              "title": "节点图编辑与专项工作台",
+              "detail": "基于 `com.zgx197.nodegraph` 构建编辑器窗口，并支持工作区恢复、分析面板、编译预览和测试窗口。"
+            },
+            {
+              "title": "空间与场景绑定体系",
+              "detail": "提供 Marker、Annotation、Spatial 抽象、2D/3D 适配器与场景对象绑定恢复机制。"
+            }
+          ]
+        },
+        {
+          "kind": "capabilities",
+          "title": "运行时与调试能力",
+          "items": [
+            {
+              "title": "黑板、信号与状态域",
+              "detail": "运行时统一维护黑板、事件、端口状态、时间与生命周期信息，为复杂业务 System 提供稳定执行上下文。"
+            },
+            {
+              "title": "快照、历史与调试视图",
+              "detail": "提供运行时状态快照、帧历史与调试控制能力，便于观察执行路径和状态演变。"
+            },
+            {
+              "title": "知识服务与 AI 辅助",
+              "detail": "在编辑器侧内建知识服务、知识清单与 AI Chat 面板，用于连接文档、上下文与工具操作。"
+            }
+          ]
+        },
+        {
+          "kind": "archive",
+          "title": "项目档案",
+          "description": "按统一栏目保留项目原始信息，并补充必要的结构化归档。",
+          "sections": [
+            {
+              "title": "项目介绍",
+              "paragraphs": [
+                "SceneBlueprint 不是单纯的节点编辑器，而是一套正式的场景蓝图框架。",
+                "它把编辑器制作流程和运行时执行流程拆成清晰的两个子系统，使蓝图资产能够被定义、校验、编译、导出，再由运行时稳定加载和解释执行。"
+              ]
+            },
+            {
+              "title": "主要工作",
+              "groups": [
+                {
+                  "items": [
+                    "编辑器与运行时双子系统：编辑器侧聚焦 authoring、校验、导出与预览，运行时侧聚焦加载、调度、解释执行与状态管理，避免制作逻辑与运行时逻辑纠缠。",
+                    "稳定的数据边界：通过 BlueprintAsset、SceneBlueprintData 与 BlueprintFrame 区分工作资产、导出契约和运行时真相。",
+                    "解释器式运行时：以 BlueprintLoader、BlueprintRunner、System 调度和状态域为核心，组织蓝图的加载、执行、观察与调试。"
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "技术档案",
+              "groups": [
+                {
+                  "title": "工具链亮点",
+                  "items": [
+                    "`.sbdef` DSL + 代码生成：以 `.sbdef` 作为单一事实来源，经 Unity Importer 与外部 CLI 生成运行时和编辑器注册代码，减少手写样板与定义漂移。",
+                    "节点图编辑与专项工作台：基于 `com.zgx197.nodegraph` 构建编辑器窗口，并支持工作区恢复、分析面板、编译预览和测试窗口。",
+                    "空间与场景绑定体系：提供 Marker、Annotation、Spatial 抽象、2D/3D 适配器与场景对象绑定恢复机制。"
+                  ]
+                },
+                {
+                  "title": "运行时与调试能力",
+                  "items": [
+                    "黑板、信号与状态域：运行时统一维护黑板、事件、端口状态、时间与生命周期信息，为复杂业务 System 提供稳定执行上下文。",
+                    "快照、历史与调试视图：提供运行时状态快照、帧历史与调试控制能力，便于观察执行路径和状态演变。",
+                    "知识服务与 AI 辅助：在编辑器侧内建知识服务、知识清单与 AI Chat 面板，用于连接文档、上下文与工具操作。"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "stack",
+          "title": "技术栈",
+          "items": [
+            "Unity 2021.3+",
+            "C#",
+            "Editor Tooling",
+            "DSL",
+            "Code Generation",
+            "Node Graph",
+            "Runtime Interpreter",
+            "SignalBus",
+            "State Snapshot",
+            "AI Assistant"
+          ]
+        },
+        {
+          "kind": "links",
+          "title": "相关链接",
+          "items": [
+            {
+              "label": "返回项目列表",
+              "href": "/about"
+            },
+            {
+              "label": "返回简历",
+              "href": "/resume"
+            },
+            {
+              "label": "GitHub 仓库",
+              "href": "https://github.com/zgx197/com.zgx197.sceneblueprint",
+              "external": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+};;;
+
+
+
+
+
+
+
+

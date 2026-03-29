@@ -7,7 +7,11 @@
     "start": "astro dev",
     "build": "astro build && pagefind --site dist",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "import:resume:text": "node scripts/import-resume-text.mjs",
+    "import:resume:pdf": "python scripts/import-resume-pdf.py",
+    "merge:resume": "node scripts/merge-imported-resume.mjs",
+    "validate:resume": "node scripts/validate-resume-schema.mjs"
   },
   "dependencies": {
     "@astrojs/tailwind": "^5.1.0",
