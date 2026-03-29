@@ -1,0 +1,26 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="900" rx="40" fill="#F6FAF9"/>
+  <rect x="88" y="88" width="1424" height="724" rx="30" fill="#FDFFFF" stroke="#D4E6E0" stroke-width="2"/>
+  <text x="132" y="172" fill="#1C2734" font-size="30" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Runtime Execution and Debugging</text>
+  <text x="132" y="212" fill="#566A80" font-size="19" font-family="Segoe UI, Arial, sans-serif">BlueprintLoader, Runner, SignalBus and snapshots keep authoring output executable and observable.</text>
+  <rect x="146" y="280" width="252" height="126" rx="22" fill="#EAF3FF" stroke="#C7DDF8"/>
+  <rect x="468" y="280" width="252" height="126" rx="22" fill="#EAF8F4" stroke="#C9E9DF"/>
+  <rect x="790" y="280" width="252" height="126" rx="22" fill="#FFF7E8" stroke="#F1DFC0"/>
+  <rect x="1112" y="280" width="252" height="126" rx="22" fill="#F3F6FB" stroke="#D6E2EF"/>
+  <path d="M398 343H468" stroke="#7DA1C9" stroke-width="7" stroke-linecap="round"/>
+  <path d="M720 343H790" stroke="#7DA1C9" stroke-width="7" stroke-linecap="round"/>
+  <path d="M1042 343H1112" stroke="#7DA1C9" stroke-width="7" stroke-linecap="round"/>
+  <text x="198" y="336" fill="#1F6FEB" font-size="22" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Loader</text>
+  <text x="533" y="336" fill="#15967D" font-size="22" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Runner</text>
+  <text x="847" y="336" fill="#B77514" font-size="22" font-family="Segoe UI, Arial, sans-serif" font-weight="700">SignalBus</text>
+  <text x="1160" y="336" fill="#4E6278" font-size="22" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Snapshot</text>
+  <rect x="170" y="498" width="1260" height="232" rx="28" fill="#F8FCFB" stroke="#D4E6E0"/>
+  <rect x="214" y="548" width="272" height="134" rx="20" fill="#FFFFFF" stroke="#D6E2EF"/>
+  <rect x="530" y="548" width="272" height="134" rx="20" fill="#FFFFFF" stroke="#D6E2EF"/>
+  <rect x="846" y="548" width="272" height="134" rx="20" fill="#FFFFFF" stroke="#D6E2EF"/>
+  <rect x="1162" y="548" width="224" height="134" rx="20" fill="#FFFFFF" stroke="#D6E2EF"/>
+  <text x="244" y="602" fill="#1C2734" font-size="20" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Blackboard</text>
+  <text x="560" y="602" fill="#1C2734" font-size="20" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Ports / Tokens</text>
+  <text x="876" y="602" fill="#1C2734" font-size="20" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Timeline / History</text>
+  <text x="1190" y="602" fill="#1C2734" font-size="20" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Inspector</text>
+</svg>

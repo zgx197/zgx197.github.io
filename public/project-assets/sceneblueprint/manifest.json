@@ -1,0 +1,33 @@
+{
+  "featured": {
+    "kind": "image",
+    "title": "SceneBlueprint 编辑器工作台",
+    "src": "cover.svg",
+    "alt": "SceneBlueprint 场景蓝图框架的编辑器工作台概念图",
+    "description": "第一版先用结构化示意图占位，后续可直接替换为真实截图或录屏封面。"
+  },
+  "gallery": [
+    {
+      "kind": "image",
+      "title": "DSL 与节点定义",
+      "src": "gallery-dsl.svg",
+      "alt": "SceneBlueprint DSL 与节点定义概念图",
+      "description": "展示 .sbdef 定义、生成代码和节点契约之间的关系。"
+    },
+    {
+      "kind": "image",
+      "title": "运行时执行与调试",
+      "src": "gallery-runtime.svg",
+      "alt": "SceneBlueprint 运行时执行与调试概念图",
+      "description": "展示 BlueprintLoader、Runner、SignalBus 与状态快照链路。"
+    }
+  ],
+  "resources": [
+    {
+      "label": "GitHub 仓库",
+      "href": "https://github.com/zgx197/com.zgx197.sceneblueprint",
+      "external": true
+    }
+  ],
+  "note": "这是 P0 阶段的最小素材样例，用来验证素材目录、manifest 解析和项目详情页展示链路已经跑通。"
+}

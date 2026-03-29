@@ -1,0 +1,61 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="120" y1="60" x2="1480" y2="860" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F7FBFF"/>
+      <stop offset="1" stop-color="#E5EEF9"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#FFFFFF" stop-opacity="0.96"/>
+      <stop offset="1" stop-color="#EEF4FB" stop-opacity="0.92"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" rx="40" fill="url(#bg)"/>
+  <circle cx="1370" cy="170" r="190" fill="#D8F2ED" fill-opacity="0.9"/>
+  <circle cx="240" cy="740" r="210" fill="#DBE8FF" fill-opacity="0.8"/>
+  <rect x="76" y="66" width="1448" height="768" rx="32" fill="#FDFEFF" stroke="#C9D8EA" stroke-width="2"/>
+  <rect x="76" y="66" width="1448" height="64" rx="32" fill="#F2F7FD"/>
+  <circle cx="122" cy="98" r="8" fill="#8AA7C7"/>
+  <circle cx="148" cy="98" r="8" fill="#A7BDD7"/>
+  <circle cx="174" cy="98" r="8" fill="#C7D7E8"/>
+  <rect x="118" y="174" width="364" height="558" rx="24" fill="url(#panel)" stroke="#D6E2EF"/>
+  <rect x="520" y="174" width="628" height="558" rx="24" fill="url(#panel)" stroke="#D6E2EF"/>
+  <rect x="1186" y="174" width="296" height="558" rx="24" fill="url(#panel)" stroke="#D6E2EF"/>
+  <text x="132" y="212" fill="#1C2734" font-size="28" font-family="Segoe UI, Arial, sans-serif" font-weight="700">SceneBlueprint</text>
+  <text x="132" y="246" fill="#5C7086" font-size="18" font-family="Segoe UI, Arial, sans-serif">Authoring Workspace / P0 Media Sample</text>
+  <rect x="144" y="286" width="312" height="110" rx="20" fill="#F5F9FF" stroke="#D7E4F7"/>
+  <text x="170" y="334" fill="#1F6FEB" font-size="22" font-family="Segoe UI, Arial, sans-serif" font-weight="700">DSL Definitions</text>
+  <text x="170" y="366" fill="#526579" font-size="18" font-family="Segoe UI, Arial, sans-serif">.sbdef -> importer -> generated registrations</text>
+  <rect x="144" y="422" width="312" height="128" rx="20" fill="#F6FBFA" stroke="#CFE7E0"/>
+  <text x="170" y="470" fill="#15967D" font-size="22" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Static Analysis</text>
+  <text x="170" y="502" fill="#526579" font-size="18" font-family="Segoe UI, Arial, sans-serif">contract check / compile preview / diagnostics</text>
+  <rect x="144" y="576" width="312" height="128" rx="20" fill="#FFF9F1" stroke="#F1DFC0"/>
+  <text x="170" y="624" fill="#B77514" font-size="22" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Knowledge + AI</text>
+  <text x="170" y="656" fill="#526579" font-size="18" font-family="Segoe UI, Arial, sans-serif">editor-side docs, checklists and assistant panels</text>
+  <rect x="560" y="228" width="548" height="450" rx="26" fill="#FBFDFF" stroke="#D6E2EF"/>
+  <rect x="610" y="296" width="152" height="72" rx="18" fill="#EAF3FF" stroke="#C7DDF8"/>
+  <rect x="822" y="296" width="152" height="72" rx="18" fill="#EAF8F4" stroke="#C9E9DF"/>
+  <rect x="716" y="426" width="152" height="72" rx="18" fill="#FFF7E8" stroke="#F1DFC0"/>
+  <rect x="610" y="556" width="152" height="72" rx="18" fill="#F0F4FA" stroke="#D6E2EF"/>
+  <rect x="822" y="556" width="152" height="72" rx="18" fill="#F5F9FF" stroke="#D6E2EF"/>
+  <path d="M762 332H822" stroke="#7DA1C9" stroke-width="6" stroke-linecap="round"/>
+  <path d="M898 368V426" stroke="#7DA1C9" stroke-width="6" stroke-linecap="round"/>
+  <path d="M792 498V556" stroke="#7DA1C9" stroke-width="6" stroke-linecap="round"/>
+  <path d="M716 498L686 556" stroke="#7DA1C9" stroke-width="6" stroke-linecap="round"/>
+  <path d="M868 498L898 556" stroke="#7DA1C9" stroke-width="6" stroke-linecap="round"/>
+  <text x="641" y="340" fill="#1F6FEB" font-size="18" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Action</text>
+  <text x="860" y="340" fill="#15967D" font-size="18" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Marker</text>
+  <text x="753" y="470" fill="#B77514" font-size="18" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Signal</text>
+  <text x="644" y="600" fill="#5A6B7D" font-size="18" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Spatial</text>
+  <text x="855" y="600" fill="#1C2734" font-size="18" font-family="Segoe UI, Arial, sans-serif" font-weight="700">State</text>
+  <text x="560" y="266" fill="#1C2734" font-size="22" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Node Graph Authoring</text>
+  <text x="1216" y="228" fill="#1C2734" font-size="24" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Right Panel</text>
+  <rect x="1216" y="276" width="236" height="110" rx="18" fill="#F5F9FF" stroke="#D6E2EF"/>
+  <rect x="1216" y="410" width="236" height="110" rx="18" fill="#F8FCFB" stroke="#D6E2EF"/>
+  <rect x="1216" y="544" width="236" height="142" rx="18" fill="#FBFDFF" stroke="#D6E2EF"/>
+  <text x="1242" y="324" fill="#1F6FEB" font-size="19" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Compile Preview</text>
+  <text x="1242" y="354" fill="#526579" font-size="16" font-family="Segoe UI, Arial, sans-serif">export contract / frame view</text>
+  <text x="1242" y="458" fill="#15967D" font-size="19" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Diagnostics</text>
+  <text x="1242" y="488" fill="#526579" font-size="16" font-family="Segoe UI, Arial, sans-serif">binding / missing refs / warnings</text>
+  <text x="1242" y="592" fill="#1C2734" font-size="19" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Runtime Test</text>
+  <text x="1242" y="622" fill="#526579" font-size="16" font-family="Segoe UI, Arial, sans-serif">loader / runner / snapshot controls</text>
+</svg>

@@ -1,0 +1,26 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="900" rx="40" fill="#F4F8FD"/>
+  <rect x="92" y="84" width="1416" height="732" rx="30" fill="#FEFFFF" stroke="#D1DEED" stroke-width="2"/>
+  <rect x="132" y="148" width="500" height="604" rx="24" fill="#F8FBFF" stroke="#D8E4F1"/>
+  <rect x="674" y="148" width="794" height="604" rx="24" fill="#F8FBFF" stroke="#D8E4F1"/>
+  <text x="154" y="202" fill="#1C2734" font-size="28" font-family="Segoe UI, Arial, sans-serif" font-weight="700">DSL Definitions</text>
+  <text x="154" y="238" fill="#566A80" font-size="18" font-family="Segoe UI, Arial, sans-serif">Single source of truth for action, marker, signal and spatial contracts</text>
+  <rect x="162" y="288" width="438" height="184" rx="20" fill="#11253C"/>
+  <text x="194" y="340" fill="#F2F7FD" font-size="20" font-family="Consolas, monospace">blueprint SceneSequence</text>
+  <text x="194" y="380" fill="#84B5FF" font-size="18" font-family="Consolas, monospace">action MoveTo(target: Marker)</text>
+  <text x="194" y="416" fill="#82D5C1" font-size="18" font-family="Consolas, monospace">signal SequenceStarted()</text>
+  <text x="194" y="452" fill="#FFD48A" font-size="18" font-family="Consolas, monospace">marker Entrance : Spatial2D</text>
+  <rect x="162" y="510" width="438" height="208" rx="20" fill="#EEF5FF" stroke="#D8E4F1"/>
+  <text x="194" y="560" fill="#1F6FEB" font-size="22" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Codegen Output</text>
+  <text x="194" y="596" fill="#566A80" font-size="18" font-family="Segoe UI, Arial, sans-serif">Importer and CLI generate editor/runtime registrations from the same definition.</text>
+  <rect x="714" y="214" width="312" height="120" rx="20" fill="#EAF3FF" stroke="#C7DDF8"/>
+  <rect x="1118" y="214" width="312" height="120" rx="20" fill="#EAF8F4" stroke="#C9E9DF"/>
+  <rect x="916" y="438" width="312" height="120" rx="20" fill="#FFF7E8" stroke="#F1DFC0"/>
+  <path d="M1026 274H1118" stroke="#7DA1C9" stroke-width="6" stroke-linecap="round"/>
+  <path d="M1274 334L1148 438" stroke="#7DA1C9" stroke-width="6" stroke-linecap="round"/>
+  <path d="M870 334L996 438" stroke="#7DA1C9" stroke-width="6" stroke-linecap="round"/>
+  <text x="786" y="280" fill="#1F6FEB" font-size="21" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Definitions</text>
+  <text x="1190" y="280" fill="#15967D" font-size="21" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Registrations</text>
+  <text x="1000" y="504" fill="#B77514" font-size="21" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Node Contracts</text>
+  <text x="714" y="176" fill="#1C2734" font-size="28" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Definition Pipeline</text>
+</svg>

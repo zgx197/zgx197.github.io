@@ -1,0 +1,1216 @@
+---
+import {
+  getProjectHref,
+  resumeData,
+  type ProjectDetail,
+  type ProjectMediaAsset,
+  type ProjectSection,
+} from "../../data/resume";
+
+export function getStaticPaths() {
+  return resumeData.projects.map((project) => ({
+    params: { slug: project.slug },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props as { project: ProjectDetail };
+
+type ShowcaseSection = Extract<ProjectSection, { type: "showcase" }>;
+type MetricsSection = Extract<ProjectSection, { type: "metrics" }>;
+type HighlightsSection = Extract<ProjectSection, { type: "highlights" }>;
+type ParagraphSection = Extract<ProjectSection, { type: "paragraph" }>;
+type BulletsSection = Extract<ProjectSection, { type: "bullets" }>;
+type LayeredBulletsSection = Extract<ProjectSection, { type: "layered_bullets" }>;
+type ArchiveSection = Extract<ProjectSection, { type: "archive" }>;
+type TagsSection = Extract<ProjectSection, { type: "tags" }>;
+type LinksSection = Extract<ProjectSection, { type: "links" }>;
+
+function isShowcaseSection(section: ProjectSection): section is ShowcaseSection {
+  return section.type === "showcase";
+}
+
+function isMetricsSection(section: ProjectSection): section is MetricsSection {
+  return section.type === "metrics";
+}
+
+function isHighlightsSection(section: ProjectSection): section is HighlightsSection {
+  return section.type === "highlights";
+}
+
+function isParagraphSection(section: ProjectSection): section is ParagraphSection {
+  return section.type === "paragraph";
+}
+
+function isBulletsSection(section: ProjectSection): section is BulletsSection {
+  return section.type === "bullets";
+}
+
+function isLayeredBulletsSection(section: ProjectSection): section is LayeredBulletsSection {
+  return section.type === "layered_bullets";
+}
+
+function isArchiveSection(section: ProjectSection): section is ArchiveSection {
+  return section.type === "archive";
+}
+
+function isTagsSection(section: ProjectSection): section is TagsSection {
+  return section.type === "tags";
+}
+
+function isLinksSection(section: ProjectSection): section is LinksSection {
+  return section.type === "links";
+}
+
+function isImageAsset(asset: ProjectMediaAsset) {
+  return asset.kind === "image";
+}
+
+function isVideoAsset(asset: ProjectMediaAsset) {
+  return asset.kind === "video";
+}
+
+function isEmbedAsset(asset: ProjectMediaAsset) {
+  return asset.kind === "embed";
+}
+
+const mediaAssets = [
+  ...(project.media.featured ? [project.media.featured] : []),
+  ...project.media.gallery,
+];
+const showcaseVideo = mediaAssets.find((asset) => isVideoAsset(asset) || isEmbedAsset(asset));
+const showcaseImages = mediaAssets.filter(isImageAsset);
+const hasImageCarousel = showcaseImages.length > 0;
+const showcaseSectionIndex = project.sections.findIndex((section) => section.type === "showcase");
+const archiveSectionIndex = project.sections.findIndex((section) => section.type === "archive");
+const hasArchiveSection = archiveSectionIndex >= 0;
+const hasLinksSection = project.sections.some((section) => section.type === "links");
+const hasTagsSection = project.sections.some((section) => section.type === "tags");
+
+function shouldRenderSection(section: ProjectSection) {
+  if (!hasArchiveSection) {
+    return true;
+  }
+
+  return (
+    section.type === "showcase" ||
+    section.type === "archive" ||
+    section.type === "tags" ||
+    section.type === "links"
+  );
+}
+---
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{project.title} - 张国鑫</title>
+  <meta name="description" content={project.description}>
+  <style>
+    :root {
+      --bg: #eef3f8;
+      --surface: rgba(255, 255, 255, 0.9);
+      --surface-strong: #ffffff;
+      --text: #17202a;
+      --text-secondary: #4d6175;
+      --text-muted: #7d8b9b;
+      --accent: #1f6feb;
+      --accent-strong: #1558c0;
+      --border: rgba(24, 39, 58, 0.12);
+      --shadow: 0 18px 40px rgba(18, 38, 63, 0.08);
+      --shadow-hover: 0 22px 48px rgba(18, 38, 63, 0.12);
+      --hero-gradient: linear-gradient(135deg, rgba(31, 111, 235, 0.12), rgba(20, 184, 166, 0.08));
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(31, 111, 235, 0.08), transparent 28%),
+        radial-gradient(circle at top right, rgba(20, 184, 166, 0.08), transparent 32%),
+        var(--bg);
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .container {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 72px;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .nav a:hover {
+      color: var(--accent);
+    }
+
+    .hero,
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 26px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero {
+      position: relative;
+      padding: 18px 22px;
+      margin-bottom: 12px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(245, 249, 255, 0.9)),
+        var(--hero-gradient);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -32px -72px auto;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: rgba(20, 184, 166, 0.06);
+      filter: blur(10px);
+    }
+
+    .hero-shell {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 14px;
+    }
+
+    .hero-topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .hero-copy {
+      display: grid;
+      gap: 10px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--accent-strong);
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 0;
+    }
+
+    .hero-title {
+      font-size: clamp(26px, 2.8vw, 38px);
+      line-height: 1.02;
+      margin-bottom: 0;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-subtitle {
+      max-width: 760px;
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-bottom: 0;
+    }
+
+    .meta-row,
+    .hero-actions,
+    .tag-row,
+    .link-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .meta-row {
+      margin-bottom: 0;
+    }
+
+    .meta-pill,
+    .hero-jump,
+    .tag,
+    .link-pill {
+      border-radius: 999px;
+      font-size: 12px;
+    }
+
+    .meta-pill {
+      padding: 4px 9px;
+      color: var(--accent-strong);
+      background: #f5f9ff;
+      border: 1px solid rgba(31, 111, 235, 0.12);
+    }
+
+    .hero-tags {
+      opacity: 0.78;
+    }
+
+    .hero-tag {
+      background: rgba(255, 255, 255, 0.68);
+    }
+
+    .hero-actions {
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-top: 2px;
+    }
+
+    .hero-jump {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      color: var(--accent-strong);
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(31, 111, 235, 0.12);
+      font-weight: 600;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .hero-jump:hover {
+      background: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .section {
+      padding: 30px;
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: 24px;
+      margin-bottom: 18px;
+    }
+
+    .section-copy,
+    .side-block p,
+    .side-block li,
+    .metric-label,
+    .media-caption,
+    .showcase-thumb span {
+      color: var(--text-secondary);
+      font-size: 15px;
+    }
+
+    .showcase-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.8fr);
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .showcase-main,
+    .showcase-side,
+    .showcase-thumb,
+    .metric-card,
+    .media-card {
+      background: var(--surface-strong);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .showcase-main {
+      min-height: 360px;
+      padding: 24px;
+      display: grid;
+      place-items: center;
+      background:
+        linear-gradient(160deg, rgba(31, 111, 235, 0.08), rgba(20, 184, 166, 0.05)),
+        var(--surface-strong);
+      overflow: hidden;
+    }
+
+    .showcase-placeholder {
+      text-align: center;
+      max-width: 520px;
+    }
+
+    .showcase-placeholder strong {
+      display: block;
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .showcase-video-shell {
+      width: 100%;
+      display: grid;
+      gap: 12px;
+    }
+
+    .showcase-video-meta {
+      display: grid;
+      gap: 4px;
+    }
+
+    .showcase-video-meta strong {
+      font-size: 16px;
+    }
+
+    .showcase-side {
+      padding: 20px;
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .side-block h3 {
+      font-size: 15px;
+      margin-bottom: 8px;
+    }
+
+    .side-block ul {
+      padding-left: 18px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .media-frame {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      border-radius: 16px;
+      object-fit: cover;
+      background: #dfe8f3;
+    }
+
+    .media-video {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 16px;
+      background: #091018;
+    }
+
+    .showcase-carousel,
+    .showcase-grid,
+    .metrics-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .showcase-grid,
+    .metrics-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .showcase-grid,
+    .showcase-carousel {
+      margin-bottom: 14px;
+    }
+
+    .showcase-thumb,
+    .showcase-carousel {
+      padding: 18px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(31, 111, 235, 0.04));
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .showcase-thumb {
+      min-height: 132px;
+      display: grid;
+      align-content: end;
+      gap: 6px;
+    }
+
+    .showcase-thumb strong,
+    .showcase-carousel strong {
+      font-size: 15px;
+    }
+
+    .media-preview {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+      border-radius: 14px;
+      background: #dde6f2;
+      margin-bottom: 10px;
+      border: 1px solid rgba(24, 39, 58, 0.08);
+    }
+
+    .showcase-carousel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .showcase-carousel-subtitle {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .showcase-carousel-stage {
+      position: relative;
+      overflow: hidden;
+      border-radius: 18px;
+      background: #eaf1f8;
+      border: 1px solid rgba(24, 39, 58, 0.08);
+      margin-bottom: 14px;
+    }
+
+    .showcase-carousel-slide {
+      display: none;
+      padding: 18px;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .showcase-carousel-slide.is-active {
+      display: grid;
+    }
+
+    .showcase-carousel-slide img {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+      border-radius: 14px;
+      background: #dbe6f1;
+    }
+
+    .showcase-carousel-copy {
+      display: grid;
+      gap: 6px;
+    }
+
+    .showcase-carousel-copy p {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .showcase-carousel-nav {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      pointer-events: none;
+    }
+
+    .showcase-carousel-arrow {
+      width: 40px;
+      height: 40px;
+      border: 0;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--accent-strong);
+      font-size: 18px;
+      box-shadow: 0 10px 20px rgba(18, 38, 63, 0.12);
+      pointer-events: auto;
+      cursor: pointer;
+    }
+
+    .showcase-carousel-arrow:disabled {
+      opacity: 0.45;
+      cursor: default;
+    }
+
+    .showcase-carousel-thumbs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+    }
+
+    .showcase-carousel-thumb {
+      width: 100%;
+      padding: 10px;
+      border-radius: 16px;
+      border: 1px solid rgba(24, 39, 58, 0.08);
+      background: rgba(255, 255, 255, 0.88);
+      text-align: left;
+      cursor: pointer;
+      transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+    }
+
+    .showcase-carousel-thumb.is-active {
+      border-color: rgba(31, 111, 235, 0.24);
+      background: rgba(245, 249, 255, 0.98);
+    }
+
+    .showcase-carousel-thumb:hover {
+      transform: translateY(-1px);
+    }
+
+    .showcase-carousel-thumb img {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      background: #dbe6f1;
+    }
+
+    .showcase-carousel-thumb span {
+      display: block;
+      color: var(--text-secondary);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .metric-card {
+      padding: 22px;
+      text-align: center;
+    }
+
+    .metric-value {
+      display: block;
+      color: var(--accent-strong);
+      font-size: 30px;
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+
+    .highlight-list {
+      list-style: none;
+      display: grid;
+      gap: 14px;
+    }
+
+    .highlight-list li {
+      position: relative;
+      padding-left: 18px;
+      color: var(--text-secondary);
+      font-size: 15px;
+    }
+
+    .highlight-list li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .highlight-title {
+      color: var(--text);
+      font-weight: 700;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .paragraph-list,
+    .bullet-detail-list,
+    .layered-detail-groups {
+      display: grid;
+      gap: 14px;
+    }
+
+    .bullet-detail-list {
+      list-style: none;
+    }
+
+    .bullet-detail-list li {
+      position: relative;
+      padding-left: 18px;
+      color: var(--text-secondary);
+      font-size: 15px;
+    }
+
+    .bullet-detail-list li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .layered-detail-group {
+      padding: 20px;
+      border-radius: 20px;
+      background: var(--surface-strong);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    .layered-detail-group h3 {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    .archive-description {
+      color: var(--text-secondary);
+      font-size: 15px;
+      margin-bottom: 18px;
+    }
+
+    .archive-sections {
+      display: grid;
+      gap: 16px;
+    }
+
+    .archive-card {
+      padding: 22px;
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(31, 111, 235, 0.04));
+      border: 1px solid rgba(31, 111, 235, 0.12);
+      box-shadow: var(--shadow);
+    }
+
+    .section-archive {
+      background:
+        linear-gradient(180deg, rgba(250, 252, 255, 0.98), rgba(241, 246, 252, 0.94)),
+        var(--surface);
+      border-color: rgba(31, 111, 235, 0.14);
+    }
+
+    .archive-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .archive-card h3 {
+      font-size: 18px;
+    }
+
+    .archive-card-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(31, 111, 235, 0.08);
+      color: var(--accent-strong);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .archive-paragraphs,
+    .archive-groups {
+      display: grid;
+      gap: 14px;
+    }
+
+    .archive-paragraphs p,
+    .archive-group-text {
+      color: var(--text-secondary);
+      font-size: 15px;
+    }
+
+    .archive-group {
+      display: grid;
+      gap: 10px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(24, 39, 58, 0.08);
+    }
+
+    .archive-group:first-child {
+      padding-top: 0;
+      border-top: 0;
+    }
+
+    .archive-group h4 {
+      font-size: 15px;
+      color: var(--text);
+    }
+
+    .archive-item-list {
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+
+    .archive-item {
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid rgba(24, 39, 58, 0.08);
+      color: var(--text-secondary);
+      font-size: 15px;
+      line-height: 1.75;
+    }
+
+    .tech-stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag {
+      padding: 5px 10px;
+      color: var(--text-secondary);
+      background: #f2f6fb;
+      border: 1px solid rgba(24, 39, 58, 0.08);
+    }
+
+    .link-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 14px;
+      background: #f5f9ff;
+      border: 1px solid rgba(31, 111, 235, 0.12);
+      color: var(--accent-strong);
+      font-weight: 600;
+    }
+
+    .link-pill:hover {
+      background: #eef5ff;
+    }
+
+    @media (max-width: 900px) {
+      .showcase-layout,
+      .showcase-grid,
+      .metrics-grid,
+      .media-card-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-actions {
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .container {
+        width: min(100% - 24px, 1120px);
+        padding: 20px 0 56px;
+      }
+
+      .hero,
+      .section {
+        padding: 22px;
+        border-radius: 22px;
+      }
+
+      .hero {
+        padding: 18px;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .section-title {
+        font-size: 22px;
+      }
+
+      .showcase-main {
+        min-height: 280px;
+      }
+
+      .showcase-carousel-nav {
+        padding: 0 8px;
+      }
+
+      .showcase-carousel-arrow {
+        width: 36px;
+        height: 36px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" data-pagefind-body>
+    <nav class="nav">
+      <a href="/">首页</a>
+      <span>/</span>
+      <a href="/about">关于</a>
+      <span>/</span>
+      <a href="/resume">简历</a>
+      <span>/</span>
+      <span>{project.title}</span>
+    </nav>
+
+    <header class="hero">
+      <div class="hero-shell">
+        <div class="hero-topline">
+          <div class="eyebrow">{project.eyebrow}</div>
+          <div class="hero-actions">
+            {showcaseSectionIndex >= 0 && <a class="hero-jump" href="#showcase">进入展示</a>}
+            {archiveSectionIndex >= 0 && <a class="hero-jump" href="#archive">查看原文档案</a>}
+          </div>
+        </div>
+
+        <div class="hero-copy">
+          <h1 class="hero-title">{project.title}</h1>
+          <p class="hero-subtitle">{project.subtitle}</p>
+          <div class="meta-row">
+            {project.meta.map((item) => (
+              <span class="meta-pill">{item}</span>
+            ))}
+          </div>
+          <div class="hero-actions">
+            {!hasTagsSection && (
+              <div class="tag-row hero-tags">
+                {project.tags.map((tag) => (
+                  <span class="tag hero-tag">{tag}</span>
+                ))}
+              </div>
+            )}
+            {/* 顶部只保留跳转和基础信息，不显示提示性说明。 */}
+          </div>
+        </div>
+      </div>
+    </header>
+
+    {project.sections.map((section, index) => {
+      if (!shouldRenderSection(section)) {
+        return null;
+      }
+
+      if (isShowcaseSection(section)) {
+        return (
+          <section class="section" id={index === showcaseSectionIndex ? "showcase" : undefined}>
+            <h2 class="section-title">{section.title}</h2>
+            <div class="showcase-layout">
+              <div class="showcase-main">
+                {showcaseVideo ? (
+                  <div class="showcase-video-shell">
+                    {isVideoAsset(showcaseVideo) ? (
+                      <video class="media-video" controls poster={showcaseVideo.poster} src={showcaseVideo.src}></video>
+                    ) : isEmbedAsset(showcaseVideo) ? (
+                      <iframe class="media-frame" src={showcaseVideo.src} title={showcaseVideo.title} loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                    ) : null}
+                    <div class="showcase-video-meta">
+                      <strong>{showcaseVideo.title}</strong>
+                      {showcaseVideo.description && <p class="section-copy">{showcaseVideo.description}</p>}
+                    </div>
+                  </div>
+                ) : (
+                  <div class="showcase-placeholder">
+                    <strong>{section.featuredTitle}</strong>
+                    <p>{section.featuredDescription}</p>
+                  </div>
+                )}
+              </div>
+              <div class="showcase-side">
+                {section.sideBlocks.map((block) => (
+                  <div class="side-block">
+                    <h3>{block.title}</h3>
+                    {block.description && <p>{block.description}</p>}
+                    {block.items && (
+                      <ul>
+                        {block.items.map((item) => (
+                          <li>{item}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ))}
+                {project.media.resources.length > 0 && (
+                  <div class="side-block">
+                    <h3>素材资源</h3>
+                    <div class="link-row">
+                      {project.media.resources.map((item) => (
+                        <a class="link-pill" href={item.href} target={item.external ? '_blank' : undefined} rel={item.external ? 'noopener' : undefined}>{item.label}</a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {hasImageCarousel && (
+              <div class="showcase-carousel" data-gallery-carousel>
+                <div class="showcase-carousel-head">
+                  <div>
+                    <strong>图片列表</strong>
+                    <p class="showcase-carousel-subtitle">支持多张项目截图左右切换，也可以通过下方缩略图快速定位。</p>
+                  </div>
+                </div>
+
+                <div class="showcase-carousel-stage">
+                  {showcaseImages.map((asset, imageIndex) => (
+                    <article class={`showcase-carousel-slide${imageIndex === 0 ? " is-active" : ""}`} data-gallery-slide aria-hidden={imageIndex === 0 ? "false" : "true"}>
+                      <img src={asset.src} alt={asset.alt ?? asset.title}>
+                      <div class="showcase-carousel-copy">
+                        <strong>{asset.title}</strong>
+                        {asset.description && <p>{asset.description}</p>}
+                      </div>
+                    </article>
+                  ))}
+
+                  <div class="showcase-carousel-nav">
+                    <button class="showcase-carousel-arrow" type="button" data-gallery-prev aria-label="查看上一张图片" disabled={showcaseImages.length <= 1}>‹</button>
+                    <button class="showcase-carousel-arrow" type="button" data-gallery-next aria-label="查看下一张图片" disabled={showcaseImages.length <= 1}>›</button>
+                  </div>
+                </div>
+
+                <div class="showcase-carousel-thumbs">
+                  {showcaseImages.map((asset, imageIndex) => (
+                    <button
+                      class={`showcase-carousel-thumb${imageIndex === 0 ? " is-active" : ""}`}
+                      type="button"
+                      data-gallery-thumb
+                      data-gallery-index={imageIndex}
+                      aria-label={`查看图片 ${imageIndex + 1}: ${asset.title}`}
+                    >
+                      <img src={asset.src} alt={asset.alt ?? asset.title}>
+                      <strong>{asset.title}</strong>
+                      {asset.description && <span>{asset.description}</span>}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 展示位说明保留在数据中，后续需要时可作为编辑参考，不直接输出到页面。 */}
+          </section>
+        );
+      }
+
+      if (isMetricsSection(section)) {
+        return (
+          <section class="section">
+            <h2 class="section-title">{section.title}</h2>
+            <div class="metrics-grid">
+              {section.items.map((item) => (
+                <div class="metric-card">
+                  <span class="metric-value">{item.value}</span>
+                  <span class="metric-label">{item.label}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+        );
+      }
+
+      if (isHighlightsSection(section)) {
+        return (
+          <section class="section">
+            <h2 class="section-title">{section.title}</h2>
+            <ul class="highlight-list">
+              {section.items.map((item) => (
+                <li>
+                  <span class="highlight-title">{item.title}</span>
+                  {item.description}
+                </li>
+              ))}
+            </ul>
+          </section>
+        );
+      }
+
+      if (isParagraphSection(section)) {
+        return (
+          <section class="section">
+            <h2 class="section-title">{section.title}</h2>
+            <div class="paragraph-list">
+              {section.paragraphs.map((paragraph) => (
+                <p class="section-copy">{paragraph}</p>
+              ))}
+            </div>
+          </section>
+        );
+      }
+
+      if (isBulletsSection(section)) {
+        return (
+          <section class="section">
+            <h2 class="section-title">{section.title}</h2>
+            <ul class="bullet-detail-list">
+              {section.items.map((item) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          </section>
+        );
+      }
+
+      if (isLayeredBulletsSection(section)) {
+        return (
+          <section class="section">
+            <h2 class="section-title">{section.title}</h2>
+            <div class="layered-detail-groups">
+              {section.refinedItems && section.refinedItems.length > 0 && (
+                <div class="layered-detail-group">
+                  <h3>{section.refinedTitle ?? "整理后的详细说明"}</h3>
+                  <ul class="bullet-detail-list">
+                    {section.refinedItems.map((item) => (
+                      <li>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {section.originalItems && section.originalItems.length > 0 && (
+                <div class="layered-detail-group">
+                  <h3>{section.originalTitle ?? "简历原文"}</h3>
+                  <ul class="bullet-detail-list">
+                    {section.originalItems.map((item) => (
+                      <li>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </section>
+        );
+      }
+
+      if (isArchiveSection(section)) {
+        return (
+          <section class="section section-archive" id={index === archiveSectionIndex ? "archive" : undefined}>
+            <h2 class="section-title">{section.title}</h2>
+            {/* 原文档案区默认不显示说明性提示文案，避免打断阅读节奏。 */}
+            <div class="archive-sections">
+              {section.sections.map((archiveSection, index) => (
+                <article class="archive-card">
+                  <div class="archive-card-header">
+                    <h3>{archiveSection.title}</h3>
+                    <span class="archive-card-eyebrow">原文分层 {index + 1}</span>
+                  </div>
+                  {archiveSection.intro && <p class="archive-group-text">{archiveSection.intro}</p>}
+                  {archiveSection.paragraphs && archiveSection.paragraphs.length > 0 && (
+                    <div class="archive-paragraphs">
+                      {archiveSection.paragraphs.map((paragraph) => (
+                        <p>{paragraph}</p>
+                      ))}
+                    </div>
+                  )}
+                  {archiveSection.groups && archiveSection.groups.length > 0 && (
+                    <div class="archive-groups">
+                      {archiveSection.groups.map((group) => (
+                        <div class="archive-group">
+                          {group.title && <h4>{group.title}</h4>}
+                          {group.paragraphs && group.paragraphs.length > 0 && (
+                            <div class="archive-paragraphs">
+                              {group.paragraphs.map((paragraph) => (
+                                <p class="archive-group-text">{paragraph}</p>
+                              ))}
+                            </div>
+                          )}
+                          {group.items && group.items.length > 0 && (
+                            <ul class="archive-item-list">
+                              {group.items.map((item) => (
+                                <li class="archive-item">{item}</li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </article>
+              ))}
+            </div>
+          </section>
+        );
+      }
+
+      if (isTagsSection(section)) {
+        return (
+          <section class="section">
+            <h2 class="section-title">{section.title}</h2>
+            <div class="tech-stack">
+              {section.items.map((item) => (
+                <span class="tag">{item}</span>
+              ))}
+            </div>
+          </section>
+        );
+      }
+
+      if (isLinksSection(section)) {
+        return (
+          <section class="section">
+            <h2 class="section-title">{section.title}</h2>
+            <div class="link-row">
+              {section.items.map((item) => (
+                <a class="link-pill" href={item.href} target={item.external ? "_blank" : undefined} rel={item.external ? "noopener" : undefined}>{item.label}</a>
+              ))}
+            </div>
+          </section>
+        );
+      }
+
+      return null;
+    })}
+
+    {!hasLinksSection && (
+      <section class="section">
+        <h2 class="section-title">继续浏览</h2>
+        <div class="link-row">
+          <a class="link-pill" href="/about">返回 About</a>
+          <a class="link-pill" href="/resume">返回简历</a>
+          <a class="link-pill" href={getProjectHref(project.slug)}>当前页面直链</a>
+        </div>
+      </section>
+    )}
+  </div>
+  <script is:inline>
+    document.querySelectorAll("[data-gallery-carousel]").forEach((galleryRoot) => {
+      const slides = Array.from(galleryRoot.querySelectorAll("[data-gallery-slide]"));
+      const thumbs = Array.from(galleryRoot.querySelectorAll("[data-gallery-thumb]"));
+      const prevButton = galleryRoot.querySelector("[data-gallery-prev]");
+      const nextButton = galleryRoot.querySelector("[data-gallery-next]");
+
+      if (slides.length <= 1) {
+        return;
+      }
+
+      let activeIndex = 0;
+
+      const render = () => {
+        slides.forEach((slide, index) => {
+          const isActive = index === activeIndex;
+          slide.classList.toggle("is-active", isActive);
+          slide.setAttribute("aria-hidden", isActive ? "false" : "true");
+        });
+
+        thumbs.forEach((thumb, index) => {
+          const isActive = index === activeIndex;
+          thumb.classList.toggle("is-active", isActive);
+          thumb.setAttribute("aria-current", isActive ? "true" : "false");
+        });
+      };
+
+      prevButton?.addEventListener("click", () => {
+        activeIndex = (activeIndex - 1 + slides.length) % slides.length;
+        render();
+      });
+
+      nextButton?.addEventListener("click", () => {
+        activeIndex = (activeIndex + 1) % slides.length;
+        render();
+      });
+
+      thumbs.forEach((thumb, index) => {
+        thumb.addEventListener("click", () => {
+          activeIndex = index;
+          render();
+        });
+      });
+
+      render();
+    });
+  </script>
+</body>
+</html>
+
+
+

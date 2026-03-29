@@ -1,5 +1,9 @@
 ---
-// 关于页面 - 技术影响力导向
+import { getProjectHref, openSourceProjectCards, resumeData } from '../data/resume';
+
+const { profile } = resumeData;
+// About 页面用于对开源社区展示个人与开源项目，不作为简历页入口。
+const aboutContacts = profile.contacts.filter((contact) => contact.href !== '/resume');
 ---
 
 <!DOCTYPE html>
@@ -7,411 +11,436 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>关于 - zgx197</title>
-  <meta name="description" content="张国鑫 - AI时代的游戏开发者，专注于AI与游戏的融合创新。前百度知识图谱算法工程师，独立游戏开发者，ACMer。">
+  <title>关于 - 张国鑫</title>
+  <meta name="description" content="张国鑫的个人介绍页，现游戏开发工程师，前知识图谱 / NLP 算法工程师，当前关注 AI 游戏应用、系统架构、性能优化与程序化生成。">
   <style>
     :root {
-      --bg: #f8f9fa;
-      --card-bg: #fff;
-      --text: #1a1a1a;
-      --text-secondary: #555;
-      --text-muted: #888;
-      --accent: #2563eb;
-      --accent-hover: #1d4ed8;
-      --border: #e8e8e8;
-      --shadow: 0 1px 3px rgba(0,0,0,0.05);
-      --shadow-hover: 0 8px 24px rgba(0,0,0,0.1);
-      --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --bg: #eef3f8;
+      --surface: rgba(255, 255, 255, 0.9);
+      --surface-strong: #ffffff;
+      --text: #17202a;
+      --text-secondary: #4d6175;
+      --text-muted: #7d8b9b;
+      --accent: #1f6feb;
+      --accent-strong: #1558c0;
+      --border: rgba(24, 39, 58, 0.12);
+      --shadow: 0 18px 40px rgba(18, 38, 63, 0.08);
+      --shadow-hover: 0 22px 48px rgba(18, 38, 63, 0.12);
+      --hero-gradient: linear-gradient(135deg, rgba(31, 111, 235, 0.12), rgba(20, 184, 166, 0.08));
     }
-    
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-      line-height: 1.6;
       color: var(--text);
-      background: var(--bg);
+      background:
+        radial-gradient(circle at top left, rgba(31, 111, 235, 0.08), transparent 28%),
+        radial-gradient(circle at top right, rgba(20, 184, 166, 0.08), transparent 32%),
+        var(--bg);
+      line-height: 1.7;
       min-height: 100vh;
     }
-    
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
     .container {
-      max-width: 800px;
+      width: min(1120px, calc(100% - 32px));
       margin: 0 auto;
-      padding: 64px 24px;
+      padding: 28px 0 72px;
     }
-    
-    /* Hero - 更现代的设计 */
-    .hero {
-      text-align: center;
-      margin-bottom: 64px;
-      padding: 48px 0;
-    }
-    
-    .avatar-wrapper {
-      position: relative;
-      display: inline-block;
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--text-muted);
+      font-size: 14px;
       margin-bottom: 24px;
     }
-    
-    .avatar-wrapper::before {
-      content: '';
-      position: absolute;
-      inset: -4px;
-      border-radius: 50%;
-      background: var(--gradient);
-      z-index: -1;
-      opacity: 0.8;
-    }
-    
-    .avatar {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 4px solid var(--card-bg);
-      box-shadow: var(--shadow);
-    }
-    
-    .hero-name {
-      font-size: 36px;
-      font-weight: 800;
-      margin-bottom: 8px;
-      background: var(--gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    
-    .hero-bio {
-      max-width: 600px;
-      margin: 0 auto 28px;
-      font-size: 16px;
-      color: var(--text-secondary);
-      line-height: 1.8;
-    }
-    
-    .hero-links {
-      display: flex;
-      justify-content: center;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-    
-    .hero-links a {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 20px;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      color: var(--text-secondary);
-      text-decoration: none;
-      font-size: 14px;
-      transition: all 0.2s;
-      box-shadow: var(--shadow);
-    }
-    
-    .hero-links a:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-hover);
-      border-color: var(--accent);
+
+    .nav a:hover {
       color: var(--accent);
     }
-    
-    .hero-links svg {
-      width: 18px;
-      height: 18px;
-    }
-    
-    /* 区块通用样式 */
-    .section {
-      margin-bottom: 56px;
-    }
-    
-    .section-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-    
-    .section-icon {
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--gradient);
-      border-radius: 10px;
-      font-size: 18px;
-    }
-    
-    .section-title {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--text);
-    }
-    
-    /* 个人项目 - 卡片式 */
-    .project-list {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-    
-    .project-card {
-      background: var(--card-bg);
+
+    .hero {
+      background: var(--hero-gradient), var(--surface);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 28px;
-      transition: all 0.3s;
-      cursor: pointer;
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: 40px;
+      margin-bottom: 24px;
       position: relative;
       overflow: hidden;
     }
-    
-    .project-card::before {
-      content: '';
+
+    .hero::after {
+      content: "";
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 4px;
-      height: 100%;
-      background: var(--gradient);
-      opacity: 0;
-      transition: opacity 0.2s;
+      inset: auto -60px -90px auto;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: rgba(20, 184, 166, 0.08);
+      filter: blur(8px);
     }
-    
-    .project-card:hover {
-      box-shadow: var(--shadow-hover);
-      transform: translateY(-4px);
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--accent-strong);
+      font-size: 13px;
+      font-weight: 600;
+      margin: 0 auto 18px;
     }
-    
-    .project-card:hover::before {
-      opacity: 1;
+
+    .hero-stack {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 16px;
+      max-width: 620px;
+      margin: 0 auto;
+      justify-items: center;
     }
-    
-    .project-header {
+
+    .profile {
+      display: grid;
+      gap: 16px;
+      justify-items: center;
+      text-align: center;
+    }
+
+    .avatar-shell {
+      position: relative;
+      width: fit-content;
+    }
+
+    .avatar-shell::before {
+      content: "";
+      position: absolute;
+      inset: -6px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(31, 111, 235, 0.32), rgba(20, 184, 166, 0.2));
+      z-index: -1;
+    }
+
+    .avatar {
+      width: 136px;
+      height: 136px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 4px solid rgba(255, 255, 255, 0.78);
+      box-shadow: 0 18px 36px rgba(16, 24, 40, 0.12);
+    }
+
+    .profile-copy {
+      display: grid;
+      gap: 8px;
+      justify-items: center;
+    }
+
+    .hero-title {
+      font-size: clamp(30px, 3.4vw, 46px);
+      line-height: 1.08;
+      margin-bottom: 0;
+    }
+
+    .hero-role {
+      font-size: 15px;
+      color: var(--accent-strong);
+      font-weight: 600;
+      margin-bottom: 0;
+    }
+
+    .hero-bio {
+      color: var(--text-secondary);
+      font-size: 15px;
+      max-width: 520px;
+    }
+
+    .hero-card {
+      width: fit-content;
+      max-width: 100%;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 2px;
+      justify-content: center;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface-strong);
+      color: var(--text);
+      font-size: 14px;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s, color 0.2s;
+      box-shadow: 0 8px 18px rgba(16, 24, 40, 0.06);
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+      border-color: rgba(31, 111, 235, 0.24);
+      color: var(--accent);
+      box-shadow: 0 12px 22px rgba(16, 24, 40, 0.08);
+    }
+
+    .button.primary {
+      background: var(--accent);
+      border-color: transparent;
+      color: white;
+    }
+
+    .button.primary:hover {
+      color: white;
+      background: var(--accent-strong);
+    }
+
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 26px;
+      box-shadow: var(--shadow);
+      padding: 34px;
+      margin-bottom: 24px;
+    }
+
+    .section-header {
       display: flex;
       justify-content: space-between;
+      gap: 16px;
+      align-items: flex-end;
+      margin-bottom: 22px;
+    }
+
+    .section-header h2 {
+      font-size: 28px;
+    }
+
+    .section-header p {
+      color: var(--text-muted);
+      font-size: 14px;
+      max-width: 460px;
+    }
+
+    .project-list {
+      display: grid;
+      gap: 18px;
+    }
+
+    .project-card {
+      display: block;
+      background: var(--surface-strong);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 24px;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    }
+
+    .project-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-hover);
+      border-color: rgba(31, 111, 235, 0.22);
+    }
+
+    .project-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
       align-items: flex-start;
       margin-bottom: 12px;
     }
-    
+
     .project-name {
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 700;
-      color: var(--text);
     }
-    
+
     .project-arrow {
       color: var(--text-muted);
       font-size: 20px;
-      transition: all 0.2s;
-    }
-    
-    .project-card:hover .project-arrow {
-      color: var(--accent);
-      transform: translateX(4px);
-    }
-    
-    .project-desc {
-      font-size: 15px;
-      color: var(--text-secondary);
-      line-height: 1.7;
-      margin-bottom: 16px;
+      transition: transform 0.2s, color 0.2s;
     }
 
-    .project-meta {
+    .project-card:hover .project-arrow {
+      transform: translateX(4px);
+      color: var(--accent);
+    }
+
+    .meta-row,
+    .tag-row {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      margin-bottom: 16px;
+    }
+
+    .meta-row {
+      margin-bottom: 14px;
+    }
+
+    .meta-pill,
+    .tag {
+      font-size: 12px;
+      border-radius: 999px;
+      padding: 5px 10px;
     }
 
     .meta-pill {
-      font-size: 12px;
-      padding: 5px 10px;
-      background: var(--bg);
-      border-radius: 999px;
-      color: var(--text-secondary);
-      border: 1px solid var(--border);
+      color: var(--accent-strong);
+      background: #f5f9ff;
+      border: 1px solid rgba(31, 111, 235, 0.12);
     }
-    
-    .project-tags {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    
+
     .tag {
-      font-size: 12px;
-      padding: 5px 12px;
-      background: var(--bg);
-      border-radius: 20px;
-      color: var(--text-muted);
-      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      background: #f2f6fb;
+      border: 1px solid rgba(24, 39, 58, 0.08);
     }
-    
-    /* 底部 */
-    .footer {
-      text-align: center;
-      padding-top: 48px;
-      border-top: 1px solid var(--border);
-      color: var(--text-muted);
-      font-size: 14px;
+
+    .project-desc {
+      color: var(--text-secondary);
+      font-size: 15px;
+      margin-bottom: 16px;
     }
-    
-    /* 响应式 */
-    @media (max-width: 640px) {
+
+    @media (max-width: 720px) {
       .container {
-        padding: 32px 20px;
+        width: min(100% - 24px, 1120px);
+        padding: 20px 0 56px;
       }
-      
-      .hero {
-        padding: 32px 0;
+
+      .hero,
+      .section {
+        padding: 24px;
+        border-radius: 22px;
       }
-      
-      .hero-name {
-        font-size: 28px;
-      }
-      
+
       .avatar {
-        width: 100px;
-        height: 100px;
+        width: 110px;
+        height: 110px;
       }
-      
-      .project-card {
-        padding: 20px;
+
+      .project-top,
+      .section-header {
+        display: grid;
       }
-      
-      .project-header {
-        flex-direction: column;
-        gap: 8px;
+
+      .section-header h2 {
+        font-size: 24px;
       }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <!-- Hero - 居中大头像设计 -->
-    <div class="hero">
-      <div class="avatar-wrapper">
-        <img src="/avatar.png" alt="张国鑫" class="avatar">
-      </div>
-      <h1 class="hero-name">游戏开发工程师 · NLP算法工程师</h1>
-      <p class="hero-bio">
-        现游戏开发工程师，前百度知识图谱算法工程师。探索AI技术在游戏开发中的提效应用与机制设计，深耕系统架构与性能优化，并基于程序化生成与涌现式设计构建动态游戏世界。
-      </p>
-      <div class="hero-links">
-        <a href="https://github.com/zgx197" target="_blank" rel="noopener">
-          <svg viewBox="0 0 16 16" fill="currentColor">
-            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
-          </svg>
-          GitHub
-        </a>
-        <a href="https://steamcommunity.com/profiles/76561198340584094" target="_blank" rel="noopener">
-          <svg viewBox="0 0 16 16" fill="currentColor">
-            <path d="M8 0a8 8 0 0 0-8 8 8 8 0 0 0 8 8 8 8 0 0 0 8-8 8 8 0 0 0-8-8zm0 1.5a6.5 6.5 0 0 1 6.5 6.5 6.5 6.5 0 0 1-6.5 6.5A6.5 6.5 0 0 1 1.5 8 6.5 6.5 0 0 1 8 1.5z"/>
-            <path d="M4.5 7a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z"/>
-          </svg>
-          Steam
-        </a>
-        <a href="mailto:guoxin_zhang@outlook.com">
-          <svg viewBox="0 0 16 16" fill="currentColor">
-            <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2zm13 2.383-4.708 2.825L15 11.105V5.383zM1 5.383v5.722l4.708-2.897L1 5.383zM6.761 8.97l-5.04 3.095A1 1 0 0 0 2 13h12a1 1 0 0 0 .279-.935l-5.04-3.095L8 9.866l-1.239-.896z"/>
-          </svg>
-          Email
-        </a>
-      </div>
-    </div>
-    
-    <!-- 开源项目 -->
-    <div class="section">
-      <div class="section-header">
-        <div class="section-icon">🚀</div>
-        <h2 class="section-title">开源项目</h2>
-      </div>
-      <div class="project-list">
-        <a href="/projects/sceneblueprint" class="project-card" style="text-decoration: none; color: inherit;">
-          <div class="project-header">
-            <span class="project-name">SceneBlueprint 场景蓝图框架</span>
-            <span class="project-arrow">→</span>
-          </div>
-          <div class="project-meta">
-            <span class="meta-pill">开源框架</span>
-            <span class="meta-pill">独立开发</span>
-            <span class="meta-pill">Unity Package</span>
-          </div>
-          <p class="project-desc">
-            面向 Unity 的场景级蓝图编辑框架，围绕 DSL 定义、节点图编辑、导出契约与运行时解释执行构建完整工具链，支持编辑器与运行时工程分离，服务 TA、策划工具与玩法系统搭建。
-          </p>
-          <div class="project-tags">
-            <span class="tag">Unity</span>
-            <span class="tag">Editor Tooling</span>
-            <span class="tag">DSL</span>
-            <span class="tag">Runtime Interpreter</span>
-          </div>
-        </a>
-      </div>
-    </div>
+  <div class="container" data-pagefind-body>
+    <nav class="nav">
+      <a href="/">首页</a>
+      <span>/</span>
+      <span>关于</span>
+    </nav>
 
-    <!-- 代表项目 -->
-    <div class="section">
+    <section class="hero">
+      <div class="hero-eyebrow">About / Profile</div>
+      <div class="hero-stack">
+        <div class="profile">
+          <div class="avatar-shell">
+            <img src="/avatar.png" alt={profile.name} class="avatar">
+          </div>
+          <div class="profile-copy">
+            <h1 class="hero-title">{profile.name}</h1>
+            <div class="hero-role">{profile.role}</div>
+            <p class="hero-bio">{profile.bio}</p>
+          </div>
+        </div>
+
+        <aside class="hero-card">
+          {/* About 页面面向开源社区展示，不显示简历跳转，只保留社区相关外链。 */}
+          <div class="hero-actions">
+            {aboutContacts.map((contact, index) => (
+              <a
+                class={`button ${index === 0 ? 'primary' : ''}`}
+                href={contact.href}
+                target={contact.external ? '_blank' : undefined}
+                rel={contact.external ? 'noopener' : undefined}
+                data-copy-email={contact.href.startsWith('mailto:') ? 'true' : undefined}
+                data-email={contact.href.startsWith('mailto:') ? contact.href.replace('mailto:', '') : undefined}
+              >{contact.label}</a>
+            ))}
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section">
       <div class="section-header">
-        <div class="section-icon">🧩</div>
-        <h2 class="section-title">代表项目</h2>
+        <div><h2>开源项目</h2></div>
       </div>
       <div class="project-list">
-        <a href="/projects/xiuxian-game" class="project-card" style="text-decoration: none; color: inherit;">
-          <div class="project-header">
-            <span class="project-name">修仙模拟游戏</span>
-            <span class="project-arrow">→</span>
-          </div>
-          <div class="project-meta">
-            <span class="meta-pill">独立游戏</span>
-            <span class="meta-pill">4人团队</span>
-            <span class="meta-pill">核心开发</span>
-          </div>
-          <p class="project-desc">
-            受《环世界》启发的 2D 沙盒修仙游戏，探索程序化生成与涌现式叙事的结合。从零构建六边形网格世界生成、社会关系图系统、策略背包系统。
-          </p>
-          <div class="project-tags">
-            <span class="tag">Unity</span>
-            <span class="tag">GameFramework</span>
-            <span class="tag">程序化生成</span>
-            <span class="tag">图算法</span>
-          </div>
-        </a>
-        
-        <a href="/projects/knowledge-graph" class="project-card" style="text-decoration: none; color: inherit;">
-          <div class="project-header">
-            <span class="project-name">短文本知识标注系统</span>
-            <span class="project-arrow">→</span>
-          </div>
-          <div class="project-meta">
-            <span class="meta-pill">职业项目</span>
-            <span class="meta-pill">百度</span>
-            <span class="meta-pill">技术负责人</span>
-          </div>
-          <p class="project-desc">
-            百度内部基础设施，支持搜索、广告、AIGC 等业务线。构建百万级知识库，设计多任务 NLP 模型，累计辐射收入亿级别。
-          </p>
-          <div class="project-tags">
-            <span class="tag">NLP</span>
-            <span class="tag">知识图谱</span>
-            <span class="tag">PaddlePaddle</span>
-            <span class="tag">大规模系统</span>
-          </div>
-        </a>
+        {openSourceProjectCards.map((project) => (
+          <a href={getProjectHref(project.slug)} class="project-card">
+            <div class="project-top">
+              <span class="project-name">{project.title}</span>
+              <span class="project-arrow">→</span>
+            </div>
+            <div class="meta-row">
+              {project.meta.map((item) => (
+                <span class="meta-pill">{item}</span>
+              ))}
+            </div>
+            <p class="project-desc">{project.description}</p>
+            <div class="tag-row">
+              {project.tags.map((tag) => (
+                <span class="tag">{tag}</span>
+              ))}
+            </div>
+          </a>
+        ))}
       </div>
-    </div>
-    
-    <!-- 底部 -->
-    <div class="footer">
-      <p>经历：ACM/ICPC 区域赛银牌 · 百度一级专利发明人 · 百度部门奖（亿级收入项目）/ 新人奖</p>
-    </div>
+    </section>
+
   </div>
+  <script is:inline>
+    document.querySelectorAll('[data-copy-email="true"]').forEach((link) => {
+      const originalLabel = link.textContent?.trim() ?? 'Email';
+      let resetTimer;
+
+      link.addEventListener('click', async (event) => {
+        event.preventDefault();
+
+        const email = link.getAttribute('data-email');
+        if (!email) {
+          return;
+        }
+
+        try {
+          await navigator.clipboard.writeText(email);
+          link.textContent = '已复制邮箱';
+          clearTimeout(resetTimer);
+          resetTimer = window.setTimeout(() => {
+            link.textContent = originalLabel;
+          }, 1600);
+        } catch {
+          window.location.href = `mailto:${email}`;
+        }
+      });
+    });
+  </script>
 </body>
 </html>
+
+

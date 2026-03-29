@@ -1,17 +1,17 @@
 ---
-// 首页 - 左右分栏布局
-const posts = await Astro.glob('../content/blog/*.md');
+import { featuredProjectCards, openSourceProjectCards, resumeData, getProjectHref } from '../data/resume';
 
-// 排序：最新在前
+const posts = await Astro.glob('../content/blog/*.md');
 const sortedPosts = posts
   .sort((a, b) => new Date(b.frontmatter.date || 0) - new Date(a.frontmatter.date || 0))
-  .map(post => ({
+  .slice(0, 4)
+  .map((post) => ({
     ...post,
-    url: `/blog/${post.file.split('/').pop().replace('.md', '')}/`
+    url: `/blog/${post.file.split('/').pop().replace('.md', '')}/`,
   }));
 
-// 获取所有标签
-const allTags = [...new Set(sortedPosts.flatMap(post => post.frontmatter.tags || []))];
+const { profile, resume } = resumeData;
+const contactActions = profile.contacts.filter((contact) => contact.href !== '/resume');
 ---
 
 <!DOCTYPE html>
@@ -19,388 +19,541 @@ const allTags = [...new Set(sortedPosts.flatMap(post => post.frontmatter.tags ||
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>zgx197</title>
-  <meta name="description" content="个人博客">
+  <title>{profile.name}</title>
+  <meta name="description" content={resume.headline}>
   <link href="/pagefind/pagefind-ui.css" rel="stylesheet">
   <style>
     :root {
-      --bg: #f8f9fa;
-      --sidebar-bg: #fff;
-      --text: #1a1a1a;
-      --text-secondary: #555;
-      --text-muted: #888;
-      --accent: #2563eb;
-      --accent-hover: #1d4ed8;
-      --border: #e8e8e8;
-      --card-bg: #fff;
-      --shadow: 0 1px 3px rgba(0,0,0,0.05);
-      --shadow-hover: 0 4px 12px rgba(0,0,0,0.08);
+      --bg: #eef3f8;
+      --surface: rgba(255, 255, 255, 0.9);
+      --surface-strong: #ffffff;
+      --text: #17202a;
+      --text-secondary: #4d6175;
+      --text-muted: #7d8b9b;
+      --accent: #1f6feb;
+      --accent-strong: #1558c0;
+      --border: rgba(24, 39, 58, 0.12);
+      --shadow: 0 18px 40px rgba(18, 38, 63, 0.08);
+      --shadow-hover: 0 22px 48px rgba(18, 38, 63, 0.12);
+      --hero-gradient: linear-gradient(135deg, rgba(31, 111, 235, 0.12), rgba(20, 184, 166, 0.08));
     }
-    
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-      line-height: 1.6;
       color: var(--text);
-      background: var(--bg);
+      background:
+        radial-gradient(circle at top left, rgba(31, 111, 235, 0.08), transparent 28%),
+        radial-gradient(circle at top right, rgba(20, 184, 166, 0.08), transparent 32%),
+        var(--bg);
+      line-height: 1.7;
       min-height: 100vh;
     }
-    
-    /* 布局容器 */
-    .layout {
+
+    a { color: inherit; text-decoration: none; }
+
+    .container {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 72px;
+    }
+
+    .topbar {
       display: flex;
-      min-height: 100vh;
-    }
-    
-    /* 左侧文章列表 */
-    .main-content {
-      flex: 1;
-      padding: 48px 60px;
-      max-width: 800px;
-      margin-left: 320px;
-    }
-    
-    /* 头部 */
-    .header {
-      margin-bottom: 40px;
-      padding-bottom: 24px;
-      border-bottom: 1px solid var(--border);
-    }
-    
-    .header h1 {
-      font-size: 24px;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-    
-    .header a {
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 24px;
       color: var(--text-muted);
-      text-decoration: none;
       font-size: 14px;
+    }
+
+    .nav {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .nav a:hover {
+      color: var(--accent);
+    }
+
+    .hero {
+      background: var(--hero-gradient), var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: 40px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -60px -90px auto;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: rgba(20, 184, 166, 0.08);
+      filter: blur(8px);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+      gap: 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .eyebrow {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      transition: color 0.2s;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--accent-strong);
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 18px;
     }
-    
-    .header a:hover {
-      color: var(--accent);
+
+    .hero h1 {
+      font-size: clamp(34px, 4vw, 54px);
+      line-height: 1.05;
+      margin-bottom: 10px;
     }
-    
-    /* 文章列表 */
-    .post-list {
+
+    .hero-role {
+      color: var(--accent-strong);
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+
+    .hero-copy {
+      color: var(--text-secondary);
+      font-size: 17px;
+      max-width: 720px;
+      margin-bottom: 22px;
+    }
+
+    .action-row,
+    .fact-list,
+    .tag-row,
+    .meta-row {
       display: flex;
-      flex-direction: column;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .action-row {
+      margin-bottom: 20px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface-strong);
+      color: var(--text);
+      font-size: 14px;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s, color 0.2s;
+      box-shadow: 0 8px 18px rgba(16, 24, 40, 0.06);
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+      border-color: rgba(31, 111, 235, 0.24);
+      color: var(--accent);
+      box-shadow: 0 12px 22px rgba(16, 24, 40, 0.08);
+    }
+
+    .button.primary {
+      background: var(--accent);
+      border-color: transparent;
+      color: white;
+    }
+
+    .button.primary:hover {
+      color: white;
+      background: var(--accent-strong);
+    }
+
+    .summary-list {
+      display: grid;
+      gap: 10px;
+      color: var(--text-secondary);
+      font-size: 15px;
+    }
+
+    .summary-item {
+      display: grid;
+      grid-template-columns: 12px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+    }
+
+    .summary-item span:first-child {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .hero-card,
+    .section,
+    .project-card,
+    .post-card,
+    .focus-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-card {
+      border-radius: 22px;
+      padding: 22px;
+    }
+
+    .hero-card h2,
+    .section h2 {
+      font-size: 15px;
+      margin-bottom: 14px;
+    }
+
+    .fact-item {
+      display: grid;
+      gap: 2px;
+    }
+
+    .fact-label {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .fact-value {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .section {
+      border-radius: 26px;
+      padding: 30px;
+      margin-bottom: 24px;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-end;
+      margin-bottom: 20px;
+    }
+
+    .section-head h2 {
+      font-size: 28px;
+      margin-bottom: 0;
+    }
+
+    .section-head p {
+      color: var(--text-muted);
+      font-size: 14px;
+      max-width: 480px;
+    }
+
+    .focus-grid,
+    .project-grid,
+    .post-grid {
+      display: grid;
       gap: 16px;
     }
-    
-    .post-item {
-      background: var(--card-bg);
-      border-radius: 8px;
-      padding: 20px 24px;
-      border: 1px solid var(--border);
-      transition: all 0.2s;
-      cursor: pointer;
-      text-decoration: none;
-      color: inherit;
-      display: block;
+
+    .focus-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
-    
-    .post-item:hover {
+
+    .project-grid,
+    .post-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .focus-card,
+    .project-card,
+    .post-card {
+      border-radius: 22px;
+      padding: 22px;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    }
+
+    .project-card:hover,
+    .post-card:hover {
+      transform: translateY(-4px);
       box-shadow: var(--shadow-hover);
-      border-color: transparent;
+      border-color: rgba(31, 111, 235, 0.22);
     }
-    
-    .post-title {
-      font-size: 16px;
-      font-weight: 500;
+
+    .focus-title,
+    .project-card h3,
+    .post-card h3 {
+      font-size: 18px;
       margin-bottom: 8px;
-      line-height: 1.4;
     }
-    
-    .post-item:hover .post-title {
-      color: var(--accent);
-    }
-    
-    .post-meta {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-    
-    .post-tags {
-      display: flex;
-      gap: 6px;
-    }
-    
-    .post-tag {
-      padding: 2px 8px;
-      background: var(--bg);
-      border-radius: 4px;
+
+    .meta-pill,
+    .tag {
+      border-radius: 999px;
       font-size: 12px;
+      padding: 5px 10px;
     }
-    
-    .empty {
-      text-align: center;
-      padding: 80px 20px;
-      color: var(--text-muted);
+
+    .meta-pill {
+      color: var(--accent-strong);
+      background: #f5f9ff;
+      border: 1px solid rgba(31, 111, 235, 0.12);
     }
-    
-    /* 右侧边栏 */
-    .sidebar {
-      position: fixed;
-      left: 0;
-      top: 0;
-      width: 320px;
-      height: 100vh;
-      background: var(--sidebar-bg);
-      border-right: 1px solid var(--border);
-      padding: 40px 28px;
-      overflow-y: auto;
+
+    .tag {
+      color: var(--text-secondary);
+      background: #f2f6fb;
+      border: 1px solid rgba(24, 39, 58, 0.08);
     }
-    
-    .sidebar-section {
-      margin-bottom: 32px;
+
+    .project-copy,
+    .post-copy,
+    .focus-card p {
+      color: var(--text-secondary);
+      font-size: 15px;
     }
-    
-    .sidebar-title {
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-muted);
-      margin-bottom: 16px;
+
+    .project-copy,
+    .post-copy {
+      margin: 12px 0 16px;
     }
-    
-    /* 搜索 */
-    .search-wrapper {
-      background: var(--bg);
-      border-radius: 8px;
-      padding: 12px;
+
+    .search-shell {
+      background: var(--surface-strong);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px;
+      margin-bottom: 20px;
     }
-    
+
     #search {
-      --pagefind-ui-scale: 0.85;
+      --pagefind-ui-scale: 0.9;
       --pagefind-ui-primary: var(--accent);
       --pagefind-ui-text: var(--text);
       --pagefind-ui-background: transparent;
       --pagefind-ui-border: transparent;
     }
-    
-    /* 标签筛选 */
-    .tags-list {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    
-    .tag-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 8px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.15s;
+
+    .footer {
+      text-align: center;
+      color: var(--text-muted);
       font-size: 14px;
-      color: var(--text-secondary);
+      padding-top: 4px;
     }
-    
-    .tag-item:hover {
-      background: var(--bg);
-    }
-    
-    .tag-item.active {
-      background: var(--accent);
-      color: white;
-    }
-    
-    .tag-item .count {
-      font-size: 12px;
-      color: var(--text-muted);
-      background: var(--bg);
-      padding: 2px 8px;
-      border-radius: 10px;
-    }
-    
-    .tag-item.active .count {
-      background: rgba(255,255,255,0.2);
-      color: white;
-    }
-    
-    /* 页脚 */
-    .sidebar-footer {
-      margin-top: 40px;
-      padding-top: 24px;
-      border-top: 1px solid var(--border);
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-    
-    /* 响应式 */
-    @media (max-width: 1024px) {
-      .sidebar {
-        width: 280px;
-      }
-      
-      .main-content {
-        margin-left: 280px;
-        padding: 40px;
+
+    @media (max-width: 920px) {
+      .hero-grid,
+      .focus-grid,
+      .project-grid,
+      .post-grid {
+        grid-template-columns: 1fr;
       }
     }
-    
-    @media (max-width: 768px) {
-      .layout {
-        flex-direction: column;
+
+    @media (max-width: 720px) {
+      .container {
+        width: min(100% - 24px, 1120px);
+        padding: 20px 0 56px;
       }
-      
-      .sidebar {
-        position: relative;
-        width: 100%;
-        height: auto;
-        border-right: none;
-        border-bottom: 1px solid var(--border);
-        padding: 24px;
+
+      .hero,
+      .section,
+      .project-card,
+      .post-card,
+      .focus-card,
+      .hero-card {
+        padding: 22px;
+        border-radius: 22px;
       }
-      
-      .main-content {
-        margin-left: 0;
-        padding: 24px;
-        max-width: 100%;
+
+      .topbar,
+      .section-head {
+        display: grid;
       }
-      
-      .tags-list {
-        flex-direction: row;
-        flex-wrap: wrap;
-      }
-      
-      .tag-item {
-        flex: 0 0 auto;
+
+      .section-head h2 {
+        font-size: 24px;
       }
     }
   </style>
 </head>
 <body>
-  <div class="layout">
-    <!-- 右侧边栏（工具栏） -->
-    <aside class="sidebar">
-      <div class="sidebar-section">
-        <div class="search-wrapper">
-          <div id="search"></div>
-        </div>
-      </div>
-      
-      <div class="sidebar-section">
-        <h3 class="sidebar-title">Tags</h3>
-        <div class="tags-list">
-          <div class="tag-item active" data-tag="all">
-            <span>全部</span>
-            <span class="count">{sortedPosts.length}</span>
-          </div>
-          {allTags.map(tag => {
-            const count = sortedPosts.filter(p => p.frontmatter.tags?.includes(tag)).length;
-            return (
-              <div class="tag-item" data-tag={tag}>
-                <span>#{tag}</span>
-                <span class="count">{count}</span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-      
-      <div class="sidebar-section">
-        <a href="/about" style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; color: var(--text-secondary); text-decoration: none; font-size: 14px; border-radius: 6px; transition: all 0.15s;">
-          <span style="font-size: 16px;">👤</span>
-          <span>关于</span>
-        </a>
-      </div>
-      
-      <div class="sidebar-footer">
-        <p>© 2024 zgx197</p>
-      </div>
-    </aside>
+  <div class="container" data-pagefind-body>
+    <div class="topbar">
+      <div>{profile.name}</div>
+      <nav class="nav">
+        <a href="/about">About</a>
+        <a href="/resume">Resume</a>
+        <a href="https://github.com/zgx197" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+    </div>
 
-    <!-- 左侧文章列表 -->
-    <main class="main-content">
-      <header class="header">
-        <h1>zgx197</h1>
-        <a href="https://github.com/zgx197" target="_blank" rel="noopener">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
-          </svg>
-          GitHub
-        </a>
-      </header>
-
-      <div class="post-list" id="postList">
-        {sortedPosts.length === 0 ? (
-          <div class="empty">
-            <p>暂无文章</p>
+    <section class="hero">
+      <div class="hero-grid">
+        <div>
+          <div class="eyebrow">Resume Driven Portfolio</div>
+          <h1>{profile.name}</h1>
+          <div class="hero-role">{profile.role}</div>
+          <p class="hero-copy">{resume.headline}</p>
+          <div class="action-row">
+            <a class="button primary" href="/resume">查看简历</a>
+            <a class="button" href="/about">查看项目</a>
+            {contactActions.map((contact) => (
+              <a class="button" href={contact.href} target={contact.external ? '_blank' : undefined} rel={contact.external ? 'noopener' : undefined}>{contact.label}</a>
+            ))}
           </div>
-        ) : (
-          sortedPosts.map(post => (
-            <a href={post.url} class="post-item" data-tags={post.frontmatter.tags?.join(',') || ''}>
-              <h2 class="post-title">{post.frontmatter.title}</h2>
-              <div class="post-meta">
-                <span>{new Date(post.frontmatter.date).toLocaleDateString('zh-CN')}</span>
-                {post.frontmatter.tags?.length > 0 && (
-                  <div class="post-tags">
-                    {post.frontmatter.tags.slice(0, 3).map(tag => (
-                      <span class="post-tag">{tag}</span>
-                    ))}
-                  </div>
-                )}
+          <div class="summary-list">
+            {resume.summaryPoints.map((item) => (
+              <div class="summary-item"><span>•</span><div>{item}</div></div>
+            ))}
+          </div>
+        </div>
+
+        <aside class="hero-card">
+          <h2>当前画像</h2>
+          <div class="summary-list">
+            {resume.profileFacts.map((fact) => (
+              <div class="fact-item">
+                <div class="fact-label">{fact.label}</div>
+                <div class="fact-value">{fact.value}</div>
               </div>
-            </a>
-          ))
-        )}
+            ))}
+          </div>
+        </aside>
       </div>
-    </main>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div><h2>关注方向</h2></div>
+        <p>首页不再依赖硬编码摘要，直接从统一简历数据里生成个人定位与展示内容。</p>
+      </div>
+      <div class="focus-grid">
+        {resume.focusAreas.map((item) => (
+          <article class="focus-card">
+            <div class="focus-title">{item.title}</div>
+            <p>{item.description}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div><h2>代表项目</h2></div>
+        <p>这一组项目来自统一 schema，可继续通过导入、override 和素材目录共同驱动。</p>
+      </div>
+      <div class="project-grid">
+        {featuredProjectCards.map((project) => (
+          <a class="project-card" href={getProjectHref(project.slug)}>
+            <h3>{project.title}</h3>
+            <div class="meta-row">
+              {project.meta.map((item) => (
+                <span class="meta-pill">{item}</span>
+              ))}
+            </div>
+            <p class="project-copy">{project.description}</p>
+            <div class="tag-row">
+              {project.tags.map((tag) => (
+                <span class="tag">{tag}</span>
+              ))}
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div><h2>开源与工具框架</h2></div>
+        <p>这部分更偏工具链、抽象与可维护性的表达，也会优先受益于后续素材目录约定。</p>
+      </div>
+      <div class="project-grid">
+        {openSourceProjectCards.map((project) => (
+          <a class="project-card" href={getProjectHref(project.slug)}>
+            <h3>{project.title}</h3>
+            <div class="meta-row">
+              {project.meta.map((item) => (
+                <span class="meta-pill">{item}</span>
+              ))}
+            </div>
+            <p class="project-copy">{project.description}</p>
+            <div class="tag-row">
+              {project.tags.map((tag) => (
+                <span class="tag">{tag}</span>
+              ))}
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div><h2>博客与记录</h2></div>
+        <p>博客仍然保留，但首页现在由简历和项目数据驱动，文章区作为补充内容存在。</p>
+      </div>
+      <div class="search-shell">
+        <div id="search"></div>
+      </div>
+      <div class="post-grid">
+        {sortedPosts.map((post) => (
+          <a class="post-card" href={post.url}>
+            <h3>{post.frontmatter.title}</h3>
+            <p class="post-copy">{new Date(post.frontmatter.date).toLocaleDateString('zh-CN')}</p>
+            <div class="tag-row">
+              {(post.frontmatter.tags ?? []).slice(0, 3).map((tag) => (
+                <span class="tag">{tag}</span>
+              ))}
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <div class="footer">
+      <p>当前首页已切换为统一 schema 驱动，后续补简历、项目和素材时不需要再单独维护首页文案。</p>
+    </div>
   </div>
 
-  <!-- Pagefind搜索 -->
   <script is:inline src="/pagefind/pagefind-ui.js"></script>
   <script>
-    // 初始化搜索
     window.addEventListener('DOMContentLoaded', () => {
       new PagefindUI({
-        element: "#search",
-        placeholder: "搜索文章...",
+        element: '#search',
+        placeholder: '搜索文章...',
         showImages: false,
         showSubResults: false,
         translations: {
-          placeholder: "搜索文章...",
-          zero_results: "无结果",
-          many_results: "# 个结果",
-          one_result: "1 个结果"
-        }
-      });
-    });
-    
-    // 标签筛选
-    document.querySelectorAll('.tag-item').forEach(item => {
-      item.addEventListener('click', () => {
-        const tag = item.dataset.tag;
-        
-        // 更新激活状态
-        document.querySelectorAll('.tag-item').forEach(t => t.classList.remove('active'));
-        item.classList.add('active');
-        
-        // 筛选文章
-        document.querySelectorAll('.post-item').forEach(post => {
-          if (tag === 'all') {
-            post.style.display = 'block';
-          } else {
-            const tags = post.dataset.tags?.split(',') || [];
-            post.style.display = tags.includes(tag) ? 'block' : 'none';
-          }
-        });
+          placeholder: '搜索文章...',
+          zero_results: '无结果',
+          many_results: '# 个结果',
+          one_result: '1 个结果',
+        },
       });
     });
   </script>
 </body>
 </html>
+
