@@ -1,17 +1,18 @@
 ---
-import { featuredProjectCards, openSourceProjectCards, resumeData, getProjectHref } from '../data/resume';
-
 const posts = await Astro.glob('../content/blog/*.md');
 const sortedPosts = posts
   .sort((a, b) => new Date(b.frontmatter.date || 0) - new Date(a.frontmatter.date || 0))
-  .slice(0, 4)
   .map((post) => ({
     ...post,
     url: `/blog/${post.file.split('/').pop().replace('.md', '')}/`,
   }));
 
-const { profile, resume } = resumeData;
-const contactActions = profile.contacts.filter((contact) => contact.href !== '/resume');
+const latestPosts = sortedPosts.slice(0, 6);
+const allTags = Array.from(
+  new Set(
+    sortedPosts.flatMap((post) => post.frontmatter.tags ?? []),
+  ),
+).slice(0, 12);
 ---
 
 <!DOCTYPE html>
@@ -19,13 +20,13 @@ const contactActions = profile.contacts.filter((contact) => contact.href !== '/r
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{profile.name}</title>
-  <meta name="description" content={resume.headline}>
+  <title>张国鑫的博客</title>
+  <meta name="description" content="张国鑫的个人博客，记录开发、工具、架构与技术思考。">
   <link href="/pagefind/pagefind-ui.css" rel="stylesheet">
   <style>
     :root {
       --bg: #eef3f8;
-      --surface: rgba(255, 255, 255, 0.9);
+      --surface: rgba(255, 255, 255, 0.92);
       --surface-strong: #ffffff;
       --text: #17202a;
       --text-secondary: #4d6175;
@@ -54,7 +55,7 @@ const contactActions = profile.contacts.filter((contact) => contact.href !== '/r
     a { color: inherit; text-decoration: none; }
 
     .container {
-      width: min(1120px, calc(100% - 32px));
+      width: min(1040px, calc(100% - 32px));
       margin: 0 auto;
       padding: 28px 0 72px;
     }
@@ -73,17 +74,24 @@ const contactActions = profile.contacts.filter((contact) => contact.href !== '/r
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
+      align-items: center;
     }
 
     .nav a:hover {
       color: var(--accent);
     }
 
+    .hero,
+    .section,
+    .post-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+
     .hero {
       background: var(--hero-gradient), var(--surface);
-      border: 1px solid var(--border);
       border-radius: 28px;
-      box-shadow: var(--shadow);
       padding: 40px;
       margin-bottom: 24px;
       position: relative;
@@ -101,12 +109,10 @@ const contactActions = profile.contacts.filter((contact) => contact.href !== '/r
       filter: blur(8px);
     }
 
-    .hero-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
-      gap: 24px;
+    .hero-inner {
       position: relative;
       z-index: 1;
+      max-width: 760px;
     }
 
     .eyebrow {
@@ -125,124 +131,29 @@ const contactActions = profile.contacts.filter((contact) => contact.href !== '/r
     .hero h1 {
       font-size: clamp(34px, 4vw, 54px);
       line-height: 1.05;
-      margin-bottom: 10px;
-    }
-
-    .hero-role {
-      color: var(--accent-strong);
-      font-size: 16px;
-      font-weight: 600;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
     .hero-copy {
       color: var(--text-secondary);
       font-size: 17px;
       max-width: 720px;
-      margin-bottom: 22px;
+      margin-bottom: 18px;
     }
 
-    .action-row,
-    .fact-list,
-    .tag-row,
-    .meta-row {
+    .tag-row {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
     }
 
-    .action-row {
-      margin-bottom: 20px;
-    }
-
-    .button {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 16px;
+    .tag {
+      color: var(--text-secondary);
+      background: #f2f6fb;
+      border: 1px solid rgba(24, 39, 58, 0.08);
       border-radius: 999px;
-      border: 1px solid var(--border);
-      background: var(--surface-strong);
-      color: var(--text);
-      font-size: 14px;
-      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s, color 0.2s;
-      box-shadow: 0 8px 18px rgba(16, 24, 40, 0.06);
-    }
-
-    .button:hover {
-      transform: translateY(-2px);
-      border-color: rgba(31, 111, 235, 0.24);
-      color: var(--accent);
-      box-shadow: 0 12px 22px rgba(16, 24, 40, 0.08);
-    }
-
-    .button.primary {
-      background: var(--accent);
-      border-color: transparent;
-      color: white;
-    }
-
-    .button.primary:hover {
-      color: white;
-      background: var(--accent-strong);
-    }
-
-    .summary-list {
-      display: grid;
-      gap: 10px;
-      color: var(--text-secondary);
-      font-size: 15px;
-    }
-
-    .summary-item {
-      display: grid;
-      grid-template-columns: 12px minmax(0, 1fr);
-      gap: 10px;
-      align-items: start;
-    }
-
-    .summary-item span:first-child {
-      color: var(--accent);
-      font-weight: 700;
-    }
-
-    .hero-card,
-    .section,
-    .project-card,
-    .post-card,
-    .focus-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-    }
-
-    .hero-card {
-      border-radius: 22px;
-      padding: 22px;
-    }
-
-    .hero-card h2,
-    .section h2 {
-      font-size: 15px;
-      margin-bottom: 14px;
-    }
-
-    .fact-item {
-      display: grid;
-      gap: 2px;
-    }
-
-    .fact-label {
       font-size: 12px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      font-weight: 600;
-    }
-
-    .fact-value {
-      color: var(--text-secondary);
-      font-size: 14px;
+      padding: 5px 10px;
     }
 
     .section {
@@ -261,82 +172,12 @@ const contactActions = profile.contacts.filter((contact) => contact.href !== '/r
 
     .section-head h2 {
       font-size: 28px;
-      margin-bottom: 0;
     }
 
     .section-head p {
       color: var(--text-muted);
       font-size: 14px;
       max-width: 480px;
-    }
-
-    .focus-grid,
-    .project-grid,
-    .post-grid {
-      display: grid;
-      gap: 16px;
-    }
-
-    .focus-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .project-grid,
-    .post-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .focus-card,
-    .project-card,
-    .post-card {
-      border-radius: 22px;
-      padding: 22px;
-      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-    }
-
-    .project-card:hover,
-    .post-card:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--shadow-hover);
-      border-color: rgba(31, 111, 235, 0.22);
-    }
-
-    .focus-title,
-    .project-card h3,
-    .post-card h3 {
-      font-size: 18px;
-      margin-bottom: 8px;
-    }
-
-    .meta-pill,
-    .tag {
-      border-radius: 999px;
-      font-size: 12px;
-      padding: 5px 10px;
-    }
-
-    .meta-pill {
-      color: var(--accent-strong);
-      background: #f5f9ff;
-      border: 1px solid rgba(31, 111, 235, 0.12);
-    }
-
-    .tag {
-      color: var(--text-secondary);
-      background: #f2f6fb;
-      border: 1px solid rgba(24, 39, 58, 0.08);
-    }
-
-    .project-copy,
-    .post-copy,
-    .focus-card p {
-      color: var(--text-secondary);
-      font-size: 15px;
-    }
-
-    .project-copy,
-    .post-copy {
-      margin: 12px 0 16px;
     }
 
     .search-shell {
@@ -355,6 +196,40 @@ const contactActions = profile.contacts.filter((contact) => contact.href !== '/r
       --pagefind-ui-border: transparent;
     }
 
+    .post-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .post-card {
+      border-radius: 22px;
+      padding: 22px;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    }
+
+    .post-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-hover);
+      border-color: rgba(31, 111, 235, 0.22);
+    }
+
+    .post-card h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .post-meta,
+    .post-copy,
+    .empty-state {
+      color: var(--text-secondary);
+      font-size: 15px;
+    }
+
+    .post-copy {
+      margin: 10px 0 16px;
+    }
+
     .footer {
       text-align: center;
       color: var(--text-muted);
@@ -363,9 +238,6 @@ const contactActions = profile.contacts.filter((contact) => contact.href !== '/r
     }
 
     @media (max-width: 920px) {
-      .hero-grid,
-      .focus-grid,
-      .project-grid,
       .post-grid {
         grid-template-columns: 1fr;
       }
@@ -373,16 +245,13 @@ const contactActions = profile.contacts.filter((contact) => contact.href !== '/r
 
     @media (max-width: 720px) {
       .container {
-        width: min(100% - 24px, 1120px);
+        width: min(100% - 24px, 1040px);
         padding: 20px 0 56px;
       }
 
       .hero,
       .section,
-      .project-card,
-      .post-card,
-      .focus-card,
-      .hero-card {
+      .post-card {
         padding: 22px;
         border-radius: 22px;
       }
@@ -401,139 +270,64 @@ const contactActions = profile.contacts.filter((contact) => contact.href !== '/r
 <body>
   <div class="container" data-pagefind-body>
     <div class="topbar">
-      <div>{profile.name}</div>
+      <div>Blog</div>
       <nav class="nav">
-        <a href="/about">About</a>
-        <a href="/resume">Resume</a>
         <a href="https://github.com/zgx197" target="_blank" rel="noopener">GitHub</a>
       </nav>
     </div>
 
     <section class="hero">
-      <div class="hero-grid">
-        <div>
-          <div class="eyebrow">Resume Driven Portfolio</div>
-          <h1>{profile.name}</h1>
-          <div class="hero-role">{profile.role}</div>
-          <p class="hero-copy">{resume.headline}</p>
-          <div class="action-row">
-            <a class="button primary" href="/resume">查看简历</a>
-            <a class="button" href="/about">查看项目</a>
-            {contactActions.map((contact) => (
-              <a class="button" href={contact.href} target={contact.external ? '_blank' : undefined} rel={contact.external ? 'noopener' : undefined}>{contact.label}</a>
+      <div class="hero-inner">
+        <div class="eyebrow">Blog / Notes</div>
+        <h1>张国鑫的博客</h1>
+        <p class="hero-copy">这里主要记录开发过程、工具实践、架构思考和一些持续积累中的技术笔记。首页只保留博客内容与文章检索。</p>
+        {allTags.length > 0 && (
+          <div class="tag-row">
+            {allTags.map((tag) => (
+              <span class="tag">{tag}</span>
             ))}
           </div>
-          <div class="summary-list">
-            {resume.summaryPoints.map((item) => (
-              <div class="summary-item"><span>•</span><div>{item}</div></div>
-            ))}
-          </div>
-        </div>
-
-        <aside class="hero-card">
-          <h2>当前画像</h2>
-          <div class="summary-list">
-            {resume.profileFacts.map((fact) => (
-              <div class="fact-item">
-                <div class="fact-label">{fact.label}</div>
-                <div class="fact-value">{fact.value}</div>
-              </div>
-            ))}
-          </div>
-        </aside>
+        )}
       </div>
     </section>
 
     <section class="section">
       <div class="section-head">
-        <div><h2>关注方向</h2></div>
-        <p>首页不再依赖硬编码摘要，直接从统一简历数据里生成个人定位与展示内容。</p>
-      </div>
-      <div class="focus-grid">
-        {resume.focusAreas.map((item) => (
-          <article class="focus-card">
-            <div class="focus-title">{item.title}</div>
-            <p>{item.description}</p>
-          </article>
-        ))}
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="section-head">
-        <div><h2>代表项目</h2></div>
-        <p>这一组项目来自统一 schema，可继续通过导入、override 和素材目录共同驱动。</p>
-      </div>
-      <div class="project-grid">
-        {featuredProjectCards.map((project) => (
-          <a class="project-card" href={getProjectHref(project.slug)}>
-            <h3>{project.title}</h3>
-            <div class="meta-row">
-              {project.meta.map((item) => (
-                <span class="meta-pill">{item}</span>
-              ))}
-            </div>
-            <p class="project-copy">{project.description}</p>
-            <div class="tag-row">
-              {project.tags.map((tag) => (
-                <span class="tag">{tag}</span>
-              ))}
-            </div>
-          </a>
-        ))}
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="section-head">
-        <div><h2>开源与工具框架</h2></div>
-        <p>这部分更偏工具链、抽象与可维护性的表达，也会优先受益于后续素材目录约定。</p>
-      </div>
-      <div class="project-grid">
-        {openSourceProjectCards.map((project) => (
-          <a class="project-card" href={getProjectHref(project.slug)}>
-            <h3>{project.title}</h3>
-            <div class="meta-row">
-              {project.meta.map((item) => (
-                <span class="meta-pill">{item}</span>
-              ))}
-            </div>
-            <p class="project-copy">{project.description}</p>
-            <div class="tag-row">
-              {project.tags.map((tag) => (
-                <span class="tag">{tag}</span>
-              ))}
-            </div>
-          </a>
-        ))}
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="section-head">
-        <div><h2>博客与记录</h2></div>
-        <p>博客仍然保留，但首页现在由简历和项目数据驱动，文章区作为补充内容存在。</p>
+        <div><h2>文章搜索</h2></div>
+        <p>可以直接搜索文章标题、正文关键词和标签。</p>
       </div>
       <div class="search-shell">
         <div id="search"></div>
       </div>
-      <div class="post-grid">
-        {sortedPosts.map((post) => (
-          <a class="post-card" href={post.url}>
-            <h3>{post.frontmatter.title}</h3>
-            <p class="post-copy">{new Date(post.frontmatter.date).toLocaleDateString('zh-CN')}</p>
-            <div class="tag-row">
-              {(post.frontmatter.tags ?? []).slice(0, 3).map((tag) => (
-                <span class="tag">{tag}</span>
-              ))}
-            </div>
-          </a>
-        ))}
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div><h2>最新文章</h2></div>
+        <p>按时间排序展示最近更新的内容。</p>
       </div>
+      {latestPosts.length > 0 ? (
+        <div class="post-grid">
+          {latestPosts.map((post) => (
+            <a class="post-card" href={post.url}>
+              <h3>{post.frontmatter.title}</h3>
+              <p class="post-meta">{new Date(post.frontmatter.date).toLocaleDateString('zh-CN')}</p>
+              {post.frontmatter.description && <p class="post-copy">{post.frontmatter.description}</p>}
+              <div class="tag-row">
+                {(post.frontmatter.tags ?? []).slice(0, 4).map((tag) => (
+                  <span class="tag">{tag}</span>
+                ))}
+              </div>
+            </a>
+          ))}
+        </div>
+      ) : (
+        <p class="empty-state">当前还没有文章内容。</p>
+      )}
     </section>
 
     <div class="footer">
-      <p>当前首页已切换为统一 schema 驱动，后续补简历、项目和素材时不需要再单独维护首页文案。</p>
+      <p>这里是博客首页。</p>
     </div>
   </div>
 
@@ -556,4 +350,3 @@ const contactActions = profile.contacts.filter((contact) => contact.href !== '/r
   </script>
 </body>
 </html>
-

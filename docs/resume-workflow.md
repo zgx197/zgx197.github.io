@@ -14,6 +14,16 @@ npm run import:resume:text -- <你的简历文本文件>
 npm run import:resume:pdf -- "张国鑫-U3D-202507.pdf"
 ```
 
+### 2.5 一键执行导入到构建
+
+```bash
+npm run resume:publish -- "张国鑫-U3D-202507.pdf"
+```
+
+这条命令会自动执行：导入 -> 合并写入正式数据 -> schema 校验 -> 站点构建。
+
+需要注意：它不会自动提交或推送 GitHub，适合先本地生成并检查页面效果。
+
 ### 3. 校验正式简历数据
 
 ```bash
@@ -164,6 +174,8 @@ public/project-assets/
 - `resume-overrides.ts` 负责“保留人工打磨过的最终表达”。
 
 这样后续重复导入时，已经整理过的内容不会轻易被覆盖。
+
+
 
 
 
