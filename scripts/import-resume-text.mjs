@@ -1,6 +1,12 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
+import { buildParsedCandidate } from "./lib/resume-parser/assemble-candidate.ts";
+import { enhanceCandidateWithAiStructure } from "./lib/resume-parser/ai/structural-parser.ts";
+import { buildStructureReport } from "./lib/resume-parser/structure-report.ts";
+import { buildCandidateValidationReport } from "./lib/resume-parser/candidate-validation.ts";
+import { buildFieldCandidatesReport } from "./lib/resume-parser/field-candidates.ts";
+import { buildFieldCandidateValidationReport } from "./lib/resume-parser/field-candidate-validation.ts";
 
 const args = process.argv.slice(2);
 const NOISE_LINES = new Set(["社交主页", "个人优势", "荣誉奖项", "教育经历"]);
@@ -11,6 +17,11 @@ function parseArgs(argv) {
     outDir: path.resolve("generated/resume-import"),
     stem: undefined,
     stdin: false,
+    emitCandidate: false,
+    useAiStructure: false,
+    useAiFields: false,
+    sourceType: undefined,
+    sourcePath: undefined,
   };
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -27,6 +38,30 @@ function parseArgs(argv) {
     }
     if (arg === "--stdin") {
       options.stdin = true;
+      continue;
+    }
+    if (arg === "--emit-candidate") {
+      options.emitCandidate = true;
+      continue;
+    }
+    if (arg === "--use-ai-structure") {
+      options.useAiStructure = true;
+      options.emitCandidate = true;
+      continue;
+    }
+    if (arg === "--use-ai-fields") {
+      options.useAiFields = true;
+      options.emitCandidate = true;
+      continue;
+    }
+    if (arg === "--source-type") {
+      options.sourceType = argv[index + 1];
+      index += 1;
+      continue;
+    }
+    if (arg === "--source-path") {
+      options.sourcePath = argv[index + 1];
+      index += 1;
       continue;
     }
     if (!options.input) {
@@ -1348,6 +1383,22 @@ async function main() {
   const template = toResumeSourceTemplate(draft);
   const warnings = buildWarnings(draft);
   const report = buildReport(draft, warnings);
+  let parsedCandidate = options.emitCandidate
+    ? buildParsedCandidate(normalizedText, {
+      inputStem: stem,
+      sourcePath: options.sourcePath ?? options.input ?? "<stdin>",
+      sourceType: options.sourceType ?? (options.stdin ? "stdin" : "text"),
+    })
+    : null;
+  let aiStructureReport = null;
+
+  if (parsedCandidate && options.useAiStructure) {
+    const enhanced = await enhanceCandidateWithAiStructure(parsedCandidate);
+    parsedCandidate = enhanced.candidate;
+    aiStructureReport = enhanced.report;
+  }
+
+  const structureReport = parsedCandidate ? buildStructureReport(parsedCandidate, aiStructureReport) : null;
 
   await fs.mkdir(options.outDir, { recursive: true });
 
@@ -1356,14 +1407,57 @@ async function main() {
   const templatePath = path.join(options.outDir, `${stem}.resume-source.json`);
   const templateTsPath = path.join(options.outDir, `${stem}.resume-source.ts`);
   const reportPath = path.join(options.outDir, `${stem}.report.json`);
+  const parsedCandidatePath = path.join(options.outDir, `${stem}.parsed-candidate.json`);
+  const structureReportPath = path.join(options.outDir, `${stem}.structure-report.json`);
+  const candidateValidationReportPath = path.join(options.outDir, `${stem}.candidate-validation-report.json`);
+  const fieldCandidatesPath = path.join(options.outDir, `${stem}.field-candidates.json`);
+  const fieldCandidateValidationReportPath = path.join(options.outDir, `${stem}.field-candidate-validation-report.json`);
 
-  await Promise.all([
+  const candidateValidationReport = parsedCandidate
+    ? buildCandidateValidationReport(parsedCandidate, { candidatePath: parsedCandidatePath })
+    : null;
+  const fieldCandidatesReport = parsedCandidate && candidateValidationReport
+    ? await buildFieldCandidatesReport(parsedCandidate, candidateValidationReport, {
+      useAiFields: options.useAiFields,
+      candidatePath: parsedCandidatePath,
+      validationPath: candidateValidationReportPath,
+    })
+    : null;
+  const fieldCandidateValidationReport = fieldCandidatesReport
+    ? buildFieldCandidateValidationReport(fieldCandidatesReport, {
+      fieldCandidatesPath,
+    })
+    : null;
+
+  const writeJobs = [
     fs.writeFile(normalizedPath, `${normalizedText}\n`, "utf8"),
     fs.writeFile(draftPath, `${JSON.stringify(draft, null, 2)}\n`, "utf8"),
     fs.writeFile(templatePath, `${JSON.stringify(template, null, 2)}\n`, "utf8"),
     fs.writeFile(templateTsPath, serializeTsModule(template), "utf8"),
     fs.writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8"),
-  ]);
+  ];
+
+  if (parsedCandidate) {
+    writeJobs.push(fs.writeFile(parsedCandidatePath, `${JSON.stringify(parsedCandidate, null, 2)}\n`, "utf8"));
+  }
+
+  if (structureReport) {
+    writeJobs.push(fs.writeFile(structureReportPath, `${JSON.stringify(structureReport, null, 2)}\n`, "utf8"));
+  }
+
+  if (candidateValidationReport) {
+    writeJobs.push(fs.writeFile(candidateValidationReportPath, `${JSON.stringify(candidateValidationReport, null, 2)}\n`, "utf8"));
+  }
+
+  if (fieldCandidatesReport) {
+    writeJobs.push(fs.writeFile(fieldCandidatesPath, `${JSON.stringify(fieldCandidatesReport, null, 2)}\n`, "utf8"));
+  }
+
+  if (fieldCandidateValidationReport) {
+    writeJobs.push(fs.writeFile(fieldCandidateValidationReportPath, `${JSON.stringify(fieldCandidateValidationReport, null, 2)}\n`, "utf8"));
+  }
+
+  await Promise.all(writeJobs);
 
   console.log(`Imported resume text: ${options.input ?? "<stdin>"}`);
   console.log(`- normalized text: ${normalizedPath}`);
@@ -1371,10 +1465,40 @@ async function main() {
   console.log(`- resume-source json: ${templatePath}`);
   console.log(`- resume-source ts: ${templateTsPath}`);
   console.log(`- report: ${reportPath}`);
+  if (parsedCandidate) {
+    console.log(`- parsed candidate: ${parsedCandidatePath}`);
+  }
+  if (structureReport) {
+    console.log(`- structure report: ${structureReportPath}`);
+  }
+  if (candidateValidationReport) {
+    console.log(`- candidate validation report: ${candidateValidationReportPath}`);
+    console.log(`- candidate validation errors: ${candidateValidationReport.stats.errorCount}`);
+    console.log(`- candidate validation warnings: ${candidateValidationReport.stats.warningCount}`);
+  }
+  if (fieldCandidatesReport) {
+    console.log(`- field candidates: ${fieldCandidatesPath}`);
+    console.log(`- field candidates gate allowed: ${fieldCandidatesReport.gate.allowed}`);
+    console.log(`- field candidates matched projects: ${fieldCandidatesReport.matchedProjectCount}/${fieldCandidatesReport.projectCount}`);
+  }
+  if (fieldCandidateValidationReport) {
+    console.log(`- field candidate validation report: ${fieldCandidateValidationReportPath}`);
+    console.log(`- field candidate validation errors: ${fieldCandidateValidationReport.stats.errorCount}`);
+    console.log(`- field candidate validation warnings: ${fieldCandidateValidationReport.stats.warningCount}`);
+  }
 
   if (warnings.length > 0) {
     console.log("Warnings:");
     warnings.forEach((warning) => console.log(`- ${warning}`));
+  }
+
+  if (aiStructureReport?.warnings?.length > 0) {
+    console.log("AI warnings:");
+    aiStructureReport.warnings.forEach((warning) => console.log(`- ${warning}`));
+  }
+  if (fieldCandidatesReport?.ai?.warnings?.length > 0) {
+    console.log("Field AI warnings:");
+    fieldCandidatesReport.ai.warnings.forEach((warning) => console.log(`- ${warning}`));
   }
 }
 
@@ -1382,18 +1506,6 @@ main().catch((error) => {
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

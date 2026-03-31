@@ -44,6 +44,9 @@ def main() -> int:
     parser.add_argument("input", nargs="?", help="Path to the PDF resume file. If omitted and only one PDF exists in cwd, that file is used.")
     parser.add_argument("--out-dir", default="generated/resume-import", help="Directory for generated draft files")
     parser.add_argument("--node", default="node", help="Node executable used to run the text importer")
+    parser.add_argument("--emit-candidate", action="store_true", help="Also emit parsed-candidate.json through the text importer")
+    parser.add_argument("--use-ai-structure", action="store_true", help="Enable AI structural parsing in the text importer")
+    parser.add_argument("--use-ai-fields", action="store_true", help="Enable AI field summarization and semantic matching in the text importer")
     args = parser.parse_args()
 
     pdf_path = resolve_input(args.input)
@@ -63,7 +66,20 @@ def main() -> int:
         str(out_dir),
         "--stem",
         pdf_path.stem,
+        "--source-type",
+        "pdf",
+        "--source-path",
+        str(pdf_path),
     ]
+
+    if args.emit_candidate or args.use_ai_fields:
+        command.append("--emit-candidate")
+
+    if args.use_ai_structure:
+        command.append("--use-ai-structure")
+
+    if args.use_ai_fields:
+        command.append("--use-ai-fields")
 
     completed = subprocess.run(command, check=False)
     if completed.returncode != 0:
@@ -76,4 +92,7 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+
+
 
