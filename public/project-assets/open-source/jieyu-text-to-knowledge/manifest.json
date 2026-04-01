@@ -1,0 +1,43 @@
+{
+  "featured": {
+    "kind": "image",
+    "title": "解语项目总览",
+    "src": "images/01-overview.svg",
+    "alt": "解语 Text to Knowledge 项目结构总览图",
+    "description": "从 README 三段结构出发，展示 TermTree、知识标注工具集与知识挖掘方案之间的关系。"
+  },
+  "gallery": [
+    {
+      "kind": "image",
+      "title": "TermTree 知识底座",
+      "src": "images/02-termtree.svg",
+      "alt": "TermTree 百科知识树结构示意图",
+      "description": "展示 TermType、cb / eb、term 组织和 term-linking 的知识底座定位。"
+    },
+    {
+      "kind": "image",
+      "title": "文本到知识链路",
+      "src": "images/03-pipeline.svg",
+      "alt": "解语文本到知识链路示意图",
+      "description": "展示知识标注、模板生成、term-linking 与知识增强模型之间的衔接。"
+    }
+  ],
+  "resources": [
+    {
+      "label": "GitHub 项目目录",
+      "href": "https://github.com/PaddlePaddle/PaddleNLP/tree/develop/slm/examples/text_to_knowledge",
+      "external": true
+    },
+    {
+      "label": "GitHub TermTree 子目录",
+      "href": "https://github.com/PaddlePaddle/PaddleNLP/tree/develop/slm/examples/text_to_knowledge/termtree",
+      "external": true
+    },
+    {
+      "label": "官方介绍页",
+      "href": "https://www.paddlepaddle.org.cn/textToKnowledge",
+      "external": true
+    }
+  ],
+  "note": "本组 SVG 基于 PaddleNLP README 结构手工绘制，用于在没有真实业务截图的情况下稳定展示项目能力边界。"
+}

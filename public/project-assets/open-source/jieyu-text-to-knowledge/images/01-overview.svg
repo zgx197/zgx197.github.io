@@ -1,0 +1,59 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="100" y1="80" x2="1500" y2="860" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F8FBFF"/>
+      <stop offset="1" stop-color="#E8F1FA"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#FFFFFF" stop-opacity="0.98"/>
+      <stop offset="1" stop-color="#F1F6FC" stop-opacity="0.95"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" rx="40" fill="url(#bg)"/>
+  <circle cx="1320" cy="150" r="180" fill="#DFF3EA"/>
+  <circle cx="250" cy="760" r="210" fill="#DBE8FF"/>
+  <rect x="76" y="66" width="1448" height="768" rx="32" fill="#FCFEFF" stroke="#C9D8EA" stroke-width="2"/>
+  <rect x="76" y="66" width="1448" height="64" rx="32" fill="#F2F7FD"/>
+  <circle cx="122" cy="98" r="8" fill="#8AA7C7"/>
+  <circle cx="148" cy="98" r="8" fill="#A7BDD7"/>
+  <circle cx="174" cy="98" r="8" fill="#C7D7E8"/>
+  <text x="120" y="182" fill="#1D2734" font-size="34" font-family="Segoe UI, Arial, sans-serif" font-weight="700">解语 / Text to Knowledge</text>
+  <text x="120" y="226" fill="#5A6E82" font-size="20" font-family="Segoe UI, Arial, sans-serif">Knowledge base + knowledge annotation + knowledge mining for Chinese text understanding</text>
+  <rect x="120" y="282" width="380" height="420" rx="28" fill="url(#panel)" stroke="#D6E2EF"/>
+  <rect x="610" y="282" width="380" height="420" rx="28" fill="url(#panel)" stroke="#D6E2EF"/>
+  <rect x="1100" y="282" width="380" height="420" rx="28" fill="url(#panel)" stroke="#D6E2EF"/>
+  <text x="152" y="342" fill="#1F6FEB" font-size="28" font-family="Segoe UI, Arial, sans-serif" font-weight="700">01 TermTree</text>
+  <text x="152" y="378" fill="#5A6E82" font-size="18" font-family="Segoe UI, Arial, sans-serif">百科知识树 / 中文全词类知识底座</text>
+  <rect x="152" y="418" width="316" height="92" rx="20" fill="#EEF5FF" stroke="#D5E4F7"/>
+  <text x="178" y="456" fill="#1D2734" font-size="18" font-family="Segoe UI, Arial, sans-serif" font-weight="700">TermType + Term</text>
+  <text x="178" y="486" fill="#607386" font-size="16" font-family="Segoe UI, Arial, sans-serif">160+ termtype / 7000+ subtype / 100w term</text>
+  <rect x="152" y="534" width="316" height="132" rx="20" fill="#F8FCFB" stroke="#D2E7DF"/>
+  <text x="178" y="574" fill="#15967D" font-size="18" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Contribution Focus</text>
+  <text x="178" y="606" fill="#607386" font-size="16" font-family="Segoe UI, Arial, sans-serif">knowledge organization</text>
+  <text x="178" y="632" fill="#607386" font-size="16" font-family="Segoe UI, Arial, sans-serif">data production pipeline</text>
+  <text x="178" y="658" fill="#607386" font-size="16" font-family="Segoe UI, Arial, sans-serif">high-frequency concept/entity curation</text>
+  <text x="642" y="342" fill="#15967D" font-size="28" font-family="Segoe UI, Arial, sans-serif" font-weight="700">02 Knowledge Annotation</text>
+  <text x="642" y="378" fill="#5A6E82" font-size="18" font-family="Segoe UI, Arial, sans-serif">词类标注 / 名词短语标注 / 中文预训练模型</text>
+  <rect x="642" y="418" width="316" height="92" rx="20" fill="#F3FBF8" stroke="#D2E7DF"/>
+  <text x="668" y="456" fill="#1D2734" font-size="18" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Short-text Understanding</text>
+  <text x="668" y="486" fill="#607386" font-size="16" font-family="Segoe UI, Arial, sans-serif">topic / intent / term-type sequence labeling</text>
+  <rect x="642" y="534" width="316" height="132" rx="20" fill="#FFF8ED" stroke="#F0DFC3"/>
+  <text x="668" y="574" fill="#B77514" font-size="18" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Contribution Focus</text>
+  <text x="668" y="606" fill="#607386" font-size="16" font-family="Segoe UI, Arial, sans-serif">model research and training</text>
+  <text x="668" y="632" fill="#607386" font-size="16" font-family="Segoe UI, Arial, sans-serif">dataset construction</text>
+  <text x="668" y="658" fill="#607386" font-size="16" font-family="Segoe UI, Arial, sans-serif">evaluation and regression gates</text>
+  <text x="1132" y="342" fill="#B77514" font-size="28" font-family="Segoe UI, Arial, sans-serif" font-weight="700">03 Knowledge Mining</text>
+  <text x="1132" y="378" fill="#5A6E82" font-size="18" font-family="Segoe UI, Arial, sans-serif">模板生成 / term-linking / 文本到知识映射</text>
+  <rect x="1132" y="418" width="316" height="92" rx="20" fill="#FFF8ED" stroke="#F0DFC3"/>
+  <text x="1158" y="456" fill="#1D2734" font-size="18" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Application Layer</text>
+  <text x="1158" y="486" fill="#607386" font-size="16" font-family="Segoe UI, Arial, sans-serif">template generation / matching / extraction</text>
+  <rect x="1132" y="534" width="316" height="132" rx="20" fill="#F7FAFF" stroke="#D6E2EF"/>
+  <text x="1158" y="574" fill="#1F6FEB" font-size="18" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Positioning</text>
+  <text x="1158" y="606" fill="#607386" font-size="16" font-family="Segoe UI, Arial, sans-serif">not a single model benchmark</text>
+  <text x="1158" y="632" fill="#607386" font-size="16" font-family="Segoe UI, Arial, sans-serif">but a structured text-to-knowledge pipeline</text>
+  <text x="1158" y="658" fill="#607386" font-size="16" font-family="Segoe UI, Arial, sans-serif">built around knowledge-enhanced understanding</text>
+  <path d="M500 492H610" stroke="#7EA1C8" stroke-width="8" stroke-linecap="round"/>
+  <path d="M990 492H1100" stroke="#7EA1C8" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="555" cy="492" r="8" fill="#7EA1C8"/>
+  <circle cx="1045" cy="492" r="8" fill="#7EA1C8"/>
+</svg>

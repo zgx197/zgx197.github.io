@@ -62,22 +62,16 @@ function isImageAsset(asset: ProjectMediaAsset) {
   return asset.kind === "image";
 }
 
-function isVideoAsset(asset: ProjectMediaAsset) {
-  return asset.kind === "video";
-}
-
-function isEmbedAsset(asset: ProjectMediaAsset) {
-  return asset.kind === "embed";
-}
-
 const mediaAssets = [
   ...(project.media.featured ? [project.media.featured] : []),
   ...project.media.gallery,
 ];
-const showcaseVideo = mediaAssets.find((asset) => isVideoAsset(asset) || isEmbedAsset(asset));
 const showcaseImages = mediaAssets.filter(isImageAsset);
-const hasImageCarousel = showcaseImages.length > 0;
+const showcaseFeaturedImage = showcaseImages[0];
+const hasShowcaseImages = showcaseImages.length > 0;
+const hasImageCarousel = hasShowcaseImages;
 const showcaseSectionIndex = project.sections.findIndex((section) => section.type === "showcase");
+const shouldRenderFallbackShowcase = showcaseSectionIndex < 0 && hasShowcaseImages;
 const archiveSectionIndex = project.sections.findIndex((section) => section.type === "archive");
 const hasArchiveSection = archiveSectionIndex >= 0;
 const hasLinksSection = project.sections.some((section) => section.type === "links");
@@ -85,12 +79,15 @@ const tagsSection = project.sections.find((section) => section.type === "tags") 
 const heroTags = Array.from(new Set([...(project.tags ?? []), ...(tagsSection?.items ?? [])].filter(Boolean)));
 
 function shouldRenderSection(section: ProjectSection) {
+  if (section.type === "showcase") {
+    return hasShowcaseImages;
+  }
+
   if (!hasArchiveSection) {
     return section.type !== "tags";
   }
 
   return (
-    section.type === "showcase" ||
     section.type === "archive" ||
     section.type === "links"
   );
@@ -358,18 +355,27 @@ function shouldRenderSection(section: ProjectSection) {
       margin-bottom: 10px;
     }
 
-    .showcase-video-shell {
+    .showcase-featured-media {
       width: 100%;
       display: grid;
       gap: 12px;
     }
 
-    .showcase-video-meta {
+    .showcase-featured-media img {
+      width: 100%;
+      max-height: min(72vh, 860px);
+      object-fit: contain;
+      border-radius: 16px;
+      background: #dde6f2;
+      border: 1px solid rgba(24, 39, 58, 0.08);
+    }
+
+    .showcase-featured-meta {
       display: grid;
       gap: 4px;
     }
 
-    .showcase-video-meta strong {
+    .showcase-featured-meta strong {
       font-size: 16px;
     }
 
@@ -389,22 +395,6 @@ function shouldRenderSection(section: ProjectSection) {
       padding-left: 18px;
       display: grid;
       gap: 6px;
-    }
-
-    .media-frame {
-      width: 100%;
-      height: 100%;
-      border: 0;
-      border-radius: 16px;
-      object-fit: cover;
-      background: #dfe8f3;
-    }
-
-    .media-video {
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      border-radius: 16px;
-      background: #091018;
     }
 
     .showcase-carousel,
@@ -492,10 +482,12 @@ function shouldRenderSection(section: ProjectSection) {
 
     .showcase-carousel-slide img {
       width: 100%;
-      aspect-ratio: 16 / 10;
-      object-fit: cover;
+      max-height: min(72vh, 860px);
+      object-fit: contain;
       border-radius: 14px;
       background: #dbe6f1;
+      display: block;
+      margin: 0 auto;
     }
 
     .showcase-carousel-copy {
@@ -538,14 +530,14 @@ function shouldRenderSection(section: ProjectSection) {
 
     .showcase-carousel-thumbs {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(108px, 1fr));
+      gap: 8px;
     }
 
     .showcase-carousel-thumb {
       width: 100%;
-      padding: 10px;
-      border-radius: 16px;
+      padding: 8px;
+      border-radius: 14px;
       border: 1px solid rgba(24, 39, 58, 0.08);
       background: rgba(255, 255, 255, 0.88);
       text-align: left;
@@ -564,18 +556,24 @@ function shouldRenderSection(section: ProjectSection) {
 
     .showcase-carousel-thumb img {
       width: 100%;
-      aspect-ratio: 16 / 10;
-      object-fit: cover;
-      border-radius: 12px;
-      margin-bottom: 8px;
+      height: 84px;
+      object-fit: contain;
+      border-radius: 10px;
+      margin-bottom: 6px;
       background: #dbe6f1;
+    }
+
+    .showcase-carousel-thumb strong {
+      font-size: 12px;
+      line-height: 1.35;
     }
 
     .showcase-carousel-thumb span {
       display: block;
       color: var(--text-secondary);
-      font-size: 13px;
-      line-height: 1.5;
+      font-size: 11px;
+      line-height: 1.35;
+      margin-top: 3px;
     }
 
     .metric-card {
@@ -849,7 +847,7 @@ function shouldRenderSection(section: ProjectSection) {
         <div class="hero-topline">
           <div class="eyebrow">{project.eyebrow}</div>
           <div class="hero-actions">
-            {showcaseSectionIndex >= 0 && <a class="hero-jump" href="#showcase">进入展示</a>}
+            {showcaseSectionIndex >= 0 && hasShowcaseImages && <a class="hero-jump" href="#showcase">进入展示</a>}
             {archiveSectionIndex >= 0 && <a class="hero-jump" href="#archive">查看原文档案</a>}
           </div>
         </div>
@@ -873,6 +871,85 @@ function shouldRenderSection(section: ProjectSection) {
       </div>
     </header>
 
+    {shouldRenderFallbackShowcase && (
+      <section class="section" id="showcase">
+        <h2 class="section-title">项目展示</h2>
+        {hasImageCarousel ? (
+          <div class="showcase-carousel" data-gallery-carousel>
+            <div class="showcase-carousel-head">
+              <div>
+                <strong>图片列表</strong>
+                <p class="showcase-carousel-subtitle">支持多张项目截图左右切换，也可以通过下方缩略图快速定位。</p>
+              </div>
+            </div>
+
+            <div class="showcase-carousel-stage">
+              {showcaseImages.map((asset, imageIndex) => (
+                <article class={`showcase-carousel-slide${imageIndex === 0 ? " is-active" : ""}`} data-gallery-slide aria-hidden={imageIndex === 0 ? "false" : "true"}>
+                  <img src={asset.src} alt={asset.alt ?? asset.title}>
+                  <div class="showcase-carousel-copy">
+                    <strong>{asset.title}</strong>
+                    {asset.description && <p>{asset.description}</p>}
+                  </div>
+                </article>
+              ))}
+
+              <div class="showcase-carousel-nav">
+                <button class="showcase-carousel-arrow" type="button" data-gallery-prev aria-label="查看上一张图片" disabled={showcaseImages.length <= 1}>‹</button>
+                <button class="showcase-carousel-arrow" type="button" data-gallery-next aria-label="查看下一张图片" disabled={showcaseImages.length <= 1}>›</button>
+              </div>
+            </div>
+
+            <div class="showcase-carousel-thumbs">
+              {showcaseImages.map((asset, imageIndex) => (
+                <button
+                  class={`showcase-carousel-thumb${imageIndex === 0 ? " is-active" : ""}`}
+                  type="button"
+                  data-gallery-thumb
+                  data-gallery-index={imageIndex}
+                  aria-label={`查看图片 ${imageIndex + 1}: ${asset.title}`}
+                >
+                  <img src={asset.src} alt={asset.alt ?? asset.title}>
+                  <strong>{asset.title}</strong>
+                  {asset.description && <span>{asset.description}</span>}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div class="showcase-layout">
+            <div class="showcase-main">
+              {showcaseFeaturedImage ? (
+                <div class="showcase-featured-media">
+                  <img src={showcaseFeaturedImage.src} alt={showcaseFeaturedImage.alt ?? showcaseFeaturedImage.title}>
+                  <div class="showcase-featured-meta">
+                    <strong>{showcaseFeaturedImage.title}</strong>
+                    {showcaseFeaturedImage.description && <p class="section-copy">{showcaseFeaturedImage.description}</p>}
+                  </div>
+                </div>
+              ) : (
+                <div class="showcase-placeholder">
+                  <strong>图片待上传</strong>
+                </div>
+              )}
+            </div>
+            <div class="showcase-side">
+              {project.media.resources.length > 0 && (
+                <div class="side-block">
+                  <h3>素材资源</h3>
+                  <div class="link-row">
+                    {project.media.resources.map((item) => (
+                      <a class="link-pill" href={item.href} target={item.external ? '_blank' : undefined} rel={item.external ? 'noopener' : undefined}>{item.label}</a>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </section>
+    )}
+
     {project.sections.map((section, index) => {
       if (!shouldRenderSection(section)) {
         return null;
@@ -882,55 +959,7 @@ function shouldRenderSection(section: ProjectSection) {
         return (
           <section class="section" id={index === showcaseSectionIndex ? "showcase" : undefined}>
             <h2 class="section-title">{section.title}</h2>
-            <div class="showcase-layout">
-              <div class="showcase-main">
-                {showcaseVideo ? (
-                  <div class="showcase-video-shell">
-                    {isVideoAsset(showcaseVideo) ? (
-                      <video class="media-video" controls poster={showcaseVideo.poster} src={showcaseVideo.src}></video>
-                    ) : isEmbedAsset(showcaseVideo) ? (
-                      <iframe class="media-frame" src={showcaseVideo.src} title={showcaseVideo.title} loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-                    ) : null}
-                    <div class="showcase-video-meta">
-                      <strong>{showcaseVideo.title}</strong>
-                      {showcaseVideo.description && <p class="section-copy">{showcaseVideo.description}</p>}
-                    </div>
-                  </div>
-                ) : (
-                  <div class="showcase-placeholder">
-                    <strong>{section.featuredTitle}</strong>
-                    <p>{section.featuredDescription}</p>
-                  </div>
-                )}
-              </div>
-              <div class="showcase-side">
-                {section.sideBlocks.map((block) => (
-                  <div class="side-block">
-                    <h3>{block.title}</h3>
-                    {block.description && <p>{block.description}</p>}
-                    {block.items && (
-                      <ul>
-                        {block.items.map((item) => (
-                          <li>{item}</li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                ))}
-                {project.media.resources.length > 0 && (
-                  <div class="side-block">
-                    <h3>素材资源</h3>
-                    <div class="link-row">
-                      {project.media.resources.map((item) => (
-                        <a class="link-pill" href={item.href} target={item.external ? '_blank' : undefined} rel={item.external ? 'noopener' : undefined}>{item.label}</a>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {hasImageCarousel && (
+            {hasImageCarousel ? (
               <div class="showcase-carousel" data-gallery-carousel>
                 <div class="showcase-carousel-head">
                   <div>
@@ -970,6 +999,49 @@ function shouldRenderSection(section: ProjectSection) {
                       {asset.description && <span>{asset.description}</span>}
                     </button>
                   ))}
+                </div>
+              </div>
+            ) : (
+              <div class="showcase-layout">
+                <div class="showcase-main">
+                  {showcaseFeaturedImage ? (
+                    <div class="showcase-featured-media">
+                      <img src={showcaseFeaturedImage.src} alt={showcaseFeaturedImage.alt ?? showcaseFeaturedImage.title}>
+                      <div class="showcase-featured-meta">
+                        <strong>{showcaseFeaturedImage.title}</strong>
+                        {showcaseFeaturedImage.description && <p class="section-copy">{showcaseFeaturedImage.description}</p>}
+                      </div>
+                    </div>
+                  ) : (
+                    <div class="showcase-placeholder">
+                      <strong>图片待上传</strong>
+                    </div>
+                  )}
+                </div>
+                <div class="showcase-side">
+                  {section.sideBlocks.map((block) => (
+                    <div class="side-block">
+                      <h3>{block.title}</h3>
+                      {block.description && <p>{block.description}</p>}
+                      {block.items && (
+                        <ul>
+                          {block.items.map((item) => (
+                            <li>{item}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  ))}
+                  {project.media.resources.length > 0 && (
+                    <div class="side-block">
+                      <h3>素材资源</h3>
+                      <div class="link-row">
+                        {project.media.resources.map((item) => (
+                          <a class="link-pill" href={item.href} target={item.external ? '_blank' : undefined} rel={item.external ? 'noopener' : undefined}>{item.label}</a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -1044,7 +1116,7 @@ function shouldRenderSection(section: ProjectSection) {
             <div class="layered-detail-groups">
               {section.refinedItems && section.refinedItems.length > 0 && (
                 <div class="layered-detail-group">
-                  <h3>{section.refinedTitle ?? "整理后的详细说明"}</h3>
+                  <h3>{section.refinedTitle ?? "详细补充"}</h3>
                   <ul class="bullet-detail-list">
                     {section.refinedItems.map((item) => (
                       <li>{item}</li>
@@ -1140,7 +1212,7 @@ function shouldRenderSection(section: ProjectSection) {
         <div class="link-row">
           <a class="link-pill" href="/about">返回 About</a>
           <a class="link-pill" href="/resume">返回简历</a>
-          <a class="link-pill" href={getProjectHref(project.slug)}>当前页面直链</a>
+          <a class="link-pill" href={getProjectHref(project.slug)}>项目直链</a>
         </div>
       </section>
     )}
@@ -1194,6 +1266,8 @@ function shouldRenderSection(section: ProjectSection) {
   </script>
 </body>
 </html>
+
+
 
 
 
