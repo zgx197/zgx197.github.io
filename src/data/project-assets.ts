@@ -4,6 +4,7 @@ import path from "node:path";
 import type { LinkItem, ProjectMediaAsset, ProjectMediaCollection } from "./resume-schema";
 
 const PROJECT_ASSET_ROOT = path.resolve(process.cwd(), "public/project-assets");
+const IMAGE_EXTENSIONS = new Set([".png", ".jpg", ".jpeg", ".webp", ".gif", ".avif"]);
 
 type ProjectMediaManifest = {
   featured?: ProjectMediaAsset | null;
@@ -12,15 +13,21 @@ type ProjectMediaManifest = {
   note?: string;
 };
 
+type ProjectAssetLocation = {
+  fsDir: string;
+  publicBasePath: string;
+};
+
 function isExternalUrl(value: string) {
   return /^https?:\/\//.test(value);
 }
 
-function toPublicAssetPath(slug: string, src: string) {
+function toPublicAssetPath(assetBasePath: string, src: string) {
   if (isExternalUrl(src) || src.startsWith("/")) {
     return src;
   }
-  return `/project-assets/${slug}/${src.replace(/^\.\//, "")}`;
+
+  return `${assetBasePath}/${src.replace(/^\.\//, "")}`;
 }
 
 function toBilibiliEmbedUrl(src: string) {
@@ -66,38 +73,156 @@ function normalizeEmbedSource(src: string) {
   return toBilibiliEmbedUrl(src);
 }
 
-function normalizeMediaAsset(slug: string, asset: ProjectMediaAsset): ProjectMediaAsset {
-  const normalizedSrc = toPublicAssetPath(slug, asset.src);
+function normalizeMediaAsset(assetBasePath: string, asset: ProjectMediaAsset): ProjectMediaAsset {
+  const normalizedSrc = toPublicAssetPath(assetBasePath, asset.src);
 
   return {
     ...asset,
     src: asset.kind === "embed" ? normalizeEmbedSource(normalizedSrc) : normalizedSrc,
-    poster: asset.poster ? toPublicAssetPath(slug, asset.poster) : undefined,
+    poster: asset.poster ? toPublicAssetPath(assetBasePath, asset.poster) : undefined,
   };
 }
 
-function manifestPathFor(slug: string) {
-  return path.join(PROJECT_ASSET_ROOT, slug, "manifest.json");
+function getProjectAssetLocations(slug: string): ProjectAssetLocation[] {
+  return [
+    {
+      fsDir: path.join(PROJECT_ASSET_ROOT, "work", slug),
+      publicBasePath: `/project-assets/work/${slug}`,
+    },
+    {
+      fsDir: path.join(PROJECT_ASSET_ROOT, "open-source", slug),
+      publicBasePath: `/project-assets/open-source/${slug}`,
+    },
+    {
+      fsDir: path.join(PROJECT_ASSET_ROOT, slug),
+      publicBasePath: `/project-assets/${slug}`,
+    },
+  ];
+}
+
+function manifestPathFor(location: ProjectAssetLocation) {
+  return path.join(location.fsDir, "manifest.json");
+}
+
+function imageDirectoryFor(location: ProjectAssetLocation) {
+  return path.join(location.fsDir, "images");
+}
+
+function formatImageTitle(fileName: string) {
+  const name = path.parse(fileName).name.replace(/[-_]+/g, " ").trim();
+  return name.length > 0 ? name : fileName;
+}
+
+function parseLeadingImageOrder(fileName: string) {
+  const match = fileName.match(/^(\d{2})/);
+  if (!match) {
+    return undefined;
+  }
+
+  return Number(match[1]);
+}
+
+function discoverImageAssets(location: ProjectAssetLocation) {
+  const imageDirectory = imageDirectoryFor(location);
+  if (!fs.existsSync(imageDirectory)) {
+    return [];
+  }
+
+  const orderedFileNames = fs.readdirSync(imageDirectory, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && IMAGE_EXTENSIONS.has(path.extname(entry.name).toLowerCase()))
+    .map((entry) => entry.name)
+    .sort((left, right) => left.localeCompare(right, "zh-CN"))
+    .map((fileName, defaultIndex) => ({
+      fileName,
+      defaultIndex,
+      leadingOrder: parseLeadingImageOrder(fileName),
+    }))
+    .sort((left, right) => {
+      if (left.leadingOrder !== undefined && right.leadingOrder !== undefined && left.leadingOrder !== right.leadingOrder) {
+        return left.leadingOrder - right.leadingOrder;
+      }
+
+      return left.defaultIndex - right.defaultIndex;
+    })
+    .map((entry) => entry.fileName);
+
+  return orderedFileNames
+    .map((fileName) => {
+      const title = formatImageTitle(fileName);
+      return normalizeMediaAsset(location.publicBasePath, {
+        kind: "image",
+        title,
+        src: `images/${fileName}`,
+        alt: title,
+      });
+    });
+}
+
+function dedupeMediaAssets(assets: ProjectMediaAsset[]) {
+  const merged = new Map<string, ProjectMediaAsset>();
+  for (const asset of assets) {
+    merged.set(`${asset.kind}:${asset.src}`, asset);
+  }
+
+  return Array.from(merged.values());
+}
+
+function dedupeLinks(links: LinkItem[]) {
+  const merged = new Map<string, LinkItem>();
+  for (const link of links) {
+    merged.set(`${link.label}:${link.href}`, link);
+  }
+
+  return Array.from(merged.values());
 }
 
 export function resolveProjectMedia(slug: string): ProjectMediaCollection {
-  const manifestPath = manifestPathFor(slug);
-  if (!fs.existsSync(manifestPath)) {
+  const mediaAssets: ProjectMediaAsset[] = [];
+  const resourceLinks: LinkItem[] = [];
+  let resolvedManifestPath: string | undefined;
+  let resolvedNote: string | undefined;
+
+  for (const location of getProjectAssetLocations(slug)) {
+    const manifestPath = manifestPathFor(location);
+    if (fs.existsSync(manifestPath)) {
+      const raw = fs.readFileSync(manifestPath, "utf8");
+      const manifest = JSON.parse(raw) as ProjectMediaManifest;
+
+      if (!resolvedManifestPath) {
+        resolvedManifestPath = `${location.publicBasePath}/manifest.json`;
+      }
+      if (!resolvedNote && manifest.note) {
+        resolvedNote = manifest.note;
+      }
+
+      if (manifest.featured) {
+        mediaAssets.push(normalizeMediaAsset(location.publicBasePath, manifest.featured));
+      }
+
+      for (const item of manifest.gallery ?? []) {
+        mediaAssets.push(normalizeMediaAsset(location.publicBasePath, item));
+      }
+
+      resourceLinks.push(...(manifest.resources ?? []));
+    }
+
+    mediaAssets.push(...discoverImageAssets(location));
+  }
+
+  const dedupedAssets = dedupeMediaAssets(mediaAssets);
+  if (dedupedAssets.length === 0 && resourceLinks.length === 0 && !resolvedManifestPath) {
     return {
       gallery: [],
       resources: [],
     };
   }
 
-  const raw = fs.readFileSync(manifestPath, "utf8");
-  const manifest = JSON.parse(raw) as ProjectMediaManifest;
-
   return {
-    manifestPath: `/project-assets/${slug}/manifest.json`,
-    featured: manifest.featured ? normalizeMediaAsset(slug, manifest.featured) : undefined,
-    gallery: (manifest.gallery ?? []).map((item) => normalizeMediaAsset(slug, item)),
-    resources: manifest.resources ?? [],
-    note: manifest.note,
+    manifestPath: resolvedManifestPath,
+    featured: dedupedAssets[0],
+    gallery: dedupedAssets.slice(1),
+    resources: dedupeLinks(resourceLinks),
+    note: resolvedNote,
   };
 }
 
@@ -106,10 +231,32 @@ export function listProjectManifestSlugs() {
     return [];
   }
 
-  return fs.readdirSync(PROJECT_ASSET_ROOT, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name)
-    .filter((slug) => fs.existsSync(manifestPathFor(slug)));
+  const manifestSlugs = new Set<string>();
+
+  for (const rootEntry of fs.readdirSync(PROJECT_ASSET_ROOT, { withFileTypes: true })) {
+    if (!rootEntry.isDirectory()) {
+      continue;
+    }
+
+    const rootPath = path.join(PROJECT_ASSET_ROOT, rootEntry.name);
+    const directManifestPath = path.join(rootPath, "manifest.json");
+    if (fs.existsSync(directManifestPath)) {
+      manifestSlugs.add(rootEntry.name);
+    }
+
+    for (const childEntry of fs.readdirSync(rootPath, { withFileTypes: true })) {
+      if (!childEntry.isDirectory()) {
+        continue;
+      }
+
+      const nestedManifestPath = path.join(rootPath, childEntry.name, "manifest.json");
+      if (fs.existsSync(nestedManifestPath)) {
+        manifestSlugs.add(childEntry.name);
+      }
+    }
+  }
+
+  return Array.from(manifestSlugs);
 }
 
 export function getProjectAssetRoot() {

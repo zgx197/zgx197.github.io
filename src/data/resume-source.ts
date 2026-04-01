@@ -536,7 +536,7 @@ export const resumeSource: ResumeSourceDocument = {
       "relatedProjects": [
         "framesync-skill-runtime",
         "framesync-skill-editor",
-        "sceneblueprint",
+        "sceneblueprint-work",
         "stage-designer"
       ]
     }
@@ -2181,17 +2181,173 @@ export const resumeSource: ResumeSourceDocument = {
       ]
     },
     {
+      "slug": "sideline",
+      "dedupeKey": "sideline",
+      "title": "Sideline 双模式挂机刷宝独立游戏原型",
+      "track": "open_source",
+      "cardMeta": [
+        "GitHub 开源",
+        "独立开发",
+        "Godot 4 / C#",
+        "技术验证阶段"
+      ],
+      "cardTags": [
+        "Godot 4",
+        "C#",
+        "独立游戏",
+        "双模式窗口",
+        "Facet",
+        "Lattice"
+      ],
+      "heroEyebrow": "Open Source / Game Prototype",
+      "content": {
+        "summary": [
+          {
+            "id": "project-sideline-summary-1",
+            "dedupeKey": "sideline是一个把挂机小窗与地下城战斗拼在同一客户端中的2d俯视角独立游戏原型",
+            "text": "Sideline 是一个把挂机小窗与地下城战斗拼在同一客户端中的 2D 俯视角独立游戏原型。"
+          }
+        ],
+        "refined": [
+          {
+            "id": "project-sideline-refined-1",
+            "dedupeKey": "项目用真实可玩的游戏载体验证双模式窗口客户端页面运行时与确定性底座的组合",
+            "text": "项目用真实可玩的游戏载体，持续验证双模式窗口、客户端页面运行时与确定性底座的组合。"
+          },
+          {
+            "id": "project-sideline-refined-2",
+            "dedupeKey": "当前处于techvalidation阶段窗口切换facet主链路和部分调试能力已接入",
+            "text": "当前处于 Tech Validation 阶段，窗口切换、Facet 主链路和部分调试能力已接入，核心 ECS 仍在持续收口。"
+          }
+        ],
+        "original": [
+          {
+            "id": "project-sideline-original-1",
+            "dedupeKey": "一款把摸鱼挂机与地下城刷宝拼在同一个客户端里的2d俯视角独立游戏",
+            "text": "一款把“摸鱼挂机”与“地下城刷宝”拼在同一个客户端里的 2D 俯视角独立游戏。"
+          },
+          {
+            "id": "project-sideline-original-2",
+            "dedupeKey": "工作时挂在屏幕角落空档时切进地下城双模式窗口体验加godot4csharp客户端加自研确定性运行时底座",
+            "text": "工作时挂在屏幕角落，空档时切进地下城。双模式窗口体验 + Godot 4 C# 客户端 + 自研确定性运行时底座。"
+          }
+        ]
+      },
+      "showcase": {
+        "title": "作品展示",
+        "featuredTitle": "双模式客户端 / 玩法原型展示位",
+        "featuredDescription": "后续适合补挂机小窗、地下城大窗、Facet 调试面板和运行时验证截图。",
+        "sideBlocks": [
+          {
+            "title": "推荐素材",
+            "items": [
+              "挂机模式小窗截图",
+              "地下城模式战斗截图",
+              "Facet 诊断面板截图"
+            ]
+          }
+        ],
+        "gallery": [],
+        "note": "当前先保留展示骨架，后续补图即可直接在页面显示。"
+      },
+      "storySections": [
+        {
+          "kind": "metrics",
+          "title": "项目状态",
+          "items": [
+            {
+              "value": "2",
+              "label": "窗口模式"
+            },
+            {
+              "value": "Godot 4.6.1 Mono",
+              "label": "客户端基础"
+            },
+            {
+              "value": ".NET 8",
+              "label": "目标框架"
+            },
+            {
+              "value": "Tech Validation",
+              "label": "当前阶段"
+            }
+          ]
+        },
+        {
+          "kind": "story",
+          "title": "项目概览",
+          "paragraphs": [
+            "Sideline 把真实游戏原型、客户端页面运行时和确定性底座放在同一个代码库里持续演进，不是单纯的游戏壳或孤立的技术实验仓库。",
+            "项目重点不是做一个普通窗口，而是在同一客户端内统一承载挂机资源积累与地下城主动战斗，让体验表达和工程底座一起向前收口。"
+          ]
+        },
+        {
+          "kind": "capabilities",
+          "title": "核心能力",
+          "items": [
+            {
+              "title": "双模式窗口体验",
+              "detail": "挂机模式使用 400 x 300 无边框置顶小窗，地下城模式使用 1280 x 720 常规窗口，在同一进程内完成模式切换。"
+            },
+            {
+              "title": "Facet 页面运行时",
+              "detail": "用 Facet 组织页面注册、Binding、Lua 控制器、运行时日志、红点和诊断快照。"
+            },
+            {
+              "title": "Lattice 确定性底座",
+              "detail": "围绕定点数、会话运行时、系统调度与历史帧持续收口，为未来回放、长时模拟和联机能力预留基础。"
+            }
+          ]
+        },
+        {
+          "kind": "links",
+          "title": "相关链接",
+          "items": [
+            {
+              "label": "返回项目列表",
+              "href": "/about"
+            },
+            {
+              "label": "返回简历",
+              "href": "/resume"
+            },
+            {
+              "label": "GitHub 仓库",
+              "href": "https://github.com/zgx197/Sideline",
+              "external": true
+            },
+            {
+              "label": "项目网站",
+              "href": "https://zgx197.github.io/Sideline/",
+              "external": true
+            }
+          ]
+        },
+        {
+          "kind": "stack",
+          "title": "技术标签",
+          "items": [
+            "Godot 4",
+            "C#",
+            "独立游戏",
+            "双模式窗口",
+            "Facet",
+            "Lattice",
+            "确定性运行时"
+          ]
+        }
+      ]
+    },
+    {
       "slug": "sceneblueprint",
       "dedupeKey": "scene-blueprint",
-      "title": "SceneBlueprint 场景蓝图框架",
+      "title": "SceneBlueprint 2.0 开源场景蓝图框架",
       "track": "open_source",
       "cardMeta": [
         "开源框架",
         "独立开发",
         "Unity Package",
-        "北京畅聊天下科技有限公司",
-        "Unity开发工程师",
-        "2025.07-至今"
+        "2.0 版本"
       ],
       "cardTags": [
         "Unity",
@@ -2202,25 +2358,25 @@ export const resumeSource: ResumeSourceDocument = {
         "架构设计",
         "场景语义绑定"
       ],
-      "heroEyebrow": "Open Source / Tooling Framework",
+      "heroEyebrow": "Open Source / SceneBlueprint 2.0",
       "content": {
         "summary": [
           {
             "id": "project-sceneblueprint-summary-1",
             "dedupeKey": "面向unity的场景级蓝图编辑框架以dsl节点图编辑导出契约和运行时解释执行构建完整工具链",
-            "text": "面向 Unity 的场景级蓝图编辑框架，以 DSL、节点图编辑、导出契约和运行时解释执行构建完整工具链。"
+            "text": "面向 Unity 的场景级蓝图框架，以 `.sbdef` DSL、编辑器制作链路、导出契约和运行时解释执行构建从制作到执行的完整工具链。"
           }
         ],
         "refined": [
           {
             "id": "project-sceneblueprint-refined-1",
             "dedupeKey": "设计dsl与代码生成体系统一actionmarker等定义来源降低手写注册问题",
-            "text": "设计DSL与代码生成体系，统一Action、Marker等定义来源，降低手写注册问题"
+            "text": "将蓝图系统正式拆为编辑器制作子系统与运行时解释执行子系统，并以稳定导出契约连接两侧"
           },
           {
             "id": "project-sceneblueprint-refined-2",
             "dedupeKey": "将编辑器拆分为windowsessionservices结构统一图编辑分析预览等功能",
-            "text": "将编辑器拆分为Window+Session+Services结构，统一图编辑、分析、预览等功能"
+            "text": "以 `.sbdef` 作为单一事实来源，经 Importer 与 CLI 统一 Action、Marker、Signal 等定义生成"
           },
           {
             "id": "project-sceneblueprint-refined-3",
@@ -2230,7 +2386,7 @@ export const resumeSource: ResumeSourceDocument = {
           {
             "id": "project-sceneblueprint-refined-4",
             "dedupeKey": "设计loaderrunnersystems的解释执行结构实现分层的蓝图基础语义执行框架",
-            "text": "设计Loader+Runner+Systems的解释执行结构，实现分层的蓝图基础语义执行框架"
+            "text": "构建 Loader + Runner + Systems 解释执行框架，并补充快照、调试与知识辅助能力"
           }
         ],
         "original": [
@@ -2485,6 +2641,306 @@ export const resumeSource: ResumeSourceDocument = {
       ]
     },
     {
+      "slug": "jieyu-text-to-knowledge",
+      "dedupeKey": "jieyu-text-to-knowledge",
+      "title": "解语（Text to Knowledge）知识增强文本理解项目",
+      "track": "open_source",
+      "cardMeta": [
+        "开源项目",
+        "百度知识图谱方向",
+        "TermTree / 知识标注",
+        "参与建设"
+      ],
+      "cardTags": [
+        "NLP",
+        "知识图谱",
+        "TermTree",
+
+        "知识增强",
+        "模型训练",
+        "PaddleNLP"
+      ],
+      "heroEyebrow": "Open Source / Text to Knowledge",
+      "content": {
+        "summary": [
+          {
+            "id": "project-jieyu-text-to-knowledge-summary-1",
+            "dedupeKey": "参与百度知识图谱方向对外开源能力建设工作集中在termtree知识库体系建设以及短文本知识标注方向的模型调研与训练",
+            "text": "解语是面向中文文本理解的知识增强项目，由 TermTree、中文知识标注工具集和知识挖掘方案组成；我主要参与 TermTree 体系建设与短文本知识标注模型调研训练。"
+          }
+        ],
+        "refined": [
+          {
+            "id": "project-jieyu-text-to-knowledge-refined-1",
+            "dedupeKey": "围绕termtree知识库体系与短文本知识标注能力参与知识增强文本理解项目建设",
+            "text": "项目由 TermTree、知识标注工具集和知识挖掘方案构成，我的工作重点集中在 TermTree 与短文本知识标注两条主线"
+          },
+          {
+            "id": "project-jieyu-text-to-knowledge-refined-2",
+            "dedupeKey": "参与中文全词类知识组织和知识底座建设支撑文本概念实体意图与主题理解",
+            "text": "参与中文全词类知识组织和 TermTree 知识底座建设，支撑文本概念、实体、意图与主题理解"
+          },
+          {
+            "id": "project-jieyu-text-to-knowledge-refined-3",
+            "dedupeKey": "参与短文本知识标注方向的模型调研训练与评测验证形成知识增强理解能力闭环",
+            "text": "参与短文本知识标注方向的模型调研、训练与评测验证，形成知识增强理解能力闭环"
+          }
+        ],
+        "original": [
+          {
+            "id": "project-jieyu-text-to-knowledge-original-1",
+            "dedupeKey": "解语texttoknowledge是百度知识图谱方向对外开源的知识增强文本理解项目围绕中文知识体系知识标注和可扩展抽取能力组织文本到知识的关联链路",
+            "text": "解语（Text to Knowledge）是百度知识图谱方向对外开源的知识增强文本理解项目，围绕中文知识体系、知识标注和可扩展抽取能力组织文本到知识的关联链路。"
+          },
+          {
+            "id": "project-jieyu-text-to-knowledge-original-2",
+            "dedupeKey": "负责解语知识库termtree的维护与体系建设参与设计整体层次结构和知识组织方式主导构建知识数据生产流程完成高频实体常见概念和词类知识的筛选清洗映射与入库最终沉淀出百万级知识节点",
+            "text": "负责解语知识库 TermTree 的维护与体系建设，参与设计整体层次结构和知识组织方式，主导构建知识数据生产流程，完成高频实体、常见概念和词类知识的筛选、清洗、映射与入库，最终沉淀出百万级知识节点。"
+          },
+          {
+            "id": "project-jieyu-text-to-knowledge-original-3",
+            "dedupeKey": "参与底层知识表示与知识组织方案设计推动知识库从词表堆积演进为具备层次关系类别约束和可计算性的知识体系",
+            "text": "参与底层知识表示与知识组织方案设计，推动知识库从“词表堆积”演进为具备层次关系、类别约束和可计算性的知识体系。"
+          },
+          {
+            "id": "project-jieyu-text-to-knowledge-original-4",
+            "dedupeKey": "参与短文本多任务模型结构设计基于promptlearning同时完成主题分类意图分类和词类序列标注并利用类别与词类之间的相关性关系增强概念与实体识别效果",
+            "text": "参与短文本多任务模型结构设计，基于 prompt-learning 同时完成主题分类、意图分类和词类序列标注，并利用类别与词类之间的相关性关系增强概念与实体识别效果。"
+          },
+          {
+            "id": "project-jieyu-text-to-knowledge-original-5",
+            "dedupeKey": "负责从0到1构建底层模型训练集与测试集基于搜索日志和多个垂类业务样本建立百万级训练语料并按单片段多片段等意图结构分别设计样本生产与优化策略",
+            "text": "负责从 0 到 1 构建底层模型训练集与测试集，基于搜索日志和多个垂类业务样本建立百万级训练语料，并按单片段、多片段等意图结构分别设计样本生产与优化策略。"
+          },
+          {
+            "id": "project-jieyu-text-to-knowledge-original-6",
+            "dedupeKey": "主导测试集设计与质量控制从通用文本特殊垂类重点业务需求和典型恶劣case四个维度构建评测集并通过多测试集联合评估约束模型升级质量",
+            "text": "主导测试集设计与质量控制，从通用文本、特殊垂类、重点业务需求和典型恶劣 case 四个维度构建评测集，并通过多测试集联合评估约束模型升级质量。"
+          }
+        ]
+      },
+      "showcase": {
+        "title": "作品展示",
+        "featuredTitle": "解语 / Text to Knowledge 展示位",
+        "featuredDescription": "这里适合放框架结构图、TermTree 层次示意图，或短文本知识标注效果截图。",
+        "sideBlocks": [
+          {
+            "title": "推荐素材",
+            "items": [
+              "TermTree 层次结构示意图",
+              "短文本知识标注效果截图",
+              "文本到知识关联流程图"
+            ]
+          },
+          {
+            "title": "展示重点",
+            "description": "重点不是单点模型效果，而是知识库体系、知识标注和知识挖掘能力如何协同形成知识增强文本理解。"
+          }
+        ],
+        "gallery": [
+          {
+            "title": "TermTree 知识底座",
+            "description": "中文全词类知识组织、层次结构与数据生产流程"
+          },
+          {
+            "title": "短文本知识标注",
+            "description": "主题、意图、词类标注与评测验证"
+          },
+          {
+            "title": "文本到知识",
+            "description": "知识增强解析、关联与可扩展抽取链路"
+          }
+        ],
+        "note": "当前展示区已经补入基于 README 手工绘制的结构图，后续也可以继续替换成真实截图或模型效果图。"
+      },
+      "storySections": [
+        {
+          "kind": "story",
+          "title": "项目定位",
+          "paragraphs": [
+            "解语（Text to Knowledge）是 PaddleNLP 中面向中文文本理解的知识增强项目。README 对它的定义不是单点模型，而是“中文全词类知识库 + 知识标注工具集 + 知识挖掘方案”的组合能力。",
+            "对我而言，这个项目最核心的贡献落在两条线上：一条是 TermTree 中文知识库体系建设，一条是短文本知识标注方向的模型调研、训练与评测验证。"
+          ]
+        },
+        {
+          "kind": "capabilities",
+          "title": "README 能力结构",
+          "items": [
+            {
+              "title": "TermTree 百科知识树",
+              "detail": "作为中文知识底座，承接 TermType 词类体系、term 层次组织以及 term-linking 所需的知识入口。开源试用版 README 中给出的规模包括 160+ termtype、7000+ subtype 和约 100 万 term。"
+            },
+            {
+              "title": "中文知识标注工具集",
+              "detail": "README 中包含词类知识标注、名词短语标注与中文预训练模型等能力，用于把中文句子从字符串切分推进到词类、概念与实体层面的可计算表示。我的工作重心更偏短文本知识标注方向，而不是覆盖全部工具实现。"
+            },
+            {
+              "title": "中文知识挖掘方案",
+              "detail": "在知识标注结果之上继续衔接模板生成、知识抽取和结构化映射，形成从文本到知识的扩展链路。"
+            }
+          ]
+        },
+        {
+          "kind": "capabilities",
+          "title": "README 应用场景",
+          "items": [
+            {
+              "title": "模板生成与匹配",
+              "detail": "利用词类序列和概念扩展生成更稳定的文本挖掘模板，降低规则配置成本，并提升复杂 query / 文本解析的可维护性。"
+            },
+            {
+              "title": "知识增强模型输入",
+              "detail": "把词类与知识特征作为额外输入叠加到文本 token 或序列结构中，用于提升文本分类、意图理解和序列标注类模型效果。"
+            },
+            {
+              "title": "Term-Linking",
+              "detail": "通过词类先验和 TermTree 词汇体系提供更通用的文本到图谱知识关联入口，先做词类级 linking，再按应用图谱继续做实体消歧。"
+            },
+            {
+              "title": "样本优化",
+              "detail": "结合词类关系和知识体系筛选高置信样本、过滤噪音样本、平衡低频 term 样本分布，从而提升训练集质量和模型泛化。"
+            }
+          ]
+        },
+        {
+          "kind": "capabilities",
+          "title": "我的贡献",
+          "items": [
+            {
+              "title": "TermTree 知识库体系建设",
+              "detail": "参与 TermTree 整体层次结构和知识组织方式设计，主导知识数据生产流程，完成高频实体、常见概念和词类知识的筛选、清洗、映射与入库，支撑百万级知识节点沉淀。"
+            },
+            {
+              "title": "短文本知识标注模型调研与训练",
+              "detail": "参与短文本多任务模型结构设计与训练，围绕主题分类、意图分类和词类序列标注探索知识增强文本解析路径，并利用类别与词类相关性提升概念与实体识别效果。"
+            },
+            {
+              "title": "训练数据与评测体系",
+              "detail": "从 0 到 1 构建训练集与测试集，设计样本生产、标签映射、评测集组织与多测试集联合评估流程，让模型升级更稳定、可控。"
+            }
+          ]
+        },
+        {
+          "kind": "capabilities",
+          "title": "能力结构",
+          "items": [
+            {
+              "title": "TermTree",
+              "detail": "作为中文知识底座，承接概念、实体和词类的层次组织，并区分 cb / eb 等不同知识来源，为下游检索、分类、序列标注和知识关联提供先验输入。"
+            },
+            {
+              "title": "短文本知识标注",
+              "detail": "围绕短文本主题、意图和词类标注组织知识增强解析能力，让文本不再只停留在字符串切分层面。"
+            },
+            {
+              "title": "可扩展抽取链路",
+              "detail": "在知识标注结果之上，可继续衔接 schema 化抽取与文本到知识的映射流程，形成从文本理解到结构化知识产出的能力延展。"
+            }
+          ]
+        },
+        {
+          "kind": "archive",
+          "title": "项目档案",
+          "description": "按统一栏目保留项目背景、个人贡献与开源链接。",
+          "sections": [
+            {
+              "title": "项目介绍",
+              "paragraphs": [
+                "解语（Text to Knowledge）是 PaddleNLP 中对外开源的知识增强文本理解项目，围绕中文知识体系、知识标注和可扩展抽取能力组织文本到知识的关联链路。",
+                "README 将项目拆成三部分：TermTree 百科知识树、中文知识标注工具集、中文知识挖掘方案。整体目标是让中文文本理解不只依赖统计模型，而是把词类、概念、实体和知识体系一起纳入计算。",
+                "我参与的核心部分主要是 TermTree 知识库体系建设，以及短文本知识标注方向的模型调研与训练，而不是独立负责整个开源项目。"
+              ]
+            },
+            {
+              "title": "主要工作",
+              "groups": [
+                {
+                  "title": "README 结构",
+                  "items": [
+                    "TermTree：提供中文全词类知识底座。开源试用版 README 给出的规模包括 160+ termtype、7000+ subtype 和约 100 万 term。",
+                    "知识标注工具集：提供面向中文文本理解的知识标注能力，可继续衔接模板生成、term-linking 和下游模型特征增强。",
+                    "知识挖掘方案：在知识标注结果之上继续形成结构化抽取与文本到知识的映射链路。"
+                  ]
+                },
+                {
+                  "title": "TermTree",
+                  "items": [
+                    "参与设计 TermTree 层次结构与知识组织方式，推动知识库从词表堆积演进为具备层次关系、类别约束和可计算性的知识体系。",
+                    "主导知识数据生产流程，完成高频实体、常见概念和词类知识的筛选、清洗、映射与入库，支撑百万级知识节点沉淀。",
+                    "围绕概念词与实体词区分、词类层次组织与知识接入方式建设底座，使 TermTree 能作为 term-linking 与知识增强特征生成的统一入口。"
+                  ]
+                },
+                {
+                  "title": "模型训练",
+                  "items": [
+                    "参与短文本多任务模型结构设计，围绕主题分类、意图分类和词类序列标注开展模型调研与训练。",
+                    "从 0 到 1 构建训练集与测试集，设计样本生产与多测试集评测流程，提升模型迭代稳定性与可解释性。"
+                  ]
+                },
+                {
+                  "title": "README 应用场景",
+                  "items": [
+                    "模板生成与匹配：利用知识标注结果生成更稳定的文本解析模板，降低人工配置成本。",
+                    "知识增强模型：把词类与知识特征叠加到模型输入中，提升文本分类、意图理解和序列标注任务效果。",
+                    "Term-Linking：通过词类先验和 TermTree 体系建立更通用的文本到知识关联入口。"
+                  ]
+                },
+                {
+                  "title": "项目关联",
+                  "items": [
+                    "该开源能力与我的内部项目“短文本知识标注系统”同属知识增强文本理解方向；对外更强调项目化能力沉淀，对内更强调业务落地与工程链路。"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "links",
+          "title": "相关链接",
+          "items": [
+            {
+              "label": "返回项目列表",
+              "href": "/about"
+            },
+            {
+              "label": "返回简历",
+              "href": "/resume"
+            },
+            {
+              "label": "GitHub 项目目录",
+              "href": "https://github.com/PaddlePaddle/PaddleNLP/tree/develop/slm/examples/text_to_knowledge",
+              "external": true
+            },
+            {
+              "label": "GitHub TermTree 子目录",
+              "href": "https://github.com/PaddlePaddle/PaddleNLP/tree/develop/slm/examples/text_to_knowledge/termtree",
+              "external": true
+            },
+            {
+              "label": "官方介绍页",
+              "href": "https://www.paddlepaddle.org.cn/textToKnowledge",
+              "external": true
+            }
+          ]
+        },
+        {
+          "kind": "stack",
+          "title": "技术栈",
+          "items": [
+            "Python",
+            "PaddlePaddle",
+            "PaddleNLP",
+            "NLP",
+            "知识图谱",
+            "TermTree",
+    
+            "模型训练",
+            "数据工程"
+          ]
+        }
+      ]
+    },    {
       "slug": "baike-knowledge-base",
       "dedupeKey": "baike-knowledge-base",
       "title": "百度百科词条与知识库关联项目",
@@ -2782,6 +3238,174 @@ export const resumeSource: ResumeSourceDocument = {
             "自然语言处理",
             "Airflow",
             "数据同步"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "sceneblueprint-work",
+      "dedupeKey": "sceneblueprint-work",
+      "title": "SceneBlueprint 场景蓝图系统",
+      "track": "featured",
+      "cardMeta": [
+        "北京畅聊天下科技有限公司",
+        "Unity开发工程师",
+        "2025.07-至今"
+      ],
+      "cardTags": [
+        "Unity",
+        "Editor Tooling",
+        "蓝图框架",
+        "DSL",
+        "Runtime Interpreter",
+        "场景语义绑定"
+      ],
+      "heroEyebrow": "Featured Project / Editor Platform",
+      "content": {
+        "summary": [
+          {
+            "id": "project-sceneblueprint-work-summary-1",
+            "dedupeKey": "主导公司内sceneblueprint场景蓝图系统建设打通蓝图定义可视化编辑场景语义绑定导出契约与运行时执行链路",
+            "text": "主导公司内 SceneBlueprint 场景蓝图系统建设，打通蓝图定义、可视化编辑、场景语义绑定、导出契约与运行时执行链路。"
+          }
+        ],
+        "refined": [
+          {
+            "id": "project-sceneblueprint-work-refined-1",
+            "dedupeKey": "围绕蓝图定义编辑工作台场景绑定导出契约运行时执行和调试回放建立完整系统边界",
+            "text": "围绕蓝图定义、编辑工作台、场景绑定、导出契约、运行时执行和调试回放建立完整系统边界。"
+          },
+          {
+            "id": "project-sceneblueprint-work-refined-2",
+            "dedupeKey": "设计dsl与代码生成体系统一actionmarkerannotation与signal等定义来源",
+            "text": "设计 DSL 与代码生成体系，统一 Action、Marker、Annotation 与 Signal 等定义来源。"
+          },
+          {
+            "id": "project-sceneblueprint-work-refined-3",
+            "dedupeKey": "建立场景语义绑定和快照恢复机制提升蓝图与真实场景对象之间的接线稳定性",
+            "text": "建立场景语义绑定和快照恢复机制，提升蓝图与真实场景对象之间的接线稳定性。"
+          },
+          {
+            "id": "project-sceneblueprint-work-refined-4",
+            "dedupeKey": "设计loaderrunnersystems解释执行结构让运行时具备稳定分层的蓝图执行框架",
+            "text": "设计 Loader + Runner + Systems 解释执行结构，让运行时具备稳定分层的蓝图执行框架。"
+          }
+        ],
+        "original": [
+          {
+            "id": "project-sceneblueprint-work-original-1",
+            "dedupeKey": "sceneblueprint是一套面向unity的场景级蓝图制作导出与运行框架用于统一承接蓝图定义可视化编辑场景语义绑定导出契约和运行时解释执行流程",
+            "text": "SceneBlueprint 是一套面向 Unity 的场景级蓝图制作、导出与运行框架，用于统一承接蓝图定义、可视化编辑、场景语义绑定、导出契约和运行时解释执行流程。"
+          },
+          {
+            "id": "project-sceneblueprint-work-original-2",
+            "dedupeKey": "主导sceneblueprint整体架构设计围绕蓝图定义编辑工作台场景绑定导出契约运行时执行和调试回放建立完整系统边界使蓝图能力从分散脚本和零散工具演进为正式平台框架",
+            "text": "主导 SceneBlueprint 整体架构设计，围绕蓝图定义、编辑工作台、场景绑定、导出契约、运行时执行和调试回放建立完整系统边界，使蓝图能力从分散脚本和零散工具演进为正式平台框架。"
+          },
+          {
+            "id": "project-sceneblueprint-work-original-3",
+            "dedupeKey": "设计dsl与代码生成体系通过.sbdefimporter与生成链路统一actionmarkerannotationsignal等定义来源降低手写注册与多端不一致问题",
+            "text": "设计 DSL 与代码生成体系，通过 .sbdef、Importer 与生成链路统一 Action、Marker、Annotation、Signal 等定义来源，降低手写注册与多端不一致问题。"
+          },
+          {
+            "id": "project-sceneblueprint-work-original-4",
+            "dedupeKey": "将编辑器拆分为windowsessionservices工作台结构统一承接图编辑分析预览导出子图inspector和工作台状态管理避免主窗口持续膨胀",
+            "text": "将编辑器拆分为 Window + Session + Services 工作台结构，统一承接图编辑、分析、预览、导出、子图、Inspector 和工作台状态管理，避免主窗口持续膨胀。"
+          },
+          {
+            "id": "project-sceneblueprint-work-original-5",
+            "dedupeKey": "建立markerannotationspatial等场景语义绑定机制并补充绑定收集绑定恢复和场景快照恢复能力提升蓝图与真实场景对象之间的接线稳定性",
+            "text": "建立 Marker、Annotation、Spatial 等场景语义绑定机制，并补充绑定收集、绑定恢复和场景快照恢复能力，提升蓝图与真实场景对象之间的接线稳定性。"
+          },
+          {
+            "id": "project-sceneblueprint-work-original-6",
+            "dedupeKey": "将编辑器图结构统一导出为稳定契约并设计loaderrunnersystems的解释执行结构承接控制流信号黑板和组合条件等蓝图基础语义使运行时具备分层的解释执行框架",
+            "text": "将编辑器图结构统一导出为稳定契约，并设计 Loader + Runner + Systems 的解释执行结构，承接控制流、信号、黑板和组合条件等蓝图基础语义，使运行时具备分层的解释执行框架。"
+          }
+        ]
+      },
+      "showcase": {
+        "title": "作品展示",
+        "featuredTitle": "SceneBlueprint 公司内项目展示位",
+        "featuredDescription": "当前先保留公司内项目版的结构化说明，后续可补场景蓝图工作台截图、运行时调试视图和导出契约示意。",
+        "sideBlocks": [
+          {
+            "title": "推荐补充",
+            "items": [
+              "蓝图编辑工作台截图",
+              "场景绑定与调试回放录屏",
+              "导出契约与运行时链路图"
+            ]
+          }
+        ],
+        "gallery": [
+          {
+            "title": "编辑工作台",
+            "description": "蓝图定义、图编辑、分析与预览一体化工作台。"
+          },
+          {
+            "title": "场景绑定",
+            "description": "场景语义绑定、快照恢复与对象接线稳定性治理。"
+          },
+          {
+            "title": "运行时执行",
+            "description": "导出契约、加载执行、调试回放与状态观察。"
+          }
+        ],
+        "note": "该条目对应公司内项目版本，用于展示实际业务场景中的编辑器平台与运行时系统建设。"
+      },
+      "storySections": [
+        {
+          "kind": "story",
+          "title": "项目定位",
+          "paragraphs": [
+            "SceneBlueprint 公司内项目版定位为场景级蓝图系统，用于统一承接蓝图制作、导出契约、运行时解释执行和调试回放链路，是内容生产工具链中的核心基础设施。"
+          ]
+        },
+        {
+          "kind": "bullets",
+          "title": "核心工作",
+          "items": [
+            "围绕蓝图定义、编辑工作台、场景绑定、导出契约、运行时执行和调试回放建立完整系统边界。",
+            "设计 DSL 与代码生成体系，统一 Action、Marker、Annotation、Signal 等定义来源。",
+            "将编辑器拆分为 Window + Session + Services 工作台结构，稳定承接图编辑、分析、预览与导出流程。",
+            "建立场景语义绑定、绑定恢复与场景快照恢复机制，提升蓝图与真实场景对象之间的接线稳定性。",
+            "设计 Loader + Runner + Systems 解释执行结构，承接控制流、信号、黑板和组合条件等蓝图基础语义。"
+          ]
+        },
+        {
+          "kind": "stack",
+          "title": "技术标签",
+          "items": [
+            "Unity",
+            "Editor Tooling",
+            "DSL",
+            "Runtime Interpreter",
+            "场景语义绑定",
+            "蓝图框架"
+          ]
+        },
+        {
+          "kind": "archive",
+          "title": "项目档案",
+          "description": "公司内项目版的结构化归档，用于保留业务侧实现上下文。",
+          "sections": [
+            {
+              "title": "项目介绍",
+              "paragraphs": [
+                "SceneBlueprint 是一套面向 Unity 的场景级蓝图制作、导出与运行框架，用于统一承接蓝图定义、可视化编辑、场景语义绑定、导出契约和运行时解释执行流程。"
+              ]
+            },
+            {
+              "title": "主要工作",
+              "paragraphs": [
+                "主导 SceneBlueprint 整体架构设计，围绕蓝图定义、编辑工作台、场景绑定、导出契约、运行时执行和调试回放建立完整系统边界，使蓝图能力从分散脚本和零散工具演进为正式平台框架。",
+                "设计 DSL 与代码生成体系，通过 .sbdef、Importer 与生成链路统一 Action、Marker、Annotation、Signal 等定义来源，降低手写注册与多端不一致问题。",
+                "将编辑器拆分为 Window + Session + Services 工作台结构，统一承接图编辑、分析、预览、导出、子图、Inspector 和工作台状态管理，避免主窗口持续膨胀。",
+                "建立 Marker、Annotation、Spatial 等场景语义绑定机制，并补充绑定收集、绑定恢复和场景快照恢复能力，提升蓝图与真实场景对象之间的接线稳定性。",
+                "将编辑器图结构统一导出为稳定契约，并设计 Loader + Runner + Systems 的解释执行结构，承接控制流、信号、黑板和组合条件等蓝图基础语义，使运行时具备分层的解释执行框架。"
+              ]
+            }
           ]
         }
       ]
@@ -3288,6 +3912,17 @@ export const resumeSource: ResumeSourceDocument = {
     }
   ]
 };
+
+
+
+
+
+
+
+
+
+
+
 
 
 

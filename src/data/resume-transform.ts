@@ -1,3 +1,4 @@
+import { honorExtras } from "./honor-extras";
 import { resolveProjectMedia } from "./project-assets";
 import { resumeOverrides, type ResumeSourceOverrides } from "./resume-overrides";
 import { RESUME_SCHEMA_VERSION, type DetailLayerContent, type ProjectDetail, type ProjectSection, type ProjectSummary, type ResumeSchema } from "./resume-schema";
@@ -6,6 +7,92 @@ import { assertValidResumeSource } from "./resume-validation";
 
 function uniq(items: string[]) {
   return Array.from(new Set(items.filter(Boolean)));
+}
+
+function parseExperiencePeriodValue(value: string) {
+  const normalized = String(value ?? "").trim();
+  if (normalized.includes("至今")) {
+    return Number.POSITIVE_INFINITY;
+  }
+
+  const match = normalized.match(/(\d{4})[./](\d{1,2})/);
+  if (!match) {
+    return Number.NEGATIVE_INFINITY;
+  }
+
+  return Number(match[1]) * 100 + Number(match[2]);
+}
+
+function sortExperiencesByPeriodDesc(experiences: ResumeSourceDocument["experiences"]) {
+  return [...experiences].sort((left, right) => {
+    const rightValue = parseExperiencePeriodValue(right.period);
+    const leftValue = parseExperiencePeriodValue(left.period);
+    if (rightValue !== leftValue) {
+      return rightValue - leftValue;
+    }
+
+    return right.period.localeCompare(left.period, "zh-CN");
+  });
+}
+
+function parseProjectPeriodValue(project: ResumeSourceDocument["projects"][number]) {
+  const period = project.cardMeta.find((item) => /(\d{4})[./](\d{1,2})/.test(item));
+  if (!period) {
+    return Number.NEGATIVE_INFINITY;
+  }
+
+  return parseExperiencePeriodValue(period);
+}
+
+function buildProjectExperienceOrderMap(experiences: ResumeSourceDocument["experiences"]) {
+  const projectOrder = new Map<string, number>();
+
+  experiences.forEach((experience, experienceIndex) => {
+    experience.relatedProjects?.forEach((slug, projectIndex) => {
+      if (!projectOrder.has(slug)) {
+        projectOrder.set(slug, experienceIndex * 100 + projectIndex);
+      }
+    });
+  });
+
+  return projectOrder;
+}
+
+function sortProjectsByExperienceOrder(
+  projects: ResumeSourceDocument["projects"],
+  orderedExperiences: ResumeSourceDocument["experiences"],
+) {
+  const sourceOrder = new Map(projects.map((project, index) => [project.slug, index]));
+  const projectExperienceOrder = buildProjectExperienceOrderMap(orderedExperiences);
+  const featuredProjects = projects.filter((project) => project.track === "featured");
+  const nonFeaturedProjects = projects.filter((project) => project.track !== "featured");
+
+  featuredProjects.sort((left, right) => {
+    const leftOrder = projectExperienceOrder.get(left.slug);
+    const rightOrder = projectExperienceOrder.get(right.slug);
+
+    if (leftOrder !== undefined || rightOrder !== undefined) {
+      if (leftOrder === undefined) {
+        return 1;
+      }
+      if (rightOrder === undefined) {
+        return -1;
+      }
+      if (leftOrder !== rightOrder) {
+        return leftOrder - rightOrder;
+      }
+    }
+
+    const rightPeriodValue = parseProjectPeriodValue(right);
+    const leftPeriodValue = parseProjectPeriodValue(left);
+    if (rightPeriodValue !== leftPeriodValue) {
+      return rightPeriodValue - leftPeriodValue;
+    }
+
+    return (sourceOrder.get(left.slug) ?? 0) - (sourceOrder.get(right.slug) ?? 0);
+  });
+
+  return [...featuredProjects, ...nonFeaturedProjects];
 }
 
 function mergeTextEntries(base: ResumeSourceTextEntry[] | undefined, override: ResumeSourceTextEntry[] | undefined) {
@@ -74,7 +161,7 @@ function buildDetailLayerContent(content?: ResumeSourceLayeredText): DetailLayer
   }
 
   return {
-    refinedTitle: refined.length > 0 ? "整理后的详细说明" : undefined,
+    refinedTitle: refined.length > 0 ? "详细补充" : undefined,
     refined,
     originalTitle: original.length > 0 ? "简历原文" : undefined,
     original,
@@ -111,8 +198,12 @@ function mergeExperiences(source: ResumeSourceDocument["experiences"], overrides
     return {
       ...experience,
       ...experienceOverride,
-      content: mergeLayeredText(experience.content, experienceOverride.content),
-      highlights: mergeTextEntries(experience.highlights, experienceOverride.highlights),
+      content: experienceOverride.replaceContent
+        ? mergeLayeredText(undefined, experienceOverride.content)
+        : mergeLayeredText(experience.content, experienceOverride.content),
+      highlights: experienceOverride.replaceHighlights
+        ? mergeTextEntries(undefined, experienceOverride.highlights)
+        : mergeTextEntries(experience.highlights, experienceOverride.highlights),
     };
   });
 }
@@ -131,7 +222,9 @@ function mergeProjects(source: ResumeSourceDocument["projects"], overrides: Resu
     return {
       ...project,
       ...projectOverride,
-      content: mergeLayeredText(project.content, projectOverride.content),
+      content: projectOverride.replaceContent
+        ? mergeLayeredText(undefined, projectOverride.content)
+        : mergeLayeredText(project.content, projectOverride.content),
       showcase: {
         ...project.showcase,
         ...(projectOverride.showcase ?? {}),
@@ -309,6 +402,9 @@ export function buildResumeSchema(source: ResumeSourceDocument): ResumeSchema {
     console.warn(`[resume-validation] warnings: ${report.warnings.length}`);
   }
 
+  const orderedExperiences = sortExperiencesByPeriodDesc(source.experiences);
+  const orderedProjects = sortProjectsByExperienceOrder(source.projects, orderedExperiences);
+
   return {
     schemaVersion: RESUME_SCHEMA_VERSION,
     profile: {
@@ -323,7 +419,7 @@ export function buildResumeSchema(source: ResumeSourceDocument): ResumeSchema {
       summaryPoints: source.profile.summaryPoints,
       focusAreas: source.profile.focusAreas,
       profileFacts: source.profile.facts,
-      experiences: source.experiences.map((experience) => ({
+      experiences: orderedExperiences.map((experience) => ({
         id: experience.id,
         company: experience.company,
         role: experience.role,
@@ -336,9 +432,10 @@ export function buildResumeSchema(source: ResumeSourceDocument): ResumeSchema {
       })),
       skillGroups: source.skills,
       honors: source.honors.map((honor) => resolveLeadText(honor.content)).filter(Boolean),
+      honorExtras,
       education: source.education,
     },
-    projects: source.projects.map((project) => mapProject(project)),
+    projects: orderedProjects.map((project) => mapProject(project)),
   };
 }
 
@@ -365,3 +462,5 @@ export function getProjectBySlug(slug: string) {
 export function getProjectHref(slug: string) {
   return `/projects/${slug}`;
 }
+
+

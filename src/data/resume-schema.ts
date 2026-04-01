@@ -161,6 +161,28 @@ export type Education = {
   details: string[];
 };
 
+export type HonorImageAsset = {
+  title: string;
+  src: string;
+  alt?: string;
+  description?: string;
+};
+
+export type HonorReference = {
+  label: string;
+  value: string;
+  href?: string;
+  external?: boolean;
+};
+
+export type HonorExtraItem = {
+  slug: string;
+  title: string;
+  summary?: string;
+  images: HonorImageAsset[];
+  references: HonorReference[];
+};
+
 export type ResumeSchema = {
   schemaVersion: ResumeSchemaVersion;
   profile: {
@@ -178,6 +200,7 @@ export type ResumeSchema = {
     experiences: ExperienceItem[];
     skillGroups: SkillGroup[];
     honors: string[];
+    honorExtras: HonorExtraItem[];
     education: Education;
   };
   projects: ProjectDetail[];
