@@ -1,0 +1,130 @@
+{
+  "gallery": [
+    {
+      "kind": "image",
+      "src": "images/01-入口截图.png",
+      "alt": "场景设计入口",
+      "title": "场景设计入口",
+      "description": "展示 StageDesigner / SnapGridFlow 的主入口界面。"
+    },
+    {
+      "kind": "image",
+      "src": "images/02-Cell编辑.png",
+      "alt": "Cell 编辑视图",
+      "title": "Cell 编辑视图",
+      "description": "展示关卡单元格编辑与局部布局操作。"
+    },
+    {
+      "kind": "image",
+      "src": "images/03-预设模块编辑.png",
+      "alt": "预设模块编辑",
+      "title": "预设模块编辑",
+      "description": "展示预设模块的编辑与结构组织。"
+    },
+    {
+      "kind": "image",
+      "src": "images/04-预设模块导入.png",
+      "alt": "预设模块导入",
+      "title": "预设模块导入",
+      "description": "展示模块资源导入与接入流程。"
+    },
+    {
+      "kind": "image",
+      "src": "images/05-功能展示1.png",
+      "alt": "功能联动演示一",
+      "title": "功能联动演示一",
+      "description": "展示场景设计工具中的功能联动效果。"
+    },
+    {
+      "kind": "image",
+      "src": "images/06-功能展示2.png",
+      "alt": "功能联动演示二",
+      "title": "功能联动演示二",
+      "description": "展示场景设计工具中的功能联动效果。"
+    },
+    {
+      "kind": "image",
+      "src": "images/07-功能展示3.png",
+      "alt": "功能联动演示三",
+      "title": "功能联动演示三",
+      "description": "展示场景设计工具中的功能联动效果。"
+    },
+    {
+      "kind": "image",
+      "src": "images/08-功能展示4.png",
+      "alt": "功能联动演示四",
+      "title": "功能联动演示四",
+      "description": "展示场景设计工具中的功能联动效果。"
+    },
+    {
+      "kind": "image",
+      "src": "images/09-寻路烘焙预览.png",
+      "alt": "寻路烘焙预览",
+      "title": "寻路烘焙预览",
+      "description": "展示寻路烘焙结果与导航区域预览。"
+    },
+    {
+      "kind": "image",
+      "src": "images/10-同步和导出管道.png",
+      "alt": "同步导出管道",
+      "title": "同步导出管道",
+      "description": "展示内容同步、导出与下游消费流程。"
+    },
+    {
+      "kind": "image",
+      "src": "images/11-git快捷操作.png",
+      "alt": "Git 操作面板",
+      "title": "Git 操作面板",
+      "description": "展示项目内常用 Git 操作集成入口。"
+    },
+    {
+      "kind": "image",
+      "src": "images/12-项目设置.png",
+      "alt": "项目设置面板",
+      "title": "项目设置面板",
+      "description": "展示项目级构建与流程相关配置。"
+    },
+    {
+      "kind": "image",
+      "src": "images/14-个人设置.png",
+      "alt": "个人设置面板",
+      "title": "个人设置面板",
+      "description": "展示本地偏好与个人开发配置。"
+    },
+    {
+      "kind": "image",
+      "src": "images/15-布局模块预处理.png",
+      "alt": "布局模块预处理",
+      "title": "布局模块预处理",
+      "description": "展示布局模块在生成前的预处理流程。"
+    },
+    {
+      "kind": "image",
+      "src": "images/16-布局数据生成器.png",
+      "alt": "布局数据生成器",
+      "title": "布局数据生成器",
+      "description": "展示布局数据生成与参数配置界面。"
+    },
+    {
+      "kind": "image",
+      "src": "images/17-手动布局设置窗口.png",
+      "alt": "手动布局设置",
+      "title": "手动布局设置",
+      "description": "展示手动布局调节与参数设置窗口。"
+    },
+    {
+      "kind": "image",
+      "src": "images/18-布局效果.png",
+      "alt": "布局效果预览",
+      "title": "布局效果预览",
+      "description": "展示当前布局生成后的场景效果。"
+    },
+    {
+      "kind": "image",
+      "src": "images/19-替换布局效果.png",
+      "alt": "替换布局效果",
+      "title": "替换布局效果",
+      "description": "展示替换方案后的布局效果对比。"
+    }
+  ]
+}

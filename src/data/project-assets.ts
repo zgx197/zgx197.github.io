@@ -161,12 +161,14 @@ function discoverImageAssets(location: ProjectAssetLocation) {
 function dedupeMediaAssets(assets: ProjectMediaAsset[]) {
   const merged = new Map<string, ProjectMediaAsset>();
   for (const asset of assets) {
-    merged.set(`${asset.kind}:${asset.src}`, asset);
+    const key = `${asset.kind}:${asset.src}`;
+    if (!merged.has(key)) {
+      merged.set(key, asset);
+    }
   }
 
   return Array.from(merged.values());
 }
-
 function dedupeLinks(links: LinkItem[]) {
   const merged = new Map<string, LinkItem>();
   for (const link of links) {
@@ -177,23 +179,19 @@ function dedupeLinks(links: LinkItem[]) {
 }
 
 export function resolveProjectMedia(slug: string): ProjectMediaCollection {
-  const mediaAssets: ProjectMediaAsset[] = [];
-  const resourceLinks: LinkItem[] = [];
-  let resolvedManifestPath: string | undefined;
-  let resolvedNote: string | undefined;
-
   for (const location of getProjectAssetLocations(slug)) {
+    const mediaAssets: ProjectMediaAsset[] = [];
+    const resourceLinks: LinkItem[] = [];
+    let resolvedManifestPath: string | undefined;
+    let resolvedNote: string | undefined;
+
     const manifestPath = manifestPathFor(location);
     if (fs.existsSync(manifestPath)) {
       const raw = fs.readFileSync(manifestPath, "utf8");
       const manifest = JSON.parse(raw) as ProjectMediaManifest;
 
-      if (!resolvedManifestPath) {
-        resolvedManifestPath = `${location.publicBasePath}/manifest.json`;
-      }
-      if (!resolvedNote && manifest.note) {
-        resolvedNote = manifest.note;
-      }
+      resolvedManifestPath = `${location.publicBasePath}/manifest.json`;
+      resolvedNote = manifest.note;
 
       if (manifest.featured) {
         mediaAssets.push(normalizeMediaAsset(location.publicBasePath, manifest.featured));
@@ -207,25 +205,26 @@ export function resolveProjectMedia(slug: string): ProjectMediaCollection {
     }
 
     mediaAssets.push(...discoverImageAssets(location));
-  }
 
-  const dedupedAssets = dedupeMediaAssets(mediaAssets);
-  if (dedupedAssets.length === 0 && resourceLinks.length === 0 && !resolvedManifestPath) {
+    const dedupedAssets = dedupeMediaAssets(mediaAssets);
+    if (dedupedAssets.length === 0 && resourceLinks.length === 0 && !resolvedManifestPath) {
+      continue;
+    }
+
     return {
-      gallery: [],
-      resources: [],
+      manifestPath: resolvedManifestPath,
+      featured: dedupedAssets[0],
+      gallery: dedupedAssets.slice(1),
+      resources: dedupeLinks(resourceLinks),
+      note: resolvedNote,
     };
   }
 
   return {
-    manifestPath: resolvedManifestPath,
-    featured: dedupedAssets[0],
-    gallery: dedupedAssets.slice(1),
-    resources: dedupeLinks(resourceLinks),
-    note: resolvedNote,
+    gallery: [],
+    resources: [],
   };
 }
-
 export function listProjectManifestSlugs() {
   if (!fs.existsSync(PROJECT_ASSET_ROOT)) {
     return [];
@@ -262,3 +261,5 @@ export function listProjectManifestSlugs() {
 export function getProjectAssetRoot() {
   return PROJECT_ASSET_ROOT;
 }
+
+

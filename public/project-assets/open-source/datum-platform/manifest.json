@@ -1,0 +1,81 @@
+{
+  "gallery": [
+    {
+      "kind": "image",
+      "src": "images/00-首页.png",
+      "alt": "DatumPlatform 首页总览",
+      "title": "DatumPlatform 首页总览",
+      "description": "展示平台首页中的核心概览信息与主入口布局。"
+    },
+    {
+      "kind": "image",
+      "src": "images/01-关卡分析1.png",
+      "alt": "关卡分析总览",
+      "title": "关卡分析总览",
+      "description": "展示关卡分析页面的总体结构与主要指标。"
+    },
+    {
+      "kind": "image",
+      "src": "images/02-关卡分析2.png",
+      "alt": "关卡分析明细",
+      "title": "关卡分析明细",
+      "description": "展示关卡分析中的局部指标与细节面板。"
+    },
+    {
+      "kind": "image",
+      "src": "images/03-关卡分析3.png",
+      "alt": "关卡分析对比",
+      "title": "关卡分析对比",
+      "description": "展示不同关卡或波次结果的对比视图。"
+    },
+    {
+      "kind": "image",
+      "src": "images/04-模版分析.png",
+      "alt": "模板分析总览",
+      "title": "模板分析总览",
+      "description": "展示模板聚类、一致性和缩放趋势分析结果。"
+    },
+    {
+      "kind": "image",
+      "src": "images/05-权重调节1.png",
+      "alt": "权重校准面板",
+      "title": "权重校准面板",
+      "description": "展示校准样本维护与参数调节入口。"
+    },
+    {
+      "kind": "image",
+      "src": "images/06-权重调节2.png",
+      "alt": "权重校准结果",
+      "title": "权重校准结果",
+      "description": "展示权重调整后的结果输出与指标反馈。"
+    },
+    {
+      "kind": "image",
+      "src": "images/07-数值健康.png",
+      "alt": "数值健康报告",
+      "title": "数值健康报告",
+      "description": "展示异常项、健康度与全局问题汇总。"
+    },
+    {
+      "kind": "image",
+      "src": "images/08-系统文档.png",
+      "alt": "系统文档视图",
+      "title": "系统文档视图",
+      "description": "展示公式文档或说明文档在平台内的阅读入口。"
+    },
+    {
+      "kind": "image",
+      "src": "images/09-调试窗口.png",
+      "alt": "调试窗口视图",
+      "title": "调试窗口视图",
+      "description": "展示调试辅助窗口与问题排查视图。"
+    },
+    {
+      "kind": "image",
+      "src": "images/10-整体设置.png",
+      "alt": "平台设置总览",
+      "title": "平台设置总览",
+      "description": "展示 AI、界面与工具配置等系统设置入口。"
+    }
+  ]
+}

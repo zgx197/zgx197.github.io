@@ -1,0 +1,60 @@
+{
+  "gallery": [
+    {
+      "kind": "image",
+      "src": "images/01-整体预览.png",
+      "alt": "场景蓝图工作台总览",
+      "title": "场景蓝图工作台总览",
+      "description": "展示公司内 SceneBlueprint 工作流的整体界面。"
+    },
+    {
+      "kind": "image",
+      "src": "images/02-阶段预览.png",
+      "alt": "阶段节点总览",
+      "title": "阶段节点总览",
+      "description": "展示阶段结构和节点关系的可视化视图。"
+    },
+    {
+      "kind": "image",
+      "src": "images/03-AI助手.png",
+      "alt": "AI 助手联动",
+      "title": "AI 助手联动",
+      "description": "展示 AI 辅助分析或生成能力在工具中的接入方式。"
+    },
+    {
+      "kind": "image",
+      "src": "images/04-场景Marker.png",
+      "alt": "场景 Marker 配置",
+      "title": "场景 Marker 配置",
+      "description": "展示场景标记点或语义锚点配置界面。"
+    },
+    {
+      "kind": "image",
+      "src": "images/05-Debug工具.png",
+      "alt": "调试工具面板",
+      "title": "调试工具面板",
+      "description": "展示蓝图工具中的调试与诊断能力。"
+    },
+    {
+      "kind": "image",
+      "src": "images/06-运行时DebugView.png",
+      "alt": "运行时调试视图",
+      "title": "运行时调试视图",
+      "description": "展示运行时状态观察与调试视图。"
+    },
+    {
+      "kind": "image",
+      "src": "images/07-个人设置.png",
+      "alt": "个人设置面板",
+      "title": "个人设置面板",
+      "description": "展示个人偏好与本地开发配置。"
+    },
+    {
+      "kind": "image",
+      "src": "images/08-项目设置.png",
+      "alt": "项目设置面板",
+      "title": "项目设置面板",
+      "description": "展示项目级配置、规则与导出相关设置。"
+    }
+  ]
+}

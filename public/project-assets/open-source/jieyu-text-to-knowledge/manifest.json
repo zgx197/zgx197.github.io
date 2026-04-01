@@ -1,43 +1,53 @@
 {
-  "featured": {
-    "kind": "image",
-    "title": "解语项目总览",
-    "src": "images/01-overview.svg",
-    "alt": "解语 Text to Knowledge 项目结构总览图",
-    "description": "从 README 三段结构出发，展示 TermTree、知识标注工具集与知识挖掘方案之间的关系。"
-  },
   "gallery": [
     {
       "kind": "image",
-      "title": "TermTree 知识底座",
-      "src": "images/02-termtree.svg",
-      "alt": "TermTree 百科知识树结构示意图",
-      "description": "展示 TermType、cb / eb、term 组织和 term-linking 的知识底座定位。"
+      "src": "images/00-官网.png",
+      "alt": "解语官网首页",
+      "title": "解语官网首页",
+      "description": "展示项目官网首页和整体对外介绍信息。"
     },
     {
       "kind": "image",
-      "title": "文本到知识链路",
-      "src": "images/03-pipeline.svg",
-      "alt": "解语文本到知识链路示意图",
-      "description": "展示知识标注、模板生成、term-linking 与知识增强模型之间的衔接。"
-    }
-  ],
-  "resources": [
-    {
-      "label": "GitHub 项目目录",
-      "href": "https://github.com/PaddlePaddle/PaddleNLP/tree/develop/slm/examples/text_to_knowledge",
-      "external": true
+      "src": "images/01-官网.png",
+      "alt": "解语能力总览",
+      "title": "解语能力总览",
+      "description": "展示官网中的能力说明与功能概览。"
     },
     {
-      "label": "GitHub TermTree 子目录",
-      "href": "https://github.com/PaddlePaddle/PaddleNLP/tree/develop/slm/examples/text_to_knowledge/termtree",
-      "external": true
+      "kind": "image",
+      "src": "images/02-官网.png",
+      "alt": "解语知识体系",
+      "title": "解语知识体系",
+      "description": "展示官网中的知识结构与能力体系页面。"
     },
     {
-      "label": "官方介绍页",
-      "href": "https://www.paddlepaddle.org.cn/textToKnowledge",
-      "external": true
+      "kind": "image",
+      "src": "images/03-官网.png",
+      "alt": "解语应用说明",
+      "title": "解语应用说明",
+      "description": "展示官网中的应用说明或示例页面。"
+    },
+    {
+      "kind": "image",
+      "src": "images/04-官网.png",
+      "alt": "解语补充说明",
+      "title": "解语补充说明",
+      "description": "展示官网中的补充说明页面。"
+    },
+    {
+      "kind": "image",
+      "src": "images/05-解语author.png",
+      "alt": "解语参与说明",
+      "title": "解语参与说明",
+      "description": "展示解语项目在作者与参与者维度的补充信息。"
+    },
+    {
+      "kind": "image",
+      "src": "images/06-百科知识库author.png",
+      "alt": "百科知识库参与说明",
+      "title": "百科知识库参与说明",
+      "description": "展示百科知识库相关内容在作者与参与者维度的补充信息。"
     }
-  ],
-  "note": "本组 SVG 基于 PaddleNLP README 结构手工绘制，用于在没有真实业务截图的情况下稳定展示项目能力边界。"
+  ]
 }

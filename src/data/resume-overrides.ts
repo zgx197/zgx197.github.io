@@ -794,7 +794,7 @@ export const resumeOverrides: ResumeSourceOverrides = {
             },
             {
               "title": "百科词条知识引入",
-              "detail": "参与把两千万级百科词条持续引入知识体系，补足实体与概念覆盖范围，使 TermTree 不只是静态词库，而是能随着知识生产链路不断扩展。"
+              "detail": "参与把两千万级百科词条持续引入知识体系，补足实体与概念覆盖范围，持续扩展 TermTree 的知识底座。"
             }
           ]
         },
@@ -862,7 +862,7 @@ export const resumeOverrides: ResumeSourceOverrides = {
               "href": "/projects/jieyu-text-to-knowledge"
             },
             {
-              "label": "官方介绍页",
+              "label": "项目官网",
               "href": "https://www.paddlepaddle.org.cn/textToKnowledge",
               "external": true
             }
@@ -894,75 +894,73 @@ export const resumeOverrides: ResumeSourceOverrides = {
     "sceneblueprint": {
       "replaceContent": true,
       "cardMeta": [
-        "GitHub 开源",
+        "开源框架",
         "独立开发",
-        "Unity Package",
-        "2.0 版本"
+        "Tauri / React / Rust",
+        "外部编辑器方向"
       ],
       "cardTags": [
-        "Unity",
-        "Scene Blueprint",
-        "Editor Tooling",
-        "DSL",
-        "Code Generation",
-        "Runtime Interpreter",
-        "调试快照"
+        "SceneBlueprint",
+        "External Editor",
+        "Tauri 2",
+        "TypeScript",
+        "Rust",
+        "C#",
+        "Runtime Contract",
+        "Engine Integration"
       ],
-      "heroEyebrow": "Open Source / Blueprint Framework",
+      "heroEyebrow": "Open Source / SceneBlueprint 2.0",
       "showcase": {
         "title": "作品展示",
-        "featuredTitle": "编辑器工作台与运行时链路展示位",
-        "featuredDescription": "后续如果补图，优先放 `.sbdef` 定义、编辑器工作台、导出契约和运行时调试视图，能最快说明这不是单点节点工具，而是一套完整蓝图框架。",
+        "featuredTitle": "外部编辑器 / 契约链路展示位",
+        "featuredDescription": "建议优先补充工作台界面、节点图编辑、导出契约和引擎接入效果截图，用于说明外部编辑器主入口与跨引擎工具链结构。",
         "sideBlocks": [
           {
             "title": "推荐素材",
             "items": [
-              "`.sbdef` 定义示例",
-              "节点图与专项工作台截图",
-              "运行时快照或调试回放录屏"
+              "工作台主界面截图",
+              "节点图编辑区域截图",
+              "Schema / 导出契约示意图",
+              "Unity 或 Godot 集成截图"
             ]
-          },
-          {
-            "title": "展示重点",
-            "description": "重点展示从定义、编辑、导出到解释执行的完整分层，而不是只展示“能画图”。"
           }
         ],
         "gallery": [
           {
-            "title": "定义层",
-            "description": "DSL、Importer 与代码生成"
+            "title": "SceneBlueprint 编辑器工作台",
+            "description": "用于说明外部编辑器主界面、工作区组织和图形化 Authoring 入口。"
           },
           {
-            "title": "制作层",
-            "description": "节点图工作台、分析视图和绑定流程"
+            "title": "DSL 与节点定义",
+            "description": "用于说明 `.sbdef`、代码生成与节点契约之间的衔接关系。"
           },
           {
-            "title": "运行层",
-            "description": "加载、执行、快照与调试视图"
+            "title": "运行时执行与调试",
+            "description": "用于说明导出契约、运行时加载、调试快照与观察链路。"
           }
         ],
-        "note": "当前开源项目页已经具备稳定结构，后续只需要补充真实截图即可进一步增强说服力。"
+        "note": "当前先以结构化示意图占位，补充真实截图或录屏封面后可直接替换。"
       },
       "storySections": [
         {
           "kind": "metrics",
-          "title": "项目结构",
+          "title": "项目状态",
           "items": [
             {
-              "value": "2.0",
-              "label": "版本定位"
+              "value": "External Editor",
+              "label": "当前入口形态"
             },
             {
-              "value": "双子系统",
-              "label": "编辑器 / 运行时"
+              "value": "Tauri 2",
+              "label": "桌面宿主"
             },
             {
-              "value": "`.sbdef`",
-              "label": "单一事实来源"
+              "value": "3",
+              "label": "核心分层"
             },
             {
-              "value": "Package",
-              "label": "开源交付形态"
+              "value": "Apache-2.0",
+              "label": "开源协议"
             }
           ]
         },
@@ -970,55 +968,78 @@ export const resumeOverrides: ResumeSourceOverrides = {
           "kind": "story",
           "title": "项目概览",
           "paragraphs": [
-            "SceneBlueprint 2.0 不是单纯的节点编辑器，而是一套面向 Unity 的场景级蓝图框架。它希望把蓝图的定义、制作、导出和运行时执行拆成明确边界，让蓝图资产真正成为可维护、可扩展的正式工程能力。",
-            "我在这个版本中重点收敛的是结构边界：用 DSL 与代码生成统一定义来源，用工作台体系承接编辑器复杂度，用稳定导出契约衔接运行时解释执行，并补上快照、调试和知识辅助等工程能力。"
+            "SceneBlueprint 2.0 面向游戏开发中的场景蓝图制作链路，围绕 Authoring、导出契约和引擎侧消费组织可跨引擎复用的内容工具链。",
+            "项目建立在早期 com.zgx197.sceneblueprint 与 com.zgx197.nodegraph 的实践基础上，当前转向外部编辑器优先架构，由独立桌面工作台承接图形化编辑、校验、分析、调试与导出，再由引擎集成层承接资源同步与项目适配。"
           ]
         },
         {
           "kind": "capabilities",
-          "title": "定义与制作链路",
+          "title": "项目定位",
           "items": [
             {
-              "title": "`.sbdef` DSL + 代码生成",
-              "detail": "以 `.sbdef` 作为单一事实来源，通过 Importer 与生成链路统一 Action、Marker、Annotation、Signal 等定义，降低手写注册、多端漂移和维护成本。"
+              "title": "外部编辑器主入口",
+              "detail": "把场景蓝图制作流程从引擎内嵌工具窗口中抽离出来，由外部桌面编辑器承担 Authoring、分析、调试与导出主链路。"
             },
             {
-              "title": "Window + Session + Services 工作台",
-              "detail": "将编辑器拆分为可组合的工作台结构，统一承接图编辑、分析、预览、导出、子图、Inspector 和状态管理，避免主窗口持续膨胀。"
+              "title": "契约边界",
+              "detail": "通过 Export / Contract 作为中间边界，把编辑器工作资产与引擎侧消费结构明确区分，降低制作层和运行时层耦合。"
             },
             {
-              "title": "场景语义绑定",
-              "detail": "建立 Marker、Annotation、Spatial 等场景语义绑定体系，并补充绑定收集、恢复与场景快照恢复能力，提升蓝图和真实场景对象之间的接线稳定性。"
+              "title": "跨引擎接入",
+              "detail": "预留 Unity、Godot 及其他引擎的接入空间，让同一份蓝图导出结果能够被不同宿主稳定消费。"
+            },
+            {
+              "title": "工具链平台化",
+              "detail": "项目关注的不只是图编辑本身，还包括工作台、导出链路、发布资产、文档体系和后续工具治理，目标是形成可持续演进的平台型内容工具。"
             }
           ]
         },
         {
           "kind": "capabilities",
-          "title": "运行时与调试能力",
+          "title": "当前状态",
           "items": [
             {
-              "title": "稳定导出契约",
-              "detail": "将编辑器图结构统一导出为稳定契约，明确工作资产、导出数据和运行时帧状态之间的数据边界，减少 authoring 与 runtime 的相互污染。"
+              "title": "前端工作台",
+              "detail": "TypeScript + React 负责工作台界面、图编辑交互和状态组织，承担内容制作主入口。"
             },
             {
-              "title": "Loader + Runner + Systems",
-              "detail": "围绕控制流、信号、黑板和组合条件设计分层解释执行框架，让运行时具备清晰的加载、调度、执行与观察结构。"
+              "title": "桌面宿主与分发",
+              "detail": "Tauri 2 + Rust 负责桌面窗口、系统集成和发布产物组织，当前已经明确 setup、msi、portable 等 Windows 分发路径。"
             },
             {
-              "title": "快照与知识辅助",
-              "detail": "补充状态快照、回放、测试窗口与知识辅助能力，增强系统可观察性，并为 AI Agent 参与复杂蓝图分析与维护预留结构化入口。"
+              "title": "契约层",
+              "detail": "Schema 与导出契约层作为编辑器和运行时之间的正式边界，负责承接蓝图导出结果的稳定消费格式。"
+            },
+            {
+              "title": "引擎集成层",
+              "detail": "C# 工具链与 integrations 目录用于承接 Unity、Godot 等引擎侧导入、资源同步、运行时接线和项目适配。"
+            },
+            {
+              "title": "文档与发布治理",
+              "detail": "项目同时维护对外文档、开发文档和 Releases 资产说明，使工程设计、使用入口和交付方式保持同步。"
             }
           ]
         },
         {
-          "kind": "bullets",
-          "title": "这版开源聚焦的重点",
+          "kind": "capabilities",
+          "title": "技术架构",
           "items": [
-            "把蓝图系统正式拆为编辑器制作子系统与运行时解释执行子系统。",
-            "用 `.sbdef`、Importer 和代码生成统一定义来源，减少注册漂移。",
-            "把编辑器复杂度收进 Window + Session + Services 工作台结构。",
-            "建立场景语义绑定、场景快照和恢复机制，提升编辑稳定性。",
-            "通过 Loader + Runner + Systems 组织运行时执行、调试与扩展。"
+            {
+              "title": "前端工作台",
+              "detail": "TypeScript + React 负责工作台界面、图编辑交互、状态组织和前端壳层，是内容制作主入口。"
+            },
+            {
+              "title": "桌面宿主",
+              "detail": "Rust + Tauri 负责桌面宿主、窗口能力、系统集成和安装包分发，承担工具独立运行的基础设施职责。"
+            },
+            {
+              "title": "契约层",
+              "detail": "Schema 与导出边界负责把蓝图制作结果沉淀为可被不同引擎消费的正式契约，避免宿主各自解释同一份资产。"
+            },
+            {
+              "title": "引擎集成层",
+              "detail": "C# 工具链负责承接 Unity / Godot 等引擎中的导入、同步、预览桥接、运行时接线和项目级适配。"
+            }
           ]
         },
         {
@@ -1035,9 +1056,44 @@ export const resumeOverrides: ResumeSourceOverrides = {
             },
             {
               "label": "GitHub 仓库",
+              "href": "https://github.com/zgx197/SceneBlueprint",
+              "external": true
+            },
+            {
+              "label": "项目网站",
+              "href": "https://zgx197.github.io/SceneBlueprint/",
+              "external": true
+            },
+            {
+              "label": "GitHub Releases",
+              "href": "https://github.com/zgx197/SceneBlueprint/releases",
+              "external": true
+            },
+            {
+              "label": "早期 Unity 实践仓库",
               "href": "https://github.com/zgx197/com.zgx197.sceneblueprint",
               "external": true
+            },
+            {
+              "label": "NodeGraph 基础仓库",
+              "href": "https://github.com/zgx197/com.zgx197.nodegraph",
+              "external": true
             }
+          ]
+        },
+        {
+          "kind": "stack",
+          "title": "技术标签",
+          "items": [
+            "SceneBlueprint",
+            "Tauri 2",
+            "TypeScript",
+            "React",
+            "Rust",
+            "C#",
+            "Runtime Contract",
+            "Engine Integration",
+            "External Editor"
           ]
         }
       ],
@@ -1045,20 +1101,20 @@ export const resumeOverrides: ResumeSourceOverrides = {
         "summary": [
           {
             "id": "project-override-sceneblueprint-summary-1",
-            "dedupeKey": "面向unity的场景级蓝图框架通过dsl工作台导出契约和解释执行构建完整工具链",
-            "text": "面向 Unity 的场景级蓝图框架，通过 DSL、编辑器工作台、导出契约和解释执行构建完整工具链。"
+            "dedupeKey": "sceneblueprint2是面向游戏开发的引擎无关外部场景蓝图编辑器围绕authoringsource运行时契约和引擎集成组织完整工具链",
+            "text": "SceneBlueprint 2.0 是面向游戏开发的引擎无关外部场景蓝图编辑器，围绕 Authoring Source、Runtime Contract 和 Engine Integration 组织完整工具链。"
           }
         ],
         "refined": [
           {
             "id": "project-override-sceneblueprint-refined-1",
-            "dedupeKey": "这一版重点收敛定义制作执行三层边界",
-            "text": "这一版重点收敛定义层、制作层和执行层边界，让蓝图资产从工具草稿升级为可维护的正式工程能力。"
+            "dedupeKey": "项目从unity内嵌工具演进为外部编辑器优先的内容制作工具链持续验证authoringruntimecontract与引擎集成的清晰边界",
+            "text": "项目从 Unity 内嵌工具演进为外部编辑器优先的内容制作工具链，持续验证 Authoring、运行时契约与引擎集成之间的边界划分。"
           },
           {
             "id": "project-override-sceneblueprint-refined-2",
-            "dedupeKey": "除框架设计外还强化调试快照与知识辅助能力",
-            "text": "除框架设计外，还补强了调试快照、回放和知识辅助能力，提升复杂蓝图系统的可观察性。"
+            "dedupeKey": "当前以tauri加react加rust桌面宿主为主入口并保留csharp工具链接入unitygodot等引擎侧承接能力",
+            "text": "当前以 Tauri + React + Rust 桌面宿主为主入口，并保留 C# 工具链承接 Unity、Godot 等引擎侧接入能力。"
           }
         ]
       }
@@ -1066,64 +1122,58 @@ export const resumeOverrides: ResumeSourceOverrides = {
     "jieyu-text-to-knowledge": {
       "replaceContent": true,
       "cardMeta": [
-        "PaddleNLP",
-        "知识增强文本理解",
-        "参与建设",
-        "TermTree / 短文本知识标注"
+        "开源项目",
+        "PaddleNLP 方向",
+        "TermTree / 知识标注",
+        "参与建设"
       ],
       "cardTags": [
         "PaddleNLP",
+        "NLP",
+        "知识增强",
         "TermTree",
         "知识标注",
-        "Text to Knowledge",
-        "知识增强",
-        "Term-Linking",
-        "README 驱动"
+        "模型训练",
+        "数据工程",
+        "Term-Linking"
       ],
-      "heroEyebrow": "Open Source / PaddleNLP",
+      "heroEyebrow": "Open Source / Text to Knowledge",
       "showcase": {
         "title": "作品展示",
-        "featuredTitle": "README 结构化解读",
-        "featuredDescription": "项目结构图、TermTree 知识底座图和文本到知识链路图，用于说明 README 中三段能力结构及其关键衔接关系。",
+        "featuredTitle": "知识底座 / 标注链路展示位",
+        "featuredDescription": "建议优先补充 TermTree 层次结构、知识标注效果、训练评测流程和文本到知识映射图，用于说明知识底座与模型链路的协同关系。",
         "sideBlocks": [
           {
-            "title": "展示重点",
+            "title": "推荐素材",
             "items": [
-              "TermTree 中文知识底座",
-              "短文本知识标注能力",
-              "从文本到知识的组织链路"
+              "TermTree 层次结构图",
+              "短文本知识标注效果图",
+              "文本到知识映射流程图",
+              "训练与评测链路示意图"
             ]
-          },
-          {
-            "title": "核心内容",
-            "description": "内容聚焦 TermTree 体系建设、短文本知识标注能力，以及文本到知识的组织链路。"
           }
         ],
         "gallery": [
           {
-            "title": "项目总览",
-            "description": "README 三段结构与能力边界"
+            "title": "解语项目总览",
+            "description": "用于说明 TermTree、知识标注工具集与知识挖掘方案之间的关系。"
           },
           {
             "title": "TermTree 知识底座",
-            "description": "TermType、term 与 term-linking 的承接关系"
+            "description": "用于说明 TermType、cb / eb、term 组织和 term-linking 的知识底座定位。"
           },
           {
             "title": "文本到知识链路",
-            "description": "知识标注、模板生成与知识增强模型之间的衔接"
+            "description": "用于说明知识标注、模板生成、term-linking 与知识增强模型之间的衔接。"
           }
         ],
-        "note": "本组配图是基于 README 结构手工绘制的说明图，适合在缺少真实业务截图时稳定表达项目边界。"
+        "note": "当前先以结构化示意图占位，补充真实效果图后可直接替换。"
       },
       "storySections": [
         {
           "kind": "metrics",
-          "title": "README 规模信息",
+          "title": "项目状态",
           "items": [
-            {
-              "value": "3部分",
-              "label": "README 主结构"
-            },
             {
               "value": "160+",
               "label": "TermType"
@@ -1133,8 +1183,12 @@ export const resumeOverrides: ResumeSourceOverrides = {
               "label": "Subtype"
             },
             {
-              "value": "100万",
+              "value": "100 万+",
               "label": "Term 规模"
+            },
+            {
+              "value": "PaddleNLP",
+              "label": "开源落点"
             }
           ]
         },
@@ -1142,54 +1196,100 @@ export const resumeOverrides: ResumeSourceOverrides = {
           "kind": "story",
           "title": "项目概览",
           "paragraphs": [
-            "解语（Text to Knowledge）是 PaddleNLP 中面向中文文本理解的知识增强项目。README 对它的定义不是单点模型，而是“中文全词类知识库 + 中文知识标注工具集 + 中文知识挖掘方案”的组合能力。",
-            "项目内容主要围绕两条主线展开：一条是 TermTree 知识库体系建设，另一条是短文本知识标注方向的模型调研、训练和评测验证。"
+            "解语（Text to Knowledge）面向中文文本理解中的知识增强问题，围绕中文全词类知识体系、知识标注工具集和知识挖掘方案组织文本到知识链路。",
+            "项目对外公开的能力结构包括 TermTree 百科知识树、中文知识标注工具集和中文知识挖掘方案；我的工作集中在 TermTree 知识底座建设，以及短文本知识标注方向的模型调研、训练、评测与数据流程搭建。"
           ]
         },
         {
           "kind": "capabilities",
-          "title": "README 能力结构",
+          "title": "项目定位",
           "items": [
             {
-              "title": "TermTree 百科知识树",
-              "detail": "作为中文知识底座，承接 TermType 词类体系、term 层次组织以及 term-linking 的知识入口。README 中给出的试用版规模包括 160+ termtype、7000+ subtype 和约 100 万 term。"
+              "title": "知识底座",
+              "detail": "用 TermTree 承接中文词类、概念与实体的层次组织，为文本分类、序列标注、知识关联和模板生成提供统一先验输入。"
             },
             {
-              "title": "中文知识标注工具集",
-              "detail": "围绕短文本的知识理解、知识标注和知识增强模型输入组织能力，让文本不只是被分词，而是能进一步映射到概念、实体和类别结构。"
+              "title": "知识增强解析",
+              "detail": "通过知识标注把文本从字符串层推进到词类、概念和实体层面的可计算表示，支撑更稳定的中文理解和特征构建。"
             },
             {
-              "title": "中文知识挖掘方案",
-              "detail": "承接模板生成、term-linking、样本优化和文本到知识的扩展抽取链路，让知识底座与实际理解任务形成可迭代组合。"
+              "title": "文本到知识链路",
+              "detail": "在知识标注结果之上继续衔接模板生成、知识抽取、schema 化映射和 term-linking，形成从文本理解到结构化知识产出的扩展路径。"
+            },
+            {
+              "title": "数据与评测治理",
+              "detail": "项目同时覆盖训练语料、标签体系、测试集组织与评测机制，保证模型升级过程可验证、可解释。"
             }
           ]
         },
         {
           "kind": "capabilities",
-          "title": "我参与的工作",
+          "title": "当前状态",
+          "items": [
+            {
+              "title": "TermTree 知识体系",
+              "detail": "开源结构中已经形成 TermType、Subtype 与 Term 的层次化知识组织，README 中给出 160+ termtype、7000+ subtype 和约 100 万 term 的试用版规模。"
+            },
+            {
+              "title": "知识标注工具集",
+              "detail": "项目提供词类知识标注、名词短语标注与中文预训练模型等能力，用于把中文句子转化为更稳定的知识特征与标注结果。"
+            },
+            {
+              "title": "知识挖掘方案",
+              "detail": "在知识标注之后继续衔接模板生成、知识抽取和结构化映射，使文本理解结果可以进一步服务下游知识生产和应用场景。"
+            },
+            {
+              "title": "参与范围",
+              "detail": "我的工作集中在 TermTree 体系建设与短文本知识标注方向，覆盖知识底座、训练数据、模型验证和评测流程相关工作。"
+            },
+            {
+              "title": "训练与评测链路",
+              "detail": "围绕主题分类、意图分类和词类序列标注，持续建设训练数据、测试集和多测试集联合评测流程，提升模型迭代质量的稳定性。"
+            }
+          ]
+        },
+        {
+          "kind": "capabilities",
+          "title": "技术架构",
+          "items": [
+            {
+              "title": "知识底座层",
+              "detail": "TermTree 负责中文词类、概念和实体的层次组织，以及 term-linking 所需的统一知识入口。"
+            },
+            {
+              "title": "标注与模型层",
+              "detail": "围绕短文本主题分类、意图分类和词类序列标注组织知识增强模型输入、训练流程与推理能力。"
+            },
+            {
+              "title": "知识挖掘与应用层",
+              "detail": "在标注结果之上继续衔接模板生成、知识抽取、结构化映射和下游应用接入，形成文本到知识的扩展链路。"
+            },
+            {
+              "title": "数据与评测层",
+              "detail": "通过样本生产、标签映射、测试集设计和多测试集联合评估，约束模型升级质量并支撑持续迭代。"
+            }
+          ]
+        },
+        {
+          "kind": "capabilities",
+          "title": "我的贡献",
           "items": [
             {
               "title": "TermTree 体系建设",
-              "detail": "参与中文知识底座建设，围绕词类体系、概念组织和知识入库链路做结构整理与持续完善，让知识树能更稳定地承接下游知识标注与链接任务。"
+              "detail": "参与设计 TermTree 层次结构与知识组织方式，推动知识库从词表堆积演进为具备层次关系、类别约束和可计算性的知识体系。"
             },
             {
-              "title": "短文本知识标注模型调研与训练",
-              "detail": "围绕短文本知识标注方向参与模型调研、训练与效果验证，关注模型输入如何更好吸收知识体系信息，以及结果如何对下游任务保持解释性。"
+              "title": "知识数据生产",
+              "detail": "主导高频实体、常见概念和词类知识的筛选、清洗、映射与入库流程，支撑百万级知识节点沉淀和后续知识增强特征生产。"
             },
             {
-              "title": "训练数据与评测理解",
-              "detail": "结合内部知识增强文本理解经验，关注数据构建、评测和任务设计如何共同支撑知识增强模型的稳定迭代，而不是只追求单点指标。"
+              "title": "短文本知识标注模型训练",
+              "detail": "参与短文本多任务模型结构设计，围绕主题分类、意图分类和词类序列标注开展模型调研、训练与效果验证。"
+            },
+            {
+              "title": "训练数据与评测体系",
+              "detail": "从 0 到 1 构建训练集与测试集，设计样本生产、标签映射、评测集组织和多测试集联合评估流程，提升模型迭代稳定性与可解释性。"
             }
-          ]
-        },
-        {
-          "kind": "bullets",
-          "title": "项目要点",
-          "items": [
-            "解语是 README 明确定义的组合能力，不是单点模型仓库。",
-            "我主要参与 TermTree 知识底座建设和短文本知识标注模型调研训练。",
-            "这个开源方向与内部“短文本知识标注系统”属于同一知识增强文本理解主线。",
-
           ]
         },
         {
@@ -1215,10 +1315,30 @@ export const resumeOverrides: ResumeSourceOverrides = {
               "external": true
             },
             {
-              "label": "官方介绍页",
+              "label": "GitHub TermTreeC 子目录",
+              "href": "https://github.com/PaddlePaddle/PaddleNLP/tree/develop/slm/examples/text_to_knowledge/termtreec",
+              "external": true
+            },
+            {
+              "label": "项目官网",
               "href": "https://www.paddlepaddle.org.cn/textToKnowledge",
               "external": true
             }
+          ]
+        },
+        {
+          "kind": "stack",
+          "title": "技术标签",
+          "items": [
+            "PaddleNLP",
+            "Python",
+            "NLP",
+            "知识增强",
+            "TermTree",
+            "知识标注",
+            "Term-Linking",
+            "模型训练",
+            "数据工程"
           ]
         }
       ],
@@ -1226,20 +1346,20 @@ export const resumeOverrides: ResumeSourceOverrides = {
         "summary": [
           {
             "id": "project-override-jieyu-text-to-knowledge-summary-1",
-            "dedupeKey": "参与百度知识图谱方向对外开源能力建设工作集中在termtree知识库体系建设以及短文本知识标注方向的模型调研与训练",
-            "text": "参与百度知识图谱方向对外开源能力建设，工作重点集中在 TermTree 知识库体系建设以及短文本知识标注方向的模型调研与训练。"
+            "dedupeKey": "解语是面向中文文本理解的知识增强项目由termtree知识底座知识标注工具集和知识挖掘方案组成我主要参与termtree体系建设与短文本知识标注模型训练",
+            "text": "解语是面向中文文本理解的知识增强项目，由 TermTree 知识底座、知识标注工具集和知识挖掘方案组成；我的工作集中在 TermTree 体系建设与短文本知识标注训练。"
           }
         ],
         "refined": [
           {
             "id": "project-override-jieyu-text-to-knowledge-refined-1",
-            "dedupeKey": "README定义的是知识底座标注工具集和知识挖掘方案的组合能力",
-            "text": "项目由知识底座、标注工具集和知识挖掘方案构成，围绕 TermTree 与短文本知识标注组织核心能力。"
+            "dedupeKey": "项目围绕中文全词类知识体系与知识增强解析链路组织文本到知识的映射能力",
+            "text": "项目围绕中文全词类知识体系与知识增强解析链路，组织从文本到知识的可计算映射能力。"
           },
           {
             "id": "project-override-jieyu-text-to-knowledge-refined-2",
-            "dedupeKey": "该条目强调真实参与范围而非夸大为完整项目负责人",
-            "text": "项目内容围绕 TermTree 知识底座与短文本知识标注能力展开。"
+            "dedupeKey": "我的工作重心集中在termtree知识库体系建设以及短文本知识标注方向的模型调研训练评测和数据流程建设",
+            "text": "我的工作集中在 TermTree 知识库体系建设，以及短文本知识标注方向的模型调研、训练、评测和数据流程建设。"
           }
         ]
       }
@@ -1324,7 +1444,7 @@ export const resumeOverrides: ResumeSourceOverrides = {
           "title": "项目概览",
           "paragraphs": [
             "SceneBlueprint 公司内项目版定位为场景级蓝图系统，用于统一承接蓝图制作、导出契约、运行时解释执行和调试回放链路，是内容生产工具链中的核心基础设施。",
-            "我在这个项目里做的不是单独一两个功能点，而是把蓝图定义、编辑工作台、场景绑定、导出契约、运行时执行和调试回放逐步收敛成完整系统边界，让它能够稳定接入真实业务生产链路。"
+            "我在这个项目里持续收敛蓝图定义、编辑工作台、场景绑定、导出契约、运行时执行和调试回放等系统边界，推动其稳定接入真实业务生产链路。"
           ]
         },
         {
@@ -1341,7 +1461,7 @@ export const resumeOverrides: ResumeSourceOverrides = {
             },
             {
               "title": "结构化作者工作流",
-              "detail": "围绕定义、编辑、分析、预览和导出建立清晰 authoring 流程，让蓝图不再依赖分散脚本和零散工具，而是成为正式平台能力。"
+              "detail": "围绕定义、编辑、分析、预览和导出建立清晰 authoring 流程，统一蓝图制作相关脚本、工具和平台能力。"
             }
           ]
         },
@@ -1423,7 +1543,7 @@ export const resumeOverrides: ResumeSourceOverrides = {
           {
             "id": "project-override-sceneblueprint-work-refined-1",
             "dedupeKey": "项目重点是将分散脚本和零散工具收敛为正式平台系统",
-            "text": "项目重点是把原本分散脚本和零散工具收敛为正式平台系统，而不是继续堆功能点。"
+            "text": "统一蓝图定义、编辑工作台、场景语义绑定、导出契约与运行时执行链路，形成可接入业务生产的场景蓝图系统。"
           },
           {
             "id": "project-override-sceneblueprint-work-refined-2",
@@ -1566,7 +1686,7 @@ export const resumeOverrides: ResumeSourceOverrides = {
             },
             {
               "title": "编辑器与 AI 预留能力",
-              "detail": "结构化资产模型为后续技能编辑器接入、自动化校验和 AI 辅助分析打下数据基础，而不是让运行时继续被临时配置绑死。"
+              "detail": "结构化资产模型为后续技能编辑器接入、自动化校验和 AI 辅助分析提供数据基础，并降低运行时对临时配置的依赖。"
             }
           ]
         },
@@ -1612,7 +1732,7 @@ export const resumeOverrides: ResumeSourceOverrides = {
           {
             "id": "project-override-framesync-skill-runtime-refined-1",
             "dedupeKey": "重点是把复杂技能运行逻辑从散点规则收拢为稳定主链路",
-            "text": "重点是把复杂技能运行逻辑从散点规则收拢成稳定主链路，而不是继续在零散功能点上累加补丁。"
+            "text": "统一确定性帧同步战斗场景下的技能输入、状态推进、能力调度、伤害结算与表现反馈链路。"
           },
           {
             "id": "project-override-framesync-skill-runtime-refined-2",
@@ -1702,7 +1822,7 @@ export const resumeOverrides: ResumeSourceOverrides = {
           "title": "项目概览",
           "paragraphs": [
             "Framesync 技能逻辑编辑器面向确定性帧同步技能系统，承接技能蓝图配置、时间轴编排、预览验证、沙盒接入和导出收口流程，是技能内容生产闭环中的核心工具。",
-            "我在这个项目里重点解决的是三类问题：如何把技能基础信息和时序表达拆出清晰结构，如何让编辑器工作流不再依赖人工步骤，以及如何让编辑结果在贴近真实运行时的环境里稳定验证。"
+            "我在这个项目里重点解决三类问题：拆分技能基础信息与时序表达结构，建立稳定的编辑器工作流，以及在贴近真实运行时的环境里完成编辑结果验证。"
           ]
         },
         {
@@ -1737,7 +1857,7 @@ export const resumeOverrides: ResumeSourceOverrides = {
             },
             {
               "title": "可扩展轨道体系",
-              "detail": "设计可扩展技能轨道体系与统一参数编辑能力，让新能力能够通过轨道描述进入创建、导入、提取和导出流程，而不是在多个窗口重复改动。"
+              "detail": "设计可扩展技能轨道体系与统一参数编辑能力，让新能力通过轨道描述进入创建、导入、提取和导出流程，并在统一编辑入口下完成配置维护。"
             }
           ]
         },
@@ -1801,7 +1921,7 @@ export const resumeOverrides: ResumeSourceOverrides = {
           {
             "id": "project-override-framesync-skill-editor-refined-1",
             "dedupeKey": "重点是将技能编辑从零散配置改造成结构化工作台",
-            "text": "重点是把技能编辑从零散配置堆叠，改造成有双层结构、有时间治理、有沙盒验证的正式工作台。"
+            "text": "构建具备双层结构、时间治理与沙盒验证能力的技能编辑工作台，支撑技能蓝图配置与时间轴编排。"
           },
           {
             "id": "project-override-framesync-skill-editor-refined-2",
@@ -1936,7 +2056,7 @@ export const resumeOverrides: ResumeSourceOverrides = {
           "items": [
             {
               "title": "导出、同步与资产路由",
-              "detail": "围绕导出、同步、命名策略和资产路由建立稳定工程流程，让编辑器结果能够进入生产流水线，而不是停留在本地试验工具层。"
+              "detail": "围绕导出、同步、命名策略和资产路由建立稳定工程流程，推动编辑器结果进入生产流水线。"
             },
             {
               "title": "工具链协同",
@@ -1990,7 +2110,7 @@ export const resumeOverrides: ResumeSourceOverrides = {
           {
             "id": "project-override-stage-designer-refined-1",
             "dedupeKey": "平台重点是让多种场景编辑和构建流程在统一数据模型下运行",
-            "text": "平台重点是让多种场景编辑和构建流程在统一数据模型下运行，而不是继续扩散成多个彼此割裂的小工具。"
+            "text": "统一多种场景编辑、布局构建和导出同步流程，支撑多场景类型在同一数据模型下运行。"
           },
           {
             "id": "project-override-stage-designer-refined-2",
@@ -2010,6 +2130,8 @@ export const resumeOverrides: ResumeSourceOverrides = {
     "tower-defense"
   ]
 };
+
+
 
 
 
