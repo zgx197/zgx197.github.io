@@ -89,8 +89,8 @@ export const resumeOverrides: ResumeSourceOverrides = {
           },
           {
             "id": "experience-override-yuyue-2023-11-refined-4",
-            "dedupeKey": "联机塔防游戏脱壳2023.11-2023.12在仅有遗留代码可参考的情况下恢复项目关键功能将联机对战塔防游戏改造成单机安卓版本并完成taptap登录防沉迷接入及交付准备",
-            "text": "联机塔防游戏脱壳（2023.11 - 2023.12）：在仅有遗留代码可参考的情况下恢复项目关键功能，将联机对战塔防游戏改造成单机安卓版本，并完成 TapTap 登录、防沉迷接入及交付准备。"
+            "dedupeKey": "联机塔防游戏脱壳2023.11-2024.01在仅有遗留代码可参考的情况下恢复项目关键功能将联机对战塔防游戏改造成单机安卓版本并完成taptap登录防沉迷接入及交付准备",
+            "text": "联机塔防游戏脱壳（2023.11 - 2024.01）：在仅有遗留代码可参考的情况下恢复项目关键功能，将联机对战塔防游戏改造成单机安卓版本，并完成 TapTap 登录、防沉迷接入及交付准备。"
           }
         ],
         "original": [
@@ -124,8 +124,8 @@ export const resumeOverrides: ResumeSourceOverrides = {
         },
         {
           "id": "experience-override-yuyue-2023-11-highlight-4",
-          "dedupeKey": "联机塔防游戏脱壳2023.11-2023.12梳理遗留工程架构与场景流程完成登录战斗等级奖励ui适配taptap接入与安卓打包测试",
-          "text": "联机塔防游戏脱壳（2023.11 - 2023.12）：梳理遗留工程架构与场景流程，完成登录、战斗、等级奖励、UI 适配、TapTap 接入与安卓打包测试。"
+          "dedupeKey": "联机塔防游戏脱壳2023.11-2024.01梳理遗留工程架构与场景流程完成登录战斗等级奖励ui适配taptap接入与安卓打包测试",
+          "text": "联机塔防游戏脱壳（2023.11 - 2024.01）：梳理遗留工程架构与场景流程，完成登录、战斗、等级奖励、UI 适配、TapTap 接入与安卓打包测试。"
         }
       ]
     },
@@ -461,7 +461,7 @@ export const resumeOverrides: ResumeSourceOverrides = {
                 {
                   "title": "项目时间",
                   "paragraphs": [
-                    "2023/11-2023/12"
+                    "2023/11-2024/1"
                   ]
                 }
               ],
@@ -504,7 +504,7 @@ export const resumeOverrides: ResumeSourceOverrides = {
       "cardMeta": [
         "北京愉悦非凡科技有限公司",
         "U3D（独立开发）",
-        "2023.11 - 2023.12"
+        "2023.11 - 2024.01"
       ],
       "cardTags": [
         "Unity",
@@ -640,7 +640,7 @@ export const resumeOverrides: ResumeSourceOverrides = {
                 {
                   "title": "项目时间",
                   "paragraphs": [
-                    "2023/11-2023/12"
+                    "2023/11-2024/1"
                   ]
                 }
               ],
